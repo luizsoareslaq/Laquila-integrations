@@ -17,11 +17,13 @@ namespace Laquila.Integrations.API.Configurations
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IApiIntegrationsService, ApiIntegrationsService>();
             services.AddScoped<ICompanyService, CompanyService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             //Repositories
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IApiIntegrationsRepository, ApiIntegrationsRepository>();
             services.AddScoped<ICompanyRepository, CompanyRepository>();
+            services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 
             return services;

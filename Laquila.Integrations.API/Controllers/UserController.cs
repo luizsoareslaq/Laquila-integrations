@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Laquila.Integrations.Application.DTO.Users.Request;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Domain.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Laquila.Integrations.API.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/users")]
     public class UserController : ControllerBase
     {

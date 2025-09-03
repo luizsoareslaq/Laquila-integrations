@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Laquila.Integrations.Domain.Filters;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
@@ -153,6 +154,21 @@ namespace Laquila.Integrations.Infrastructure.Repositories
         public async Task<List<Guid>> GetAllUserIds()
         {
             return await _context.LaqApiUsers.Select(x => x.Id).ToListAsync();
+        }
+
+        public async Task<LaqApiUsers> GetUserByUsername(string username)
+        {
+            var user = await _context.LaqApiUsers
+                            .Include(x => x.UserRoles)
+                                .ThenInclude(x=> x.Role)
+                            .Include(x=> x.UserIntegrations)
+                                .ThenInclude(x=> x.Integration)
+                            .FirstOrDefaultAsync(x => x.Username == username);
+
+            if (user == null)
+                throw new NotFoundException($"Username: {username} was not found!");
+
+            return user;
         }
     }
 }

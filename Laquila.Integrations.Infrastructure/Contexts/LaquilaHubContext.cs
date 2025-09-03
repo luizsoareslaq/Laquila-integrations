@@ -128,9 +128,13 @@ namespace Laquila.Integrations.Infrastructure.Contexts
             modelBuilder.Entity<LaqApiAuthTokens>(entity =>
             {
                 entity.ToTable("laq_api_auth_tokens");
-                entity.HasOne(e => e.User)
-                      .WithMany()
-                      .HasForeignKey(e => e.ApiUserId);
+
+                entity.HasOne(x => x.User)
+                    .WithMany(u => u.AuthTokens)   
+                    .HasForeignKey(x => x.ApiUserId)    
+                    .HasPrincipalKey(u => u.Id)         
+                    .OnDelete(DeleteBehavior.Cascade);
+
             });
 
             modelBuilder.Entity<LaqApiLogs>(entity =>

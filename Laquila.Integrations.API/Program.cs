@@ -1,29 +1,131 @@
 using System.Diagnostics;
+using System.Text;
 using Laquila.Integrations.API.Configurations;
 using Laquila.Integrations.API.Middlewares;
 using Laquila.Integrations.Infrastructure.Contexts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Services
+builder.Services.AddDependencyInjection();
+builder.Services.AddHttpContextAccessor();
+
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var secretKey = jwtSection["SecretKey"];
+var issuer = jwtSection["Issuer"];
+var audience = jwtSection["Audience"];
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+
+// JWT Auth
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.SaveToken = true; 
+        options.RequireHttpsMetadata = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = issuer,
+            ValidAudience = audience,
+            IssuerSigningKey = key,
+            ClockSkew = TimeSpan.Zero 
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.ContainsKey("jwt"))
+                {
+                    context.Token = context.Request.Cookies["jwt"];
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+// Swagger com JWT
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Laquila API", Version = "v1" });
+
+    var jwtScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "Insira o token JWT no formato **Bearer {seu_token}**",
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    };
+
+    c.AddSecurityDefinition("Bearer", jwtScheme);
+
+    var requirement = new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    };
+
+    c.AddSecurityRequirement(requirement);
+});
+
+
 builder.Services.AddControllers()
-                .AddJsonOptions(options =>
+    .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddDependencyInjection();
 
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DynamicCors", policy =>
+    {
+        policy
+            .SetIsOriginAllowed(origin => origin.StartsWith("https://localhost"))
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
+// DB Context
 builder.Services.AddDbContext<LaquilaHubContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("LaquilaHubConnection")));
 
-//Swagger
-builder.Services.AddSwaggerGen();
+// HTTPS redirect
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.HttpsPort = 5001;
+});
 
-//App
+
+
+// App
 var app = builder.Build();
-
-app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
@@ -31,12 +133,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Laquila API v1");
-        c.RoutePrefix = string.Empty; // abre direto na raiz (http://localhost:5000)
+        c.RoutePrefix = string.Empty;
     });
 
     try
     {
-        var url = "http://localhost:5259";
+        var url = "https://localhost:5001";
         Process.Start(new ProcessStartInfo
         {
             FileName = url,
@@ -50,7 +152,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseMiddleware<Middleware>();
+
+app.UseCors("AllowAll");
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.Run();

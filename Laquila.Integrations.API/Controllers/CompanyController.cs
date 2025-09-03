@@ -1,11 +1,13 @@
 using Laquila.Integrations.Application.DTO.Company.Request;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Domain.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Laquila.Integrations.API.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/company")]
     public class CompanyController : ControllerBase
     {

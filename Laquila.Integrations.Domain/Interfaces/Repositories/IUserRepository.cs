@@ -12,6 +12,7 @@ namespace Laquila.Integrations.Domain.Interfaces.Repositories
         Task<LaqApiUsers> CreateUserAsync(LaqApiUsers user);
         Task<(List<LaqApiUsers> Data, int DataCount)> GetUsers(int page, int pageSize, string orderBy, bool ascending, UserFilters filters);
         Task<LaqApiUsers> GetUserById(Guid id);
+        Task<LaqApiUsers> GetUserByUsername(string id);
         Task<LaqApiUsers> UpdateUser(LaqApiUsers entity);
 
         Task<bool> UsernameExistsAsync(string username);
