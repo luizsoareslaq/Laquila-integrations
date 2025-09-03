@@ -114,10 +114,15 @@ namespace Laquila.Integrations.Application.Services
             var newRefreshToken = GenerateSecureRefreshToken();
             var expirationRefreshToken = DateTime.Now.AddDays(7);
 
-
             await _authRepository.SaveTokenAsync(new LaqApiAuthTokens(user.Id, tokenString, newRefreshToken, expirationJwt, expirationRefreshToken));
 
-            return new TokenResponseDto(tokenString,expirationJwt,newRefreshToken,expirationRefreshToken);
+            _ = Task.Run(async () =>
+                                    {
+                                        await _authRepository.DisableActiveTokens(user.Id, tokenString);
+                                    }
+                                    );
+
+            return new TokenResponseDto(tokenString, expirationJwt, newRefreshToken, expirationRefreshToken);
         }
 
         public async Task<Guid> GetIdByJwt()
