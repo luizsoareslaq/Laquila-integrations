@@ -166,6 +166,8 @@ if (app.Environment.IsDevelopment())
     }
 }
 
+app.UseMiddleware<Middleware>();
+
 app.UseRateLimiter();
 
 app.UseHttpsRedirection();
@@ -173,7 +175,6 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<Middleware>();
 
 app.MapControllers();
 
