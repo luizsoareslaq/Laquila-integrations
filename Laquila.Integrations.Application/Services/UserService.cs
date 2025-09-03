@@ -140,7 +140,7 @@ namespace Laquila.Integrations.Application.Services
 
             if (dto.Integrations != null && dto.Integrations.Count() > 0)
                 dto.Integrations = dto.Integrations.Where(x => existingIntegrations.Contains(x)).ToList();
-    
+
             dto.Roles = dto.Roles.Where(x => existingRoles.Contains(x)).ToList();
 
             // ----- ROLES -----
@@ -151,27 +151,18 @@ namespace Laquila.Integrations.Application.Services
             if (!newRoles.Any())
                 throw new BadRequestException("At least one valid role must be assigned to the user.");
 
-            if (rolesToAdd.Any())
-                await _userRepository.AddUserRoles(rolesToAdd);
 
             // ----- COMPANIES -----
             var newCompanies = dto.Companies?.Distinct().Select(c => new LaqApiUserCompanies(id, c)).ToList() ?? new();
             var companiesToAdd = newCompanies.Where(nc => !actualCompanies.Any(ac => ac.CompanyId == nc.CompanyId)).ToList();
             var companiesToRemove = actualCompanies.Where(ac => !newCompanies.Any(nc => nc.CompanyId == ac.CompanyId)).ToList();
 
-            if (companiesToAdd.Any())
-                await _userRepository.AddUserCompanies(companiesToAdd);
 
             // ----- INTEGRATIONS -----
             var newIntegrations = dto.Integrations?.Distinct().Select(i => new LaqApiUserIntegrations(id, i)).ToList() ?? new();
             var integrationsToAdd = newIntegrations.Where(ni => !actualIntegrations.Any(ai => ai.IntegrationId == ni.IntegrationId)).ToList();
             var integrationsToRemove = actualIntegrations.Where(ai => !newIntegrations.Any(ni => ni.IntegrationId == ai.IntegrationId)).ToList();
 
-            if (integrationsToAdd.Any())
-                await _userRepository.AddUserIntegrations(integrationsToAdd);
-
-            if (rolesToRemove.Any() || companiesToRemove.Any() || integrationsToRemove.Any())
-                await _userRepository.RemoveJoinedUserTables(rolesToRemove, companiesToRemove, integrationsToRemove);
 
             var user = new LaqApiUsers(
                 dto.Username,
@@ -183,17 +174,39 @@ namespace Laquila.Integrations.Application.Services
                 Id = id,
                 ModifiedAt = DateTime.UtcNow
             };
+            
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
 
-            var updatedUser = await _userRepository.UpdateUser(user);
+                if (rolesToAdd.Any())
+                    await _userRepository.AddUserRoles(rolesToAdd);
 
-            return new UserResponseDTO(
-                updatedUser.Id,
-                updatedUser.Username,
-                updatedUser.Status?.Description ?? null,
-                updatedUser.UserCompanies?.ToDictionary(uc => uc.CompanyId, uc => uc.Company?.CompanyName ?? string.Empty),
-                updatedUser.UserIntegrations?.ToDictionary(ui => ui.IntegrationId, ui => ui.Integration?.IntegrationName ?? string.Empty),
-                updatedUser.UserRoles?.ToDictionary(ur => ur.RoleId, ur => ur.Role?.RoleName ?? string.Empty)
-            );
+                if (companiesToAdd.Any())
+                    await _userRepository.AddUserCompanies(companiesToAdd);
+
+                if (integrationsToAdd.Any())
+                    await _userRepository.AddUserIntegrations(integrationsToAdd);
+
+                if (rolesToRemove.Any() || companiesToRemove.Any() || integrationsToRemove.Any())
+                    await _userRepository.RemoveJoinedUserTables(rolesToRemove, companiesToRemove, integrationsToRemove);
+
+                var updatedUser = await _userRepository.UpdateUser(user);
+
+                return new UserResponseDTO(
+                            updatedUser.Id,
+                            updatedUser.Username,
+                            updatedUser.Status?.Description ?? null,
+                            updatedUser.UserCompanies?.ToDictionary(uc => uc.CompanyId, uc => uc.Company?.CompanyName ?? string.Empty),
+                            updatedUser.UserIntegrations?.ToDictionary(ui => ui.IntegrationId, ui => ui.Integration?.IntegrationName ?? string.Empty),
+                            updatedUser.UserRoles?.ToDictionary(ur => ur.RoleId, ur => ur.Role?.RoleName ?? string.Empty)
+                        );
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception(ex.Message + " - " + ex.InnerException?.Message);
+            }
         }
 
     }

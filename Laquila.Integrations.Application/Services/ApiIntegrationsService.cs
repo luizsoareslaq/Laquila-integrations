@@ -12,11 +12,17 @@ namespace Laquila.Integrations.Application.Services
         private readonly IApiIntegrationsRepository _apiIntegrationsRepository;
         private readonly IUserRepository _userRepository;
         private readonly ICompanyRepository _companyRepository;
-        public ApiIntegrationsService(IApiIntegrationsRepository apiIntegrationsRepository, IUserRepository userRepository, ICompanyRepository companyRepository)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public ApiIntegrationsService(IApiIntegrationsRepository apiIntegrationsRepository
+                                    , IUserRepository userRepository
+                                    , ICompanyRepository companyRepository
+                                    , IUnitOfWork unitOfWork)
         {
             _apiIntegrationsRepository = apiIntegrationsRepository;
             _userRepository = userRepository;
             _companyRepository = companyRepository;
+            _unitOfWork = unitOfWork;
         }
         public async Task<ApiIntegrationResponseDTO> CreateApiIntegration(ApiIntegrationDTO dto)
         {
@@ -25,14 +31,24 @@ namespace Laquila.Integrations.Application.Services
 
             var apiIntegration = new LaqApiIntegrations(dto.IntegrationName, 1); // Default status to Active (1)
 
-            var entity = await _apiIntegrationsRepository.CreateApiIntegration(apiIntegration);
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
 
-            return new ApiIntegrationResponseDTO(entity.Id
-                                               , entity.IntegrationName
-                                               , entity.Status?.Description ?? null
-                                               , null
-                                               , null
-                                             );
+                var entity = await _apiIntegrationsRepository.CreateApiIntegration(apiIntegration);
+
+                return new ApiIntegrationResponseDTO(entity.Id
+                                                   , entity.IntegrationName
+                                                   , entity.Status?.Description ?? null
+                                                   , null
+                                                   , null
+                                                 );
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception(ex.Message + " - " + ex.InnerException?.Message);
+            }
         }
 
         public async Task<(List<ApiIntegrationResponseDTO> Data, int DataCount)> GetApiIntegrations(int page, int pageSize, string orderBy, bool ascending)
@@ -92,35 +108,45 @@ namespace Laquila.Integrations.Application.Services
             var toAddCompanyIds = validCompanyIds.Except(actualCompanyIds);
             var toRemoveCompanyIds = actualCompanyIds.Except(validCompanyIds);
 
-            if (toRemoveUserIds.Any() || toRemoveCompanyIds.Any())
-            {
-                var usersToRemove = apiIntegration.UserIntegrations?
-                    .Where(ui => toRemoveUserIds.Contains(ui.UserId))
-                    .ToList() ?? new();
-
-                var companiesToRemove = apiIntegration.IntegrationCompanies?
-                    .Where(ic => toRemoveCompanyIds.Contains(ic.CompanyId))
-                    .ToList() ?? new();
-
-                await _apiIntegrationsRepository.RemoveJoinedIntegrationTables(usersToRemove, companiesToRemove);
-            }
-
-            if (toAddUserIds.Any())
-            {
-                var userIntegrations = toAddUserIds.Select(userId => new LaqApiUserIntegrations(userId, apiIntegration.Id)).ToList();
-                await _apiIntegrationsRepository.AddUserIntegrations(userIntegrations);
-            }
-
-            if (toAddCompanyIds.Any())
-            {
-                var companyIntegrations = toAddCompanyIds.Select(companyId => new LaqApiIntegrationCompanies(companyId, apiIntegration.Id)).ToList();
-                await _apiIntegrationsRepository.AddIntegrationCompanies(companyIntegrations);
-            }
-
             apiIntegration.IntegrationName = dto.IntegrationName;
             apiIntegration.ModifiedAt = DateTime.UtcNow;
 
-            await _apiIntegrationsRepository.UpdateApiIntegration(apiIntegration);
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                if (toRemoveUserIds.Any() || toRemoveCompanyIds.Any())
+                {
+                    var usersToRemove = apiIntegration.UserIntegrations?
+                        .Where(ui => toRemoveUserIds.Contains(ui.UserId))
+                        .ToList() ?? new();
+
+                    var companiesToRemove = apiIntegration.IntegrationCompanies?
+                        .Where(ic => toRemoveCompanyIds.Contains(ic.CompanyId))
+                        .ToList() ?? new();
+
+                    await _apiIntegrationsRepository.RemoveJoinedIntegrationTables(usersToRemove, companiesToRemove);
+                }
+
+                if (toAddUserIds.Any())
+                {
+                    var userIntegrations = toAddUserIds.Select(userId => new LaqApiUserIntegrations(userId, apiIntegration.Id)).ToList();
+                    await _apiIntegrationsRepository.AddUserIntegrations(userIntegrations);
+                }
+
+                if (toAddCompanyIds.Any())
+                {
+                    var companyIntegrations = toAddCompanyIds.Select(companyId => new LaqApiIntegrationCompanies(companyId, apiIntegration.Id)).ToList();
+                    await _apiIntegrationsRepository.AddIntegrationCompanies(companyIntegrations);
+                }
+
+                await _apiIntegrationsRepository.UpdateApiIntegration(apiIntegration);
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception(ex.Message + " - " + ex.InnerException?.Message);
+            }
         }
     }
 }

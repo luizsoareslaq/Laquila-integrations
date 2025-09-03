@@ -16,9 +16,13 @@ namespace Laquila.Integrations.Application.Services
     public class CompanyService : ICompanyService
     {
         private readonly ICompanyRepository _companyRepository;
-        public CompanyService(ICompanyRepository companyRepository)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public CompanyService(ICompanyRepository companyRepository
+                            , IUnitOfWork unitOfWork)
         {
             _companyRepository = companyRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<CompanyResponseDTO> CreateCompany(CompanyDTO dto)
@@ -30,14 +34,24 @@ namespace Laquila.Integrations.Application.Services
 
             var company = new LaqApiCompany(dto.ErpCode, dto.CompanyName, dto.Document, dto.StatusId);
 
-            var createdCompany = await _companyRepository.CreateCompany(company);
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
 
-            return new CompanyResponseDTO(createdCompany.Id, createdCompany.ErpCode, createdCompany.CompanyName, createdCompany.Document, null);
+                var createdCompany = await _companyRepository.CreateCompany(company);
+
+                return new CompanyResponseDTO(createdCompany.Id, createdCompany.ErpCode, createdCompany.CompanyName, createdCompany.Document, null);
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception(ex.Message + " - " + ex.InnerException?.Message);
+            }
         }
 
         public async Task<(List<CompanyResponseDTO> Data, int DataCount)> GetCompanies(int page, int pageSize, string orderBy, bool ascending, CompanyFilters? filters)
         {
-             var (entities, count) = await _companyRepository.GetCompanies(page, pageSize, orderBy, ascending,filters = new CompanyFilters());
+            var (entities, count) = await _companyRepository.GetCompanies(page, pageSize, orderBy, ascending, filters = new CompanyFilters());
 
             return (entities.Select(entity => new CompanyResponseDTO(
                 entity.Id,
@@ -59,15 +73,28 @@ namespace Laquila.Integrations.Application.Services
             if (!await _companyRepository.CompanyIdExists(id))
                 throw new NotFoundException("No company found with the given id.");
 
-            if (await _companyRepository.CompanyDocumentExistsWithId(dto.Document,id))
+            if (await _companyRepository.CompanyDocumentExistsWithId(dto.Document, id))
                 throw new BadRequestException("A company with the same document already exists.");
 
             var company = new LaqApiCompany(dto.ErpCode, dto.CompanyName, dto.Document, dto.StatusId);
             company.Id = id;
             company.ModifiedAt = DateTime.Now;
-            var updatedCompany = await _companyRepository.UpdateCompany(company);
 
-            return new CompanyResponseDTO(updatedCompany.Id, updatedCompany.ErpCode, updatedCompany.CompanyName, updatedCompany.Document, updatedCompany.Status?.Description ?? null);
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                var updatedCompany = await _companyRepository.UpdateCompany(company);
+
+                return new CompanyResponseDTO(updatedCompany.Id, updatedCompany.ErpCode, updatedCompany.CompanyName, updatedCompany.Document, updatedCompany.Status?.Description ?? null);
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception(ex.Message + " - " + ex.InnerException?.Message);
+            }
+
+
         }
     }
 }
