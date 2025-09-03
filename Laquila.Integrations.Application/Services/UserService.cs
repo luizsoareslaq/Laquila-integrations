@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using Laquila.Integrations.Application.DTO.Users;
 using Laquila.Integrations.Application.DTO.Users.Request;
 using Laquila.Integrations.Application.Interfaces;
@@ -127,6 +128,20 @@ namespace Laquila.Integrations.Application.Services
             var actualRoles = actualUser.UserRoles?.ToList() ?? new();
             var actualCompanies = actualUser.UserCompanies?.ToList() ?? new();
             var actualIntegrations = actualUser.UserIntegrations?.ToList() ?? new();
+
+            List<Guid> existingCompanies = await _companyRepository.GetAllCompanyIds();
+            List<Guid> existingIntegrations = await _integrationRepository.GetAllIntegrationIds();
+            var existRoles = await _userRepository.GetRolesAsync();
+
+            List<int> existingRoles = existRoles.Select(x => x.RoleId).ToList();
+
+            if (dto.Companies != null && dto.Companies.Count() > 0)
+                dto.Companies = dto.Companies.Where(x => existingCompanies.Contains(x)).ToList();
+
+            if (dto.Integrations != null && dto.Integrations.Count() > 0)
+                dto.Integrations = dto.Integrations.Where(x => existingIntegrations.Contains(x)).ToList();
+    
+            dto.Roles = dto.Roles.Where(x => existingRoles.Contains(x)).ToList();
 
             // ----- ROLES -----
             var newRoles = dto.Roles?.Distinct().Select(r => new LaqApiUserRoles(id, r)).ToList() ?? new();

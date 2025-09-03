@@ -16,8 +16,8 @@ namespace Laquila.Integrations.Application.DTO.Users.Request
         }
 
         public string Username { get; set; }
-        public string Password { get; set; }
-        public string ConfirmPassword { get; set; }
+        public string? Password { get; set; }
+        public string? ConfirmPassword { get; set; }
         public int? StatusId { get; set; }
         public List<Guid>? Companies { get; set; }
         public List<Guid>? Integrations { get; set; }

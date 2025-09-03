@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Laquila.Integrations.API.Controllers
 {
     [ApiController]
-    [Authorize]
+    [Authorize(Roles="Admin")]
     [Route("api/integrations")]
     public class ApiIntegrationsController : ControllerBase
     {

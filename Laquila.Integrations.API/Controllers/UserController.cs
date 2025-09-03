@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Laquila.Integrations.API.Controllers
 {
     [ApiController]
-    [Authorize]
+    [Authorize(Roles="Admin")]
     [Route("api/users")]
     public class UserController : ControllerBase
     {
@@ -31,9 +31,9 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(int page = 1, int pageSize = 10, string orderBy = "id", bool ascending = true, UserFilters? filters = null)
+        public async Task<IActionResult> Get(int page = 1, int pageSize = 10, string orderBy = "id", bool ascending = true, [FromQuery]UserFilters? filters = null)
         {
-            (var users, int count) = await _userService.GetUsers(page, pageSize, orderBy, ascending,filters);
+            (var users, int count) = await _userService.GetUsers(page, pageSize, orderBy, ascending, filters);
 
             return Ok(new { Data = users, Count = count });
         }

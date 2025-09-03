@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using System.Threading.RateLimiting;
 using Laquila.Integrations.API.Configurations;
 using Laquila.Integrations.API.Middlewares;
 using Laquila.Integrations.Infrastructure.Contexts;
@@ -13,6 +14,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Services
 builder.Services.AddDependencyInjection();
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,                
+                Window = TimeSpan.FromSeconds(10)
+            }));
+
+    options.RejectionStatusCode = 429;
+});
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSection["SecretKey"];
@@ -150,6 +165,8 @@ if (app.Environment.IsDevelopment())
         Console.WriteLine($"Erro ao abrir o navegador: {ex.Message}");
     }
 }
+
+app.UseRateLimiter();
 
 app.UseHttpsRedirection();
 
