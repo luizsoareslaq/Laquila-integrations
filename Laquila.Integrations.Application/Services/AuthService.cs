@@ -116,11 +116,11 @@ namespace Laquila.Integrations.Application.Services
 
             await _authRepository.SaveTokenAsync(new LaqApiAuthTokens(user.Id, tokenString, newRefreshToken, expirationJwt, expirationRefreshToken));
 
-            _ = Task.Run(async () =>
-                                    {
-                                        await _authRepository.DisableActiveTokens(user.Id, tokenString);
-                                    }
-                                    );
+            // _ = Task.Run(async () =>
+            //                         {
+            //                             await _authRepository.DisableActiveTokens(user.Id, tokenString);
+            //                         }
+            //                         );
 
             return new TokenResponseDto(tokenString, expirationJwt, newRefreshToken, expirationRefreshToken);
         }

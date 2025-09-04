@@ -63,25 +63,25 @@ namespace Laquila.Integrations.API.Middlewares
             response.Body.Seek(0, SeekOrigin.Begin);
             var statusCode = response.StatusCode;
 
-            // _ = Task.Run(async () =>
-            //                         {
-            //                             using var scope = context.RequestServices.CreateScope();
-            //                             var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
-            //                             await logService.HandleLogAsync(new LaqApiLogs(
-            //                                 Guid.TryParse(apiUserId, out var id) ? id : (Guid?)null,
-            //                                 method,
-            //                                 endpoint,
-            //                                 queryString,
-            //                                 requestBody,
-            //                                 responseText,
-            //                                 statusCode,
-            //                                 ipAddress ?? "",
-            //                                 userAgent,
-            //                                 (int)stopwatch.ElapsedMilliseconds,
-            //                                 DateTime.Now
-            //                             ));
+            _ = Task.Run(async () =>
+                                    {
+                                        using var scope = context.RequestServices.CreateScope();
+                                        var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
+                                        await logService.HandleLogAsync(new LaqApiLogs(
+                                            Guid.TryParse(apiUserId, out var id) ? id : (Guid?)null,
+                                            method,
+                                            endpoint,
+                                            queryString,
+                                            requestBody,
+                                            responseText,
+                                            statusCode,
+                                            ipAddress ?? "",
+                                            userAgent,
+                                            (int)stopwatch.ElapsedMilliseconds,
+                                            DateTime.Now
+                                        ));
 
-            //                         });
+                                    });
 
             response.Body.Seek(0, SeekOrigin.Begin);
             await responseBody.CopyToAsync(originalBodyStream);
