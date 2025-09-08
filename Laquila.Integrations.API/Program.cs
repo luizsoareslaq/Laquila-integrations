@@ -5,6 +5,7 @@ using Laquila.Integrations.API.Configurations;
 using Laquila.Integrations.API.Middlewares;
 using Laquila.Integrations.Infrastructure.Contexts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -87,6 +88,22 @@ builder.Services.AddSwaggerGen(c =>
     };
 
     c.AddSecurityDefinition("Bearer", jwtScheme);
+
+    // c.DocInclusionPredicate((docName, apiDesc) =>
+    // {
+    //     var endpointMetadata = apiDesc.ActionDescriptor.EndpointMetadata;
+
+    //     var auth = endpointMetadata.OfType<AuthorizeAttribute>().FirstOrDefault();
+    //     if (auth == null) return true;
+
+    //     var allowedRoles = new[] { "ParceiroLojista", "Dropshipping" };
+
+    //     if (auth.Roles == null) return false;
+
+    //     return auth.Roles
+    //         .Split(',')
+    //         .Any(role => allowedRoles.Contains(role.Trim()));
+    // });
 
     var requirement = new OpenApiSecurityRequirement
     {

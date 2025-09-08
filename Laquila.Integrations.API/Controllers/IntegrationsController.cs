@@ -12,10 +12,10 @@ namespace Laquila.Integrations.API.Controllers
     [ApiController]
     [Authorize(Roles="Admin")]
     [Route("api/integrations")]
-    public class ApiIntegrationsController : ControllerBase
+    public class IntegrationsController : ControllerBase
     {
         private readonly IApiIntegrationsService _integrationsService;
-        public ApiIntegrationsController(IApiIntegrationsService integrationsService)
+        public IntegrationsController(IApiIntegrationsService integrationsService)
         {
             _integrationsService = integrationsService;
         }
