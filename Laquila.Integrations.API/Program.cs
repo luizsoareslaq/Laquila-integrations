@@ -3,6 +3,8 @@ using System.Text;
 using System.Threading.RateLimiting;
 using Laquila.Integrations.API.Configurations;
 using Laquila.Integrations.API.Middlewares;
+using Laquila.Integrations.Core.Infra.Interfaces;
+using Laquila.Integrations.Core.Infra.Repositories;
 using Laquila.Integrations.Infrastructure.Contexts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +25,7 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 10,                
+                PermitLimit = 10,
                 Window = TimeSpan.FromSeconds(10)
             }));
 
@@ -40,7 +42,7 @@ var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.SaveToken = true; 
+        options.SaveToken = true;
         options.RequireHttpsMetadata = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -51,7 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = issuer,
             ValidAudience = audience,
             IssuerSigningKey = key,
-            ClockSkew = TimeSpan.Zero 
+            ClockSkew = TimeSpan.Zero
         };
 
         options.Events = new JwtBearerEvents
@@ -88,22 +90,6 @@ builder.Services.AddSwaggerGen(c =>
     };
 
     c.AddSecurityDefinition("Bearer", jwtScheme);
-
-    // c.DocInclusionPredicate((docName, apiDesc) =>
-    // {
-    //     var endpointMetadata = apiDesc.ActionDescriptor.EndpointMetadata;
-
-    //     var auth = endpointMetadata.OfType<AuthorizeAttribute>().FirstOrDefault();
-    //     if (auth == null) return true;
-
-    //     var allowedRoles = new[] { "ParceiroLojista", "Dropshipping" };
-
-    //     if (auth.Roles == null) return false;
-
-    //     return auth.Roles
-    //         .Split(',')
-    //         .Any(role => allowedRoles.Contains(role.Trim()));
-    // });
 
     var requirement = new OpenApiSecurityRequirement
     {
@@ -147,6 +133,8 @@ builder.Services.AddCors(options =>
 // DB Context
 builder.Services.AddDbContext<LaquilaHubContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("LaquilaHubConnection")));
+
+builder.Services.AddSingleton<IDbConnectionFactory>(new DbConnectionFactory(builder.Configuration.GetConnectionString("Everest30Connection") ?? ""));
 
 // HTTPS redirect
 builder.Services.AddHttpsRedirection(options =>

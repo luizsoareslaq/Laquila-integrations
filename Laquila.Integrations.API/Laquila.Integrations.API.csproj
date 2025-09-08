@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Laquila.Integrations.Application\Laquila.Integrations.Application.csproj" />
+    <ProjectReference Include="..\Laquila.Integrations.Core\Laquila.Integrations.Core.csproj" />
     <ProjectReference Include="..\Laquila.Integrations.Infrastructure\Laquila.Integrations.Infrastructure.csproj" />
   </ItemGroup>
 
