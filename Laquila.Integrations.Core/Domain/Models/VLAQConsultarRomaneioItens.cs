@@ -1,38 +1,35 @@
 
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Numerics;
+using System.Text.Json.Serialization;
 
 namespace Laquila.Integrations.Core.Domain.Models
 {
     public class VLAQConsultarRomaneioItens
     {
-        [Column("id_romaneio")]
+        public required string CnpjEmpresa { get; set; }
+        public int CdEmpresa { get; set; }
         public long IdRomaneio { get; set; }
-        [Column("dh_emissao")]
         public DateTime DhEmissao { get; set; }
-        [Column("cd_transportador")]
-        public long CdTransportador { get; set; }
-        [Column("at_situacao")]
-        public int AtSituacao { get; set; }
-        [Column("situacao_romaneio")]
+        public long CdCliente { get; set; }
+        public required string CpfCnpjCliente { get; set; }
+        public required string RazaoCliente { get; set; }
+        public required string FantasiaCliente { get; set; }
+        public long? CdTransportador { get; set; }
+        public string? CnpjTransportadora { get; set; }
+        public string? RazaoTransportadora { get; set; }
+        public int AtSituacaoRomaneio { get; set; }
         public required string SituacaoRomaneio { get; set; }
-        [Column("cd_item")]
         public required string CdItem { get; set; }
-        [Column("ds_item")]
         public required string DsItem { get; set; }
-        [Column("id_embalagem")]
         public int IdEmbalagem { get; set; }
-        [Column("ds_embalagem")]
         public required string DsEmbalagem { get; set; }
-        [Column("qt_item")]
+        public long IdRomaneioDocumentoItem { get; set; }
         public decimal QtItem { get; set; }
-        [Column("qt_baixa")]
         public decimal QtBaixa { get; set; }
-        [Column("qt_cortada")]
         public decimal QtCortada { get; set; }
-        [Column("qt_faturada")]
         public decimal QtFaturada { get; set; }
-        [Column("mensagem")]
         public required string Mensagem { get; set; }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Laquila.Integrations.Core.Domain.Interfaces;
+using Laquila.Integrations.Core.Infra.Interfaces;
 using Microsoft.Data.SqlClient;
 
 namespace Laquila.Integrations.Core.Infra.Repositories

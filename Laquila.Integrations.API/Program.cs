@@ -7,7 +7,6 @@ using Laquila.Integrations.Core.Infra.Interfaces;
 using Laquila.Integrations.Core.Infra.Repositories;
 using Laquila.Integrations.Infrastructure.Contexts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -141,7 +140,6 @@ builder.Services.AddHttpsRedirection(options =>
 {
     options.HttpsPort = 5001;
 });
-
 
 
 // App
