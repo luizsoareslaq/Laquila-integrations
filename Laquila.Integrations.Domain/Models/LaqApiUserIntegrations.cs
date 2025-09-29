@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Laquila.Integrations.Domain.Models
 {
@@ -14,7 +9,7 @@ namespace Laquila.Integrations.Domain.Models
             UserId = userId;
             IntegrationId = integrationId;
         }
-        
+
         [Column("user_id")]
         public Guid UserId { get; set; }
         [Column("api_integration_id")]

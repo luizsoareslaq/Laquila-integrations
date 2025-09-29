@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
 using Laquila.Integrations.Infrastructure.Contexts;
@@ -40,7 +35,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
         {
             var activeTokens = await _context.LaqApiAuthTokens.Where(x => x.ApiUserId == apiUserId
                                                                        && x.AccessToken != access_token
-                                                                       && x.AccessTokenExpiresAt >= DateTime.Now ).ToListAsync();
+                                                                       && x.AccessTokenExpiresAt >= DateTime.Now).ToListAsync();
 
             if (activeTokens.Count() > 0)
             {

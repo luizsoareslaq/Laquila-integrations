@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Laquila.Integrations.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -130,9 +126,9 @@ namespace Laquila.Integrations.Infrastructure.Contexts
                 entity.ToTable("laq_api_auth_tokens");
 
                 entity.HasOne(x => x.User)
-                    .WithMany(u => u.AuthTokens)   
-                    .HasForeignKey(x => x.ApiUserId)    
-                    .HasPrincipalKey(u => u.Id)         
+                    .WithMany(u => u.AuthTokens)
+                    .HasForeignKey(x => x.ApiUserId)
+                    .HasPrincipalKey(u => u.Id)
                     .OnDelete(DeleteBehavior.Cascade);
 
             });

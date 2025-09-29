@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using Laquila.Integrations.Application.DTO.Users;
 using Laquila.Integrations.Application.DTO.Users.Request;
 using Laquila.Integrations.Application.Interfaces;
@@ -174,7 +173,7 @@ namespace Laquila.Integrations.Application.Services
                 Id = id,
                 ModifiedAt = DateTime.UtcNow
             };
-            
+
             try
             {
                 await _unitOfWork.BeginTransactionAsync();

@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Laquila.Integrations.Application.DTO.Users;
 
 namespace Laquila.Integrations.Application.DTO.Company.Response

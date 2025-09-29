@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using Laquila.Integrations.Domain.Filters;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
 using Laquila.Integrations.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using static Laquila.Integrations.Application.Exceptions.ApplicationException;
 
 namespace Laquila.Integrations.Infrastructure.Repositories
@@ -51,7 +45,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
             _context.LaqApiUserCompanies.AddRange(userCompanies);
             await _context.SaveChangesAsync();
         }
-        
+
         public async Task AddUserIntegrations(List<LaqApiUserIntegrations> userIntegrations)
         {
             _context.LaqApiUserIntegrations.AddRange(userIntegrations);
@@ -83,7 +77,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                                  .Where(u => u.UserRoles.Any(ur => filters.Roles.Contains(ur.RoleId)));
 
                 if (filters.StatusId.HasValue)
-                        query = query.Where(x => x.StatusId == filters.StatusId.Value);
+                    query = query.Where(x => x.StatusId == filters.StatusId.Value);
             }
 
             query = orderBy.ToLower() switch
@@ -99,9 +93,9 @@ namespace Laquila.Integrations.Infrastructure.Repositories
             var items = await query
                             .Skip((page - 1) * pageSize)
                             .Take(pageSize)
-                            .Include(x => x.UserRoles).ThenInclude(ur => ur.Role)  
+                            .Include(x => x.UserRoles).ThenInclude(ur => ur.Role)
                             .Include(x => x.UserCompanies).ThenInclude(uc => uc.Company)
-                            .Include(x => x.UserIntegrations).ThenInclude(ui => ui.Integration) 
+                            .Include(x => x.UserIntegrations).ThenInclude(ui => ui.Integration)
                             .Include(x => x.Status)
                             .ToListAsync() ?? throw new NotFoundException("No Users found with these filters.");
 
@@ -160,9 +154,9 @@ namespace Laquila.Integrations.Infrastructure.Repositories
         {
             var user = await _context.LaqApiUsers
                             .Include(x => x.UserRoles)
-                                .ThenInclude(x=> x.Role)
-                            .Include(x=> x.UserIntegrations)
-                                .ThenInclude(x=> x.Integration)
+                                .ThenInclude(x => x.Role)
+                            .Include(x => x.UserIntegrations)
+                                .ThenInclude(x => x.Integration)
                             .FirstOrDefaultAsync(x => x.Username == username);
 
             if (user == null)

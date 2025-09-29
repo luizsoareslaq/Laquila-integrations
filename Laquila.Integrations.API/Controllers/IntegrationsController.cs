@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Laquila.Integrations.Application.DTO.ApiIntegration.Request;
 using Laquila.Integrations.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Laquila.Integrations.API.Controllers
 {
     [ApiController]
-    [Authorize(Roles="Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/integrations")]
     public class IntegrationsController : ControllerBase
     {

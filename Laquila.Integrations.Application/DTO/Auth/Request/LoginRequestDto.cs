@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Laquila.Integrations.Application.DTO.Auth.Request
 {
@@ -12,7 +9,10 @@ namespace Laquila.Integrations.Application.DTO.Auth.Request
             this.Username = username;
             this.Password = password;
         }
+
+        [JsonPropertyName("username")]
         public string Username { get; set; }
-        public string Password{ get; set; }
+        [JsonPropertyName("password")]
+        public string Password { get; set; }
     }
 }

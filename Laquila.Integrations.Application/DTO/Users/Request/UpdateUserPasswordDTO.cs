@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Laquila.Integrations.Application.DTO.Users.Request
 {
@@ -14,7 +10,7 @@ namespace Laquila.Integrations.Application.DTO.Users.Request
             this.NewPassword = NewPassword;
             this.ConfirmPassword = ConfirmPassword;
         }
-       
+
         public Guid Id { get; set; }
         public string ActualPassword { get; set; }
         public string NewPassword { get; set; }

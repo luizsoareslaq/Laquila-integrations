@@ -4,7 +4,7 @@ namespace Laquila.Integrations.Domain.Models
 {
     public class LaqApiAuthTokens : BaseEntity
     {
-        public LaqApiAuthTokens(Guid apiUserId, string accessToken, string refreshToken, DateTime accessTokenExpiresAt,DateTime refreshTokenExpiresAt)
+        public LaqApiAuthTokens(Guid apiUserId, string accessToken, string refreshToken, DateTime accessTokenExpiresAt, DateTime refreshTokenExpiresAt)
         {
             ApiUserId = apiUserId;
             AccessToken = accessToken;
@@ -13,7 +13,7 @@ namespace Laquila.Integrations.Domain.Models
             RefreshTokenExpiresAt = refreshTokenExpiresAt;
             CreatedAt = DateTime.UtcNow;
         }
-        
+
         [Column("api_user_id")]
         public Guid ApiUserId { get; set; }
         [Column("access_token")]

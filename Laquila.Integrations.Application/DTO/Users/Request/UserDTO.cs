@@ -1,10 +1,9 @@
-using Laquila.Integrations.Domain.Models;
 
 namespace Laquila.Integrations.Application.DTO.Users.Request
 {
     public class UserDTO
     {
-        public UserDTO(string username, string password, string confirmPassword,int? statusId, List<Guid>? companies, List<Guid>? integrations,List<int> roles)
+        public UserDTO(string username, string password, string confirmPassword, int? statusId, List<Guid>? companies, List<Guid>? integrations, List<int> roles)
         {
             Username = username;
             Password = password;

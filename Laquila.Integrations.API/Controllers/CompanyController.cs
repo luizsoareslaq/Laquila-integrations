@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Laquila.Integrations.API.Controllers
 {
     [ApiController]
-    [Authorize(Roles="Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/company")]
     public class CompanyController : ControllerBase
     {
@@ -28,7 +28,7 @@ namespace Laquila.Integrations.API.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(int page = 1, int pageSize = 10, string orderBy = "id", bool ascending = true, [FromQuery] CompanyFilters? filters = null)
         {
-            (var companies, int count) = await _companyService.GetCompanies(page, pageSize, orderBy, ascending,filters);
+            (var companies, int count) = await _companyService.GetCompanies(page, pageSize, orderBy, ascending, filters);
 
             return Ok(new { Data = companies, Count = count });
         }

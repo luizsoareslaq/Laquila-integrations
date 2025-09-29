@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Dapper;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Domain.Filters;
@@ -12,26 +8,26 @@ using Laquila.Integrations.Core.Infra.Interfaces;
 
 namespace Laquila.Integrations.Core.Infra.Repositories
 {
-    public class RomaneioRepository : IRomaneioRepository
+    public class PrenotaRepository : IPrenotaRepository
     {
         private readonly IDbConnectionFactory _dbFactory;
 
-        public RomaneioRepository(IDbConnectionFactory dbFactory)
+        public PrenotaRepository(IDbConnectionFactory dbFactory)
         {
             _dbFactory = dbFactory;
         }
 
-        public async Task<(IEnumerable<VLAQConsultarRomaneioItens>, int TotalCount)> GetRomaneiosAsync(LAQFilters filters, CancellationToken ct)
+        public async Task<(IEnumerable<VLAQ_BuscarPrenotasNaoIntegradas_WMS>, int TotalCount)> GetPrenotasAsync(LAQFilters filters, CancellationToken ct)
         {
-            var sqlBase = new StringBuilder("FROM VLAQ_ConsultarRomaneioItens WHERE 1=1");
+            var sqlBase = new StringBuilder("FROM VLAQ_BuscarPrenotasNaoIntegradas_WMS WHERE 1=1");
             (sqlBase, var parameters) = QueryHelpers.FilterStringQuery(sqlBase, filters);
 
             var sqlIds = new StringBuilder();
-            sqlIds.AppendLine("SELECT DISTINCT IdRomaneio");
+            sqlIds.AppendLine("SELECT DISTINCT lo_oe");
             sqlIds.Append(sqlBase);
-            sqlIds.AppendLine(" ORDER BY IdRomaneio OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY");
+            sqlIds.AppendLine(" ORDER BY lo_oe OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY");
 
-            var sqlCount = new StringBuilder("SELECT COUNT(DISTINCT IdRomaneio) ");
+            var sqlCount = new StringBuilder("SELECT COUNT(DISTINCT lo_oe,lo_ma_cnpj_owner) ");
             sqlCount.Append(sqlBase);
 
             parameters.Add("Offset", (filters.Page - 1) * filters.PageSize);
@@ -42,19 +38,18 @@ namespace Laquila.Integrations.Core.Infra.Repositories
             var ids = (await connection.QueryAsync<long>(sqlIds.ToString(), parameters)).ToList();
 
             if (!ids.Any())
-                return (Enumerable.Empty<VLAQConsultarRomaneioItens>(), 0);
+                return (Enumerable.Empty<VLAQ_BuscarPrenotasNaoIntegradas_WMS>(), 0);
 
-            var sqlDados = new StringBuilder("SELECT * FROM VLAQ_ConsultarRomaneioItens WHERE IdRomaneio IN @Ids");
+            var sqlDados = new StringBuilder("SELECT * FROM VLAQ_BuscarPrenotasNaoIntegradas_WMS WHERE IdRomaneio IN @Ids");
             var dadosParams = new DynamicParameters();
             dadosParams.Add("Ids", ids);
 
-
-           var dados = await connection.QueryAsync<VLAQConsultarRomaneioItens>(
-                sqlDados.ToString(),
-                param: dadosParams,
-                commandTimeout: 30,
-                commandType: CommandType.Text
-            );
+            var dados = await connection.QueryAsync<VLAQ_BuscarPrenotasNaoIntegradas_WMS>(
+                 sqlDados.ToString(),
+                 param: dadosParams,
+                 commandTimeout: 30,
+                 commandType: CommandType.Text
+             );
 
             var total = await connection.ExecuteScalarAsync<int>(
                 sqlCount.ToString(), param: parameters, transaction: null, commandTimeout: 30, commandType: CommandType.Text);

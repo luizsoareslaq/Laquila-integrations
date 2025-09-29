@@ -1,5 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,10 +11,8 @@ using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.SecurityTokenService;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
 namespace Laquila.Integrations.Application.Services
@@ -97,7 +94,7 @@ namespace Laquila.Integrations.Application.Services
                 Secure = true,
                 SameSite = SameSiteMode.None,
                 Expires = expirationJwt,
-                Path = "/" 
+                Path = "/"
             };
 
             var nonHttpOnlyCookie = new CookieOptions
@@ -110,7 +107,7 @@ namespace Laquila.Integrations.Application.Services
 
             context.Response.Cookies.Append("jwt", tokenString, secureCookie);
             context.Response.Cookies.Append("userName", user.Username, nonHttpOnlyCookie);
-            
+
             var newRefreshToken = GenerateSecureRefreshToken();
             var expirationRefreshToken = DateTime.Now.AddDays(7);
 
@@ -219,9 +216,9 @@ namespace Laquila.Integrations.Application.Services
             return hashToCompare == storedHash;
         }
 
-        public async Task<object> RefreshTokenAsync(string refreshToken)
+        public async Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto)
         {
-            var stored = await _authRepository.GetRefreshTokenAsync(refreshToken);
+            var stored = await _authRepository.GetRefreshTokenAsync(dto.RefreshToken);
 
             if (stored == null || stored.RefreshTokenExpiresAt <= DateTime.Now)
                 throw new UnauthorizedAccessException("Refresh Token is invalid or expired.");
@@ -230,9 +227,9 @@ namespace Laquila.Integrations.Application.Services
 
             await _authRepository.DeleteTokenAsync(stored);
 
-            var token = await GenerateToken(user); 
+            var token = await GenerateToken(user);
             var newRefreshToken = GenerateSecureRefreshToken();
-            
+
             await _authRepository.SaveTokenAsync(new LaqApiAuthTokens(user.Id, token.JWTToken, newRefreshToken, token.JWTTokenExpirationDate, token.RefreshTokenExpirationDate));
 
             return token;

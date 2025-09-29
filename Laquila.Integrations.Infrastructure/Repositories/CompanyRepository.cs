@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Xml;
 using Laquila.Integrations.Domain.Filters;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
@@ -86,7 +81,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                                                 .Include(x => x.Status)
                                                 .FirstOrDefaultAsync() ?? throw new NotFoundException("No company found with the given ID.");
         }
-        
+
         public async Task<bool> CompanyIdExists(Guid id)
         {
             return await _context.LaqApiCompanies.AnyAsync(x => x.Id == id);

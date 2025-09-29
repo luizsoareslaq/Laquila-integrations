@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Laquila.Integrations.Application.DTO.ApiIntegration.Response;
 using Laquila.Integrations.Application.DTO.Company.Request;
 using Laquila.Integrations.Application.DTO.Company.Response;
 using Laquila.Integrations.Application.Interfaces;

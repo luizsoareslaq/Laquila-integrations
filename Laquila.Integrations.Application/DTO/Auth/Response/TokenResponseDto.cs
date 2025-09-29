@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Laquila.Integrations.Application.DTO.Auth.Response
 {
@@ -14,9 +11,13 @@ namespace Laquila.Integrations.Application.DTO.Auth.Response
             this.RefreshToken = refreshToken;
             this.RefreshTokenExpirationDate = refreshTokenExpirationDate;
         }
+        [JsonPropertyName("jwt_token")]
         public string JWTToken { get; set; }
+        [JsonPropertyName("jwt_token_expiration_date")]
         public DateTime JWTTokenExpirationDate { get; set; }
+        [JsonPropertyName("refresh_token")]
         public string RefreshToken { get; set; }
+        [JsonPropertyName("refresh_token_expiration_date")]
         public DateTime RefreshTokenExpirationDate { get; set; }
     }
 }

@@ -5,47 +5,54 @@ namespace Laquila.Integrations.Core.Domain.Filters
 {
     public class LAQFilters
     {
+        public LAQFilters(int page, int pageSize, string loMaCnpjOwner, DateOnly loIniGenTime, DateOnly loEndGenTime)
+        {
+            Page = page;
+            PageSize = pageSize;
+            LoMaCnpjOwner = loMaCnpjOwner;
+            LoIniGenTime = loIniGenTime;
+            LoEndGenTime = loEndGenTime;
+        }
+
         [Required]
         [FromQuery(Name = "page")]
         public int Page { get; set; } = 1;
-        
+
         [Required]
-        [FromQuery(Name = "page-size")]
+        [FromQuery(Name = "page_size")]
         public int PageSize { get; set; } = 20;
 
         [Required]
-        [FromQuery(Name = "cd_empresa")]
-        public int CdEmpresa { get; set; }
-        [Required]
-        [FromQuery(Name = "data_emissao_inicial")]
-        public DateOnly DataEmissaoInicial { get; set; }
+        [FromQuery(Name = "lo_ma_cnpj_owner")]
+        public required string LoMaCnpjOwner { get; set; }
 
         [Required]
-        [FromQuery(Name = "data_emissao_final")]
-        public DateOnly DataEmissaoFinal { get; set; }
+        [FromQuery(Name = "lo_ini_gentime")]
+        public DateOnly LoIniGenTime { get; set; }
 
-        [FromQuery(Name = "cnpj_empresa")]
-        public string? CnpjEmpresa { get; set; }
+        [Required]
+        [FromQuery(Name = "lo_end_gentime")]
+        public DateOnly LoEndGenTime { get; set; }
 
-        [FromQuery(Name = "cd_cliente")]
-        public long? CdCliente { get; set; }
+        [FromQuery(Name = "lo_ma_cnpj")]
+        public required string LoMaCnpj { get; set; }
 
-        [FromQuery(Name = "cpf_cnpj_cliente")]
-        public string? CpfCnpjCliente { get; set; }
+        [FromQuery(Name = "lo_ma_cnpj_transportador")]
+        public string? LoMaCnpjCarrier { get; set; }
 
-        [FromQuery(Name = "id_romaneio")]
-        public int? IdRomaneio { get; set; }
+        [FromQuery(Name = "lo_ma_cnpj_redespacho")]
+        public string? LoMaCnpjRedespacho { get; set; }
 
-        [FromQuery(Name = "id_notaemitida")]
-        public long? IdNotaEmitida { get; set; }
+        [FromQuery(Name = "lo_oe")]
+        public long? LoOe { get; set; }
 
-        [FromQuery(Name = "nr_nota")]
-        public long? NrNota { get; set; }
+        [FromQuery(Name = "oe_erp_order")]
+        public long? OeErpOrder { get; set; }
 
-        [FromQuery(Name = "cd_transportador")]
-        public long? CdTransportador { get; set; }
+        [FromQuery(Name = "oe_invnumber")]
+        public long? OeInvNumber { get; set; }
 
-        [FromQuery(Name = "cd_redespacho")]
-        public long? CdRedespacho { get; set; }
+        [FromQuery(Name = "oe_serialnr")]
+        public string? OeSerialNr { get; set; }
     }
 }

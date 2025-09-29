@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Laquila.Integrations.Application.DTO.Users.Request;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Domain.Filters;
@@ -11,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Laquila.Integrations.API.Controllers
 {
     [ApiController]
-    [Authorize(Roles="Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/users")]
     public class UserController : ControllerBase
     {
@@ -31,7 +27,7 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(int page = 1, int pageSize = 10, string orderBy = "id", bool ascending = true, [FromQuery]UserFilters? filters = null)
+        public async Task<IActionResult> Get(int page = 1, int pageSize = 10, string orderBy = "id", bool ascending = true, [FromQuery] UserFilters? filters = null)
         {
             (var users, int count) = await _userService.GetUsers(page, pageSize, orderBy, ascending, filters);
 
