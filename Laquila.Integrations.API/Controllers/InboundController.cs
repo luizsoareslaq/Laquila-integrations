@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Laquila.Integrations.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/inbound")]
     public class InboundController : ControllerBase
     {
         //2.1.1

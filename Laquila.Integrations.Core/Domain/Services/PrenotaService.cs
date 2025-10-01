@@ -1,4 +1,6 @@
+using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Response;
+using Laquila.Integrations.Core.Domain.DTO.Romaneio.Shared;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Domain.Filters;
 using Laquila.Integrations.Core.Domain.Services.Interfaces;
@@ -14,26 +16,44 @@ namespace Laquila.Integrations.Core.Domain.Services
             _prenotaRepository = prenotaRepository;
         }
 
-        public async Task<PagedResult<List<PrenotaResumoDTO>>> GetPrenotasAsync(LAQFilters filters, CancellationToken ct)
+        public async Task<PagedResult<PrenotaDTO>> GetPrenotasAsync(LAQFilters filters, CancellationToken ct)
         {
             (var prenotasList, int TotalCount) = await _prenotaRepository.GetPrenotasAsync(filters, ct);
 
-            var response = new PagedResult<List<PrenotaResumoDTO>>() { };
+            var response = new PagedResult<PrenotaDTO>() { };
 
             response.Total = TotalCount;
             response.Page = filters.Page;
             response.PageSize = filters.PageSize;
 
-            var prenotasAgrupados = prenotasList.GroupBy(x => x.LoOe).Select(grupo =>
-            {
-                var prenotaBase = grupo.First(); return new PrenotaResumoDTO
-                {
-                    LoOe = prenotaBase.LoOe,
-                    LoMaCnpjOwner = prenotaBase.LoMaCnpjOwner
-                };
-            }).ToList();
+            var prenotas = new List<PrenotaDTO>();
 
-            response.Items = (IEnumerable<List<PrenotaResumoDTO>>)prenotasAgrupados;
+            if (prenotasList.Count() > 0)
+            {
+                prenotas = prenotasList.GroupBy(x => x.LoOe).Select(grupo =>
+                {
+                    var prenotaBase = grupo.First();
+                    return new PrenotaDTO
+                    {
+                        LoMaCnpjOwner = prenotaBase.LoMaCnpjOwner,
+                        LoMaCnpj = prenotaBase.LoMaCnpj,
+                        LoMaCnpjCarrier = prenotaBase.LoMaCnpjCarrier,
+                        LoMaCnpjRedespacho = prenotaBase.LoMaCnpjRedespacho,
+                        LoPriority = prenotaBase.LoPriority,
+                        LoType = prenotaBase.LoType,
+                        LoOe = prenotaBase.LoOe,
+                        OeErpOrder = prenotaBase.OeErpOrder,
+                        Items = grupo.Select(item => new PrenotaItemsDTO
+                        {
+                            OelId = item.OelId,
+                            OelAtId = item.OelAtId,
+                            OelQtyReq = item.OelQtyReq
+                        }).ToList()
+                    };
+                }).ToList();
+
+                response.Items = prenotas;
+            }
 
             return response;
         }

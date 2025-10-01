@@ -3,8 +3,11 @@ using Laquila.Integrations.Application.Services;
 using Laquila.Integrations.Core.Domain.Services;
 using Laquila.Integrations.Core.Domain.Services.Interfaces;
 using Laquila.Integrations.Core.Infra.Interfaces;
+using Laquila.Integrations.Core.Infra.Repositories;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
+using Laquila.Integrations.Infrastructure.ExternalServices;
 using Laquila.Integrations.Infrastructure.Repositories;
+using static Laquila.Integrations.API.Middlewares.Middleware;
 
 
 namespace Laquila.Integrations.API.Configurations
@@ -20,6 +23,8 @@ namespace Laquila.Integrations.API.Configurations
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<IPrenotaService, PrenotaService>();
+            services.AddScoped<IExternalService, ExternalService>();
+
             //Repositories
             services.AddScoped<IUnitOfWork, EfUnitOfWork>();
             services.AddScoped<IUserRepository, UserRepository>();
@@ -27,8 +32,7 @@ namespace Laquila.Integrations.API.Configurations
             services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<ILogRepository, LogRepository>();
-            services.AddScoped<IPrenotaRepository, IPrenotaRepository>();
-
+            services.AddScoped<IPrenotaRepository, PrenotaRepository>();
 
             return services;
         }

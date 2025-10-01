@@ -1,6 +1,9 @@
+using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Core.Domain.DTO.Invoices.Request;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Romaneio.Request;
+using Laquila.Integrations.Core.Domain.Filters;
+using Laquila.Integrations.Core.Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Laquila.Integrations.API.Controllers
@@ -9,11 +12,30 @@ namespace Laquila.Integrations.API.Controllers
     [Route("api/outbound")]
     public class OutboundController : ControllerBase
     {
-        //1.1.1
-        [HttpPost("orders/{lo_oe}")]
-        public async Task<IActionResult> SendOrderAsync([FromQuery] long lo_oe)
+        private readonly IPrenotaService _prenotaService;
+        private readonly IExternalService _externalService;
+
+        public OutboundController(IPrenotaService prenotaService, IExternalService externalService)
         {
-            return Ok();
+            _prenotaService = prenotaService;
+            _externalService = externalService;
+        }
+
+        [HttpGet("orders")]
+        public async Task<IActionResult> GetOrdersAsync([FromQuery] LAQFilters filters)
+        {
+            var prenotas = await _prenotaService.GetPrenotasAsync(filters, CancellationToken.None);
+
+            return Ok(prenotas);
+        }
+
+        //1.1.1
+        [HttpPost("orders/external")]
+        public async Task<IActionResult> SendOrderAsync([FromBody] PrenotaDTO dto)
+        {
+            var response = await _externalService.SendPrenotasAsync(dto);
+
+            return Ok(response);
         }
 
         //1.1.2

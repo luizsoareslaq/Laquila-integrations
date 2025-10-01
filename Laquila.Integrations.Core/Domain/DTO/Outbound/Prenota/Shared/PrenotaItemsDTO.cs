@@ -3,7 +3,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Laquila.Integrations.Core.Domain.DTO.Romaneio.Shared
 {
-    public class PedidoItemsDTO
+    public class PrenotaItemsDTO
     {
         [JsonPropertyName("oel_id")]
         [SwaggerSchema("ID único do item do pedido")]

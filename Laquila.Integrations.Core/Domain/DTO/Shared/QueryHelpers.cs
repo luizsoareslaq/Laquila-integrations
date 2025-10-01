@@ -70,10 +70,8 @@ namespace Laquila.Integrations.Core.Domain.DTO.Shared
         {
             var parameters = new DynamicParameters();
 
-            sql.AppendLine(" AND lo_ma_cnpj_owner = @lo_ma_cnpj_owner");
-            parameters.Add("lo_ma_cnpj_owner", filters.LoMaCnpjOwner);
 
-            sql.AppendLine(" AND CONVERT(DATE,DhEmissao) between @DataEmissaoInicial and @DataEmissaoFinal");
+            sql.AppendLine(" AND CONVERT(DATE,LoGenTime) between @lo_ini_gen_time and @lo_end_gen_time");
 
             var dataInicio = new DateTime(filters.LoIniGenTime.Year, filters.LoIniGenTime.Month, filters.LoIniGenTime.Day);
             var dataFim = new DateTime(filters.LoEndGenTime.Year, filters.LoEndGenTime.Month, filters.LoEndGenTime.Day, 23, 59, 59);
@@ -83,25 +81,31 @@ namespace Laquila.Integrations.Core.Domain.DTO.Shared
 
             if (filters.LoOe != null)
             {
-                sql.AppendLine(" AND lo_oe = @lo_oe");
+                sql.AppendLine(" AND LoMaCnpjOwner = @lo_ma_cnpj_owner");
+                parameters.Add("lo_ma_cnpj_owner", filters.LoMaCnpjOwner);
+            }
+
+            if (filters.LoOe != null)
+            {
+                sql.AppendLine(" AND LoOe = @lo_oe");
                 parameters.Add("lo_oe", filters.LoOe);
             }
 
             if (filters.OeErpOrder != null)
             {
-                sql.AppendLine(" AND oe_erp_order = @oe_erp_order");
+                sql.AppendLine(" AND OeErpOrder = @oe_erp_order");
                 parameters.Add("oe_erp_order", filters.OeErpOrder);
             }
 
             if (filters.LoMaCnpj != null)
             {
-                sql.AppendLine("AND lo_ma_cnpj = @lo_ma_cnpj");
+                sql.AppendLine("AND LoMaCnpj = @lo_ma_cnpj");
                 parameters.Add("lo_ma_cnpj", filters.LoMaCnpj);
             }
 
             if (filters.LoMaCnpjCarrier != null)
             {
-                sql.Append(" AND lo_ma_cnpj_carrier = @lo_ma_cnpj_carrier");
+                sql.Append(" AND LoMaCnpjCarrier = @lo_ma_cnpj_carrier");
                 parameters.Add("lo_ma_cnpj_carrier", filters.LoMaCnpjCarrier);
             }
 

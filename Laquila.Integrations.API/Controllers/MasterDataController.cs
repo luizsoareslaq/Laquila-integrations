@@ -14,7 +14,7 @@ namespace Laquila.Integrations.API.Controllers
     {
         //3.1.1
         [HttpPost("items")]
-        public async Task<IActionResult> SendItems([FromBody] MasterDataItemsRequestDTO request)
+        public async Task<IActionResult> SendItems([FromBody] MasterDataItemsDTO dto)
         {
             return Ok();
         }
@@ -23,14 +23,14 @@ namespace Laquila.Integrations.API.Controllers
 
         //3.1.2
         [HttpPost("items/packages")]
-        public async Task<IActionResult> SendItemPackages([FromBody] MasterDataItemPackagesDTO request)
+        public async Task<IActionResult> SendItemPackages([FromBody] MasterDataItemPackagesDTO dto)
         {
             return Ok();
         }
 
         //3.1.3
         [HttpPost("mandators")]
-        public async Task<IActionResult> SendMandators([FromBody] MasterDataMandatorsDTO request)
+        public async Task<IActionResult> SendMandators([FromBody] MasterDataMandatorsDTO dto)
         {
             return Ok();
         }

@@ -14,7 +14,10 @@ namespace Laquila.Integrations.Domain.Models
                         , string ipAddress
                         , string userAgent
                         , int executionTimeMs
-                        , DateTime createdAt)
+                        , DateTime createdAt
+                        , string? entity = null
+                        , string? key = null
+                        , string? value = null)
         {
             this.ApiUserId = apiUserId;
             this.Method = method;
@@ -27,6 +30,9 @@ namespace Laquila.Integrations.Domain.Models
             this.UserAgent = userAgent;
             this.ExecutionTimeMs = executionTimeMs;
             this.CreatedAt = createdAt;
+            this.Entity = entity;
+            this.Key = key;
+            this.Value = value;
         }
         [Column("api_user_id")]
         public Guid? ApiUserId { get; set; }
@@ -50,7 +56,13 @@ namespace Laquila.Integrations.Domain.Models
         public int ExecutionTimeMs { get; set; }
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
-
+        [Column("entity")]
+        public string? Entity { get; set; }
+        [Column("key")]
+        public string? Key { get; set; }
+        [Column("value")]
+        public string? Value { get; set; }
+        
         public virtual LaqApiUsers? User { get; set; }
     }
 }

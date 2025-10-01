@@ -26,5 +26,22 @@ namespace Laquila.Integrations.Application.Exceptions
         {
             public EntityNotFoundAfterUpdated(string entity) : base($"{entity} was not found after updated.") { }
         }
+
+        public class CustomErrorException : Exception
+        {
+            public int StatusCode { get; }
+            public string Key { get; }
+            public string Entity { get; }
+            public string Value { get; }
+
+            public CustomErrorException(int statusCode, string message, string key = "", string entity = "", string value = "")
+                : base(message)
+            {
+                StatusCode = statusCode;
+                Key = key;
+                Value = value;
+                Entity = entity;                
+            }
+        }
     }
 }

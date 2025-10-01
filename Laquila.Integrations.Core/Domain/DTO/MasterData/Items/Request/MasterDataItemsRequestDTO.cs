@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Laquila.Integrations.Core.Domain.DTO.MasterData.Items
 {
-    public class MasterDataItemsRequestDTO
+    public class MasterDataItemsDTO
     {
         [JsonPropertyName("items")]
         public required List<ItemsDetailsDTO> Items { get; set; }

@@ -17,17 +17,17 @@ namespace Laquila.Integrations.Core.Infra.Repositories
             _dbFactory = dbFactory;
         }
 
-        public async Task<(IEnumerable<VLAQ_BuscarPrenotasNaoIntegradas_WMS>, int TotalCount)> GetPrenotasAsync(LAQFilters filters, CancellationToken ct)
+        public async Task<(IEnumerable<VMWMS_BuscarPrenotasNaoIntegradas>, int TotalCount)> GetPrenotasAsync(LAQFilters filters, CancellationToken ct)
         {
-            var sqlBase = new StringBuilder("FROM VLAQ_BuscarPrenotasNaoIntegradas_WMS WHERE 1=1");
-            (sqlBase, var parameters) = QueryHelpers.FilterStringQuery(sqlBase, filters);
+            var sqlBase = new StringBuilder("FROM VMWMS_BuscarPrenotasNaoIntegradas WHERE 1=1");
+            (sqlBase, var parameters) = QueryHelpers.FilterPrenotasQuery(sqlBase, filters);
 
             var sqlIds = new StringBuilder();
-            sqlIds.AppendLine("SELECT DISTINCT lo_oe");
+            sqlIds.AppendLine("SELECT DISTINCT LoOe");
             sqlIds.Append(sqlBase);
-            sqlIds.AppendLine(" ORDER BY lo_oe OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY");
+            sqlIds.AppendLine(" ORDER BY LoOe OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY");
 
-            var sqlCount = new StringBuilder("SELECT COUNT(DISTINCT lo_oe,lo_ma_cnpj_owner) ");
+            var sqlCount = new StringBuilder("SELECT COUNT(DISTINCT LoOe) ");
             sqlCount.Append(sqlBase);
 
             parameters.Add("Offset", (filters.Page - 1) * filters.PageSize);
@@ -38,13 +38,13 @@ namespace Laquila.Integrations.Core.Infra.Repositories
             var ids = (await connection.QueryAsync<long>(sqlIds.ToString(), parameters)).ToList();
 
             if (!ids.Any())
-                return (Enumerable.Empty<VLAQ_BuscarPrenotasNaoIntegradas_WMS>(), 0);
+                return (Enumerable.Empty<VMWMS_BuscarPrenotasNaoIntegradas>(), 0);
 
-            var sqlDados = new StringBuilder("SELECT * FROM VLAQ_BuscarPrenotasNaoIntegradas_WMS WHERE IdRomaneio IN @Ids");
+            var sqlDados = new StringBuilder("SELECT * FROM VMWMS_BuscarPrenotasNaoIntegradas WHERE LoOe IN @Ids");
             var dadosParams = new DynamicParameters();
             dadosParams.Add("Ids", ids);
 
-            var dados = await connection.QueryAsync<VLAQ_BuscarPrenotasNaoIntegradas_WMS>(
+            var dados = await connection.QueryAsync<VMWMS_BuscarPrenotasNaoIntegradas>(
                  sqlDados.ToString(),
                  param: dadosParams,
                  commandTimeout: 30,
