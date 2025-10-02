@@ -157,6 +157,8 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                                 .ThenInclude(x => x.Role)
                             .Include(x => x.UserIntegrations)
                                 .ThenInclude(x => x.Integration)
+                            .Include(x => x.UserCompanies)
+                                .ThenInclude(x => x.Company)
                             .FirstOrDefaultAsync(x => x.Username == username);
 
             if (user == null)

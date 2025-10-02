@@ -14,4 +14,8 @@
     <PackageReference Include="swashbuckle.aspnetcore.annotations" Version="9.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Laquila.Integrations.Domain\Laquila.Integrations.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

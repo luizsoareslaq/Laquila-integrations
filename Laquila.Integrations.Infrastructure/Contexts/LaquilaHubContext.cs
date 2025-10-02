@@ -15,7 +15,7 @@ namespace Laquila.Integrations.Infrastructure.Contexts
         public DbSet<LaqApiUsers> LaqApiUsers { get; set; }
         public DbSet<LaqApiAuthTokens> LaqApiAuthTokens { get; set; }
         public DbSet<LaqApiLogs> LaqApiLogs { get; set; }
-        public DbSet<LaqApiSyncQueue> LaqApiSyncQueue { get; set; }
+        public DbSet<LaqApiSyncQueue> LaqApiSyncQueues { get; set; }
         public DbSet<LaqApiUrlIntegrations> LaqApiUrlIntegrations { get; set; }
         public DbSet<LaqApiUserRoles> LaqApiUserRoles { get; set; }
         public DbSet<LaqApiRoles> LaqApiRoles { get; set; }

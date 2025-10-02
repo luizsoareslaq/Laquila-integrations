@@ -9,6 +9,7 @@ using Laquila.Integrations.Domain.Enums;
 using Laquila.Integrations.Domain.Helpers;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.SecurityTokenService;
@@ -42,26 +43,25 @@ namespace Laquila.Integrations.Application.Services
         {
             var user = await _userRepository.GetUserByUsername(dto.Username);
 
-            if (!VerifyPassword(dto.Password, user.Hash, user.Salt) || user.StatusId != (int)ApiStatus.Active)
+            if (!VerifyPassword(dto.Password, user.Hash, user.Salt) || user.StatusId != (int)ApiStatusEnum.Active
+                || !CheckCompany(dto.Cnpj, user))
             {
                 throw new UnauthorizedAccessException("Invalid login attemp.");
             }
 
-            var token = await GenerateToken(user);
+            var token = await GenerateToken(user, dto.Cnpj);
 
             return token;
         }
 
-        public async Task<TokenResponseDto> GenerateToken(LaqApiUsers user)
+        public async Task<TokenResponseDto> GenerateToken(LaqApiUsers user, string companyCnpj)
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.NameId, user.Username),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iss, _issuer),
-                new Claim(JwtRegisteredClaimNames.Aud, _audience)
+                new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),   
+                new Claim(JwtRegisteredClaimNames.Name, user.Username),                  
+                new Claim("CompanyCnpj", companyCnpj),                      
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             foreach (var role in user.UserRoles)
@@ -111,7 +111,12 @@ namespace Laquila.Integrations.Application.Services
             var newRefreshToken = GenerateSecureRefreshToken();
             var expirationRefreshToken = DateTime.Now.AddDays(7);
 
-            await _authRepository.SaveTokenAsync(new LaqApiAuthTokens(user.Id, tokenString, newRefreshToken, expirationJwt, expirationRefreshToken));
+            await _authRepository.SaveTokenAsync(new LaqApiAuthTokens(user.Id
+                                                                    , tokenString
+                                                                    , newRefreshToken
+                                                                    , expirationJwt
+                                                                    , expirationRefreshToken
+                                                                    , companyCnpj));
 
             // _ = Task.Run(async () =>
             //                         {
@@ -216,6 +221,14 @@ namespace Laquila.Integrations.Application.Services
             return hashToCompare == storedHash;
         }
 
+        public bool CheckCompany(string companyCnpj, LaqApiUsers user)
+        {
+            if (user.UserCompanies == null || !user.UserCompanies.Any())
+                return false;
+
+            return user.UserCompanies.Any(uc => uc.Company.Document == companyCnpj);
+        }
+
         public async Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto)
         {
             var stored = await _authRepository.GetRefreshTokenAsync(dto.RefreshToken);
@@ -223,21 +236,19 @@ namespace Laquila.Integrations.Application.Services
             if (stored == null || stored.RefreshTokenExpiresAt <= DateTime.Now)
                 throw new UnauthorizedAccessException("Refresh Token is invalid or expired.");
 
-            var user = await _userRepository.GetUserById(stored.Id);
+            var user = await _userRepository.GetUserById(stored.ApiUserId);
 
             await _authRepository.DeleteTokenAsync(stored);
 
-            var token = await GenerateToken(user);
+            var token = await GenerateToken(user, stored.CompanyCnpj);
             var newRefreshToken = GenerateSecureRefreshToken();
-
-            await _authRepository.SaveTokenAsync(new LaqApiAuthTokens(user.Id, token.JWTToken, newRefreshToken, token.JWTTokenExpirationDate, token.RefreshTokenExpirationDate));
 
             return token;
         }
 
         private string GenerateSecureRefreshToken()
         {
-            var bytes = new byte[64];
+            var bytes = new byte[256];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(bytes);
             return Convert.ToBase64String(bytes);

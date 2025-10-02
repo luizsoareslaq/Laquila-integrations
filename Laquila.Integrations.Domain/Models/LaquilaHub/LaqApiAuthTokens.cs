@@ -4,7 +4,7 @@ namespace Laquila.Integrations.Domain.Models
 {
     public class LaqApiAuthTokens : BaseEntity
     {
-        public LaqApiAuthTokens(Guid apiUserId, string accessToken, string refreshToken, DateTime accessTokenExpiresAt, DateTime refreshTokenExpiresAt)
+        public LaqApiAuthTokens(Guid apiUserId, string accessToken, string refreshToken, DateTime accessTokenExpiresAt, DateTime refreshTokenExpiresAt, string companyCnpj)
         {
             ApiUserId = apiUserId;
             AccessToken = accessToken;
@@ -12,6 +12,7 @@ namespace Laquila.Integrations.Domain.Models
             AccessTokenExpiresAt = accessTokenExpiresAt;
             RefreshTokenExpiresAt = refreshTokenExpiresAt;
             CreatedAt = DateTime.UtcNow;
+            CompanyCnpj = companyCnpj;
         }
 
         [Column("api_user_id")]
@@ -26,6 +27,8 @@ namespace Laquila.Integrations.Domain.Models
         public DateTime RefreshTokenExpiresAt { get; set; }
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
+        [Column("company_cnpj")]
+        public string CompanyCnpj { get; set; }
 
         public virtual LaqApiUsers User { get; set; } = null!;
     }

@@ -1,3 +1,4 @@
+using Laquila.Integrations.API.Middlewares;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Services;
 using Laquila.Integrations.Core.Domain.Services;
@@ -24,6 +25,11 @@ namespace Laquila.Integrations.API.Configurations
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<IPrenotaService, PrenotaService>();
             services.AddScoped<IExternalService, ExternalService>();
+            services.AddScoped<IQueueService, QueueService>();
+            services.AddScoped<IEverest30Service, Everest30Service>();
+
+            services.AddHostedService<LogBackgroundService>();
+
 
             //Repositories
             services.AddScoped<IUnitOfWork, EfUnitOfWork>();
@@ -33,6 +39,8 @@ namespace Laquila.Integrations.API.Configurations
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<ILogRepository, LogRepository>();
             services.AddScoped<IPrenotaRepository, PrenotaRepository>();
+            services.AddScoped<IQueueRepository, QueueRepository>();
+            services.AddScoped<IEverest30Repository, Everest30Repository>();
 
             return services;
         }

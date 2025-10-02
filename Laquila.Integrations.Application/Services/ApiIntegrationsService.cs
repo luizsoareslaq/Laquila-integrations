@@ -37,6 +37,8 @@ namespace Laquila.Integrations.Application.Services
 
                 var entity = await _apiIntegrationsRepository.CreateApiIntegration(apiIntegration);
 
+                await _unitOfWork.CommitAsync();
+
                 return new ApiIntegrationResponseDTO(entity.Id
                                                    , entity.IntegrationName
                                                    , entity.Status?.Description ?? null
@@ -141,6 +143,8 @@ namespace Laquila.Integrations.Application.Services
                 }
 
                 await _apiIntegrationsRepository.UpdateApiIntegration(apiIntegration);
+                
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {

@@ -10,5 +10,8 @@ namespace Laquila.Integrations.Application.DTO.Auth.Request
         }
         [JsonPropertyName("refresh_token")]
         public string RefreshToken { get; set; }
+        [JsonIgnore]
+        private string Document { get; set; } 
+        
     }
 }

@@ -6,5 +6,6 @@ namespace Laquila.Integrations.Core.Infra.Interfaces
     public interface IPrenotaRepository
     {
         Task<(IEnumerable<VMWMS_BuscarPrenotasNaoIntegradas>, int TotalCount)> GetPrenotasAsync(LAQFilters filters, CancellationToken ct);
+        Task<(bool, string)> GetPrenotaStatusAsync(long lo_oe);
     }
 }

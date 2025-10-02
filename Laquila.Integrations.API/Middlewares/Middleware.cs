@@ -1,10 +1,14 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Channels;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Domain.Models;
 using Microsoft.Extensions.Caching.Memory;
 using static Laquila.Integrations.Application.Exceptions.ApplicationException;
@@ -28,7 +32,7 @@ namespace Laquila.Integrations.API.Middlewares
         {
             var stopwatch = Stopwatch.StartNew();
 
-            context.Request.EnableBuffering();
+            context.Request.EnableBuffering(bufferThreshold: 1024 * 30); // até 30KB sem ir pra disco
 
             var request = context.Request;
             var response = context.Response;
@@ -38,7 +42,13 @@ namespace Laquila.Integrations.API.Middlewares
             var queryString = request.QueryString.ToString();
             var ipAddress = context.Connection.RemoteIpAddress?.ToString();
             var userAgent = request.Headers["User-Agent"].ToString();
-            var apiUserId = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var username = context.User?.FindFirst(ClaimTypes.Name)?.Value;
+            var cnpj = context.User?.FindFirst("CompanyCnpj")?.Value;
+            var role = context.User?.FindFirst(ClaimTypes.Role)?.Value;
+
+            UserContext.CompanyCnpj = cnpj;
+
             string? entity = null;
             string? key = null;
             string? value = null;
@@ -50,6 +60,9 @@ namespace Laquila.Integrations.API.Middlewares
                 requestBody = await reader.ReadToEndAsync();
                 request.Body.Position = 0;
             }
+
+            if (requestBody.Length > 10_000)
+                requestBody = "[Truncated Payload]";
 
             var originalBodyStream = response.Body;
             using var responseBody = new MemoryStream();
@@ -65,20 +78,9 @@ namespace Laquila.Integrations.API.Middlewares
 
                 if (ex is CustomErrorException custom)
                 {
-                    if (!string.IsNullOrWhiteSpace(custom.Entity))
-                    {
-                        entity = custom.Entity;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(custom.Key))
-                    {
-                        key = custom.Key;
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(custom.Value))
-                    {
-                        value = custom.Value;
-                    }
+                    entity = custom.Entity;
+                    key = custom.Key;
+                    value = custom.Value;
                 }
             }
 
@@ -91,17 +93,19 @@ namespace Laquila.Integrations.API.Middlewares
             if (statusCode == StatusCodes.Status429TooManyRequests)
             {
                 var line = $"{DateTime.UtcNow:O}\t{ipAddress}\t{endpoint}\t{queryString}\t{userAgent}\t{statusCode}";
-                await AppendSimpleLogAsync("ratelimit", line, dailyLimit: 10000); 
-                                                                                 
+                await AppendSimpleLogAsync("ratelimit", line, dailyLimit: 10000);
+
                 response.Body.Seek(0, SeekOrigin.Begin);
                 await responseBody.CopyToAsync(originalBodyStream);
+                UserContext.Clear();
                 return;
             }
 
             using var scope = context.RequestServices.CreateScope();
             var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
-            await logService.HandleLogAsync(new LaqApiLogs(
-                Guid.TryParse(apiUserId, out var id) ? id : (Guid?)null,
+
+            _ = LogChannel.Channel.Writer.WriteAsync(new LaqApiLogs(
+                Guid.TryParse(userId, out var id) ? id : (Guid?)null,
                 method,
                 endpoint,
                 queryString,
@@ -119,6 +123,8 @@ namespace Laquila.Integrations.API.Middlewares
 
             response.Body.Seek(0, SeekOrigin.Begin);
             await responseBody.CopyToAsync(originalBodyStream);
+
+            UserContext.Clear();
         }
 
         private static Task HandleExceptionAsync(HttpContext context, Exception ex)
@@ -131,6 +137,28 @@ namespace Laquila.Integrations.API.Middlewares
                 message += " InnerException: " + ex.InnerException.Message;
             }
 
+            var response = new ResponseDto
+            {
+                Data = null,
+                Errors = new List<ResponseErrorsDto>()
+            };
+
+            if (ex is ResponseErrorException responseErrors)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+                response.Errors = responseErrors.Errors.Select(e => new ResponseErrorsDto
+                {
+                    StatusCode = e.StatusCode,
+                    Entity = e.Entity,
+                    Key = e.Key,
+                    Value = e.Value,
+                    Message = e.Message
+                }).ToList();
+
+                return context.Response.WriteAsJsonAsync(response);
+            }
+
             (HttpStatusCode status, string responseMessage) = ex switch
             {
                 CustomErrorException custom => ((HttpStatusCode)custom.StatusCode, message),
@@ -139,11 +167,21 @@ namespace Laquila.Integrations.API.Middlewares
                 InvalidOperationException => (HttpStatusCode.BadRequest, "Operação inválida: " + message),
                 UnauthorizedError => (HttpStatusCode.Unauthorized, message),
                 Exception => (HttpStatusCode.BadRequest, message),
-                _ => (HttpStatusCode.InternalServerError, "Erro interno " + message)
+                _ => (HttpStatusCode.InternalServerError, "Erro interno: " + message)
             };
 
             context.Response.StatusCode = (int)status;
-            return context.Response.WriteAsJsonAsync(new { Erro = responseMessage });
+
+            response.Errors.Add(new ResponseErrorsDto
+            {
+                StatusCode = (int)status,
+                Entity = ex.Source ?? "System",
+                Key = string.Empty,
+                Value = string.Empty,
+                Message = responseMessage
+            });
+
+            return context.Response.WriteAsJsonAsync(response);
         }
 
         static async Task AppendSimpleLogAsync(string filePrefix, string line, int dailyLimit)
@@ -169,6 +207,43 @@ namespace Laquila.Integrations.API.Middlewares
                 _dailyCount.AddOrUpdate(key, 1, (_, c) => c + 1);
             }
             finally { _fileLock.Release(); }
+        }
+    }
+
+    public static class LogChannel
+    {
+        public static readonly Channel<LaqApiLogs> Channel =
+            System.Threading.Channels.Channel.CreateUnbounded<LaqApiLogs>();
+    }
+
+    public class LogBackgroundService : BackgroundService
+    {
+        private readonly IServiceProvider _serviceProvider;
+
+        public LogBackgroundService(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            var reader = LogChannel.Channel.Reader;
+
+            while (await reader.WaitToReadAsync(stoppingToken))
+            {
+                while (reader.TryRead(out var log))
+                {
+                    try
+                    {
+                        using var scope = _serviceProvider.CreateScope();
+                        var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
+                        await logService.HandleLogAsync(log);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
         }
     }
 }

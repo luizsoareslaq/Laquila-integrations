@@ -1,6 +1,6 @@
 namespace Laquila.Integrations.Domain.Enums
 {
-    public enum ApiStatus
+    public enum ApiStatusEnum
     {
         Active = 1,
         Disabled = 2,

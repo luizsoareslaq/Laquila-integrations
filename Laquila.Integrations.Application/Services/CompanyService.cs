@@ -35,6 +35,8 @@ namespace Laquila.Integrations.Application.Services
 
                 var createdCompany = await _companyRepository.CreateCompany(company);
 
+                await _unitOfWork.CommitAsync();
+
                 return new CompanyResponseDTO(createdCompany.Id, createdCompany.ErpCode, createdCompany.CompanyName, createdCompany.Document, null);
             }
             catch (Exception ex)
@@ -80,6 +82,8 @@ namespace Laquila.Integrations.Application.Services
                 await _unitOfWork.BeginTransactionAsync();
 
                 var updatedCompany = await _companyRepository.UpdateCompany(company);
+
+                await _unitOfWork.CommitAsync();
 
                 return new CompanyResponseDTO(updatedCompany.Id, updatedCompany.ErpCode, updatedCompany.CompanyName, updatedCompany.Document, updatedCompany.Status?.Description ?? null);
             }

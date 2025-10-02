@@ -1,3 +1,5 @@
+using Laquila.Integrations.Core.Domain.DTO.Shared;
+
 namespace Laquila.Integrations.Application.Exceptions
 {
     public class ApplicationException
@@ -40,7 +42,34 @@ namespace Laquila.Integrations.Application.Exceptions
                 StatusCode = statusCode;
                 Key = key;
                 Value = value;
-                Entity = entity;                
+                Entity = entity;
+            }
+        }
+
+        public class ResponseErrorException : Exception
+        {
+            public List<ResponseErrorsDto> Errors { get; }
+
+            public ResponseErrorException(List<ResponseErrorsDto> errors)
+                : base(errors.FirstOrDefault()?.Message ?? "Validation error")
+            {
+                Errors = errors;
+            }
+
+            public ResponseErrorException(string entity, string key, string value, string message, int statusCode = 400)
+                : base(message)
+            {
+                Errors = new List<ResponseErrorsDto>
+        {
+            new ResponseErrorsDto
+            {
+                Entity = entity,
+                Key = key,
+                Value = value,
+                Message = message,
+                StatusCode = statusCode
+            }
+        };
             }
         }
     }

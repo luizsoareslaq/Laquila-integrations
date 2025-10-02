@@ -12,6 +12,8 @@ namespace Laquila.Integrations.Domain.Models
         public string OriginValue { get; set; }
         [Column("status_id")]
         public int StatusId { get; set; }
+        [Column("payload")]
+        public string Payload { get; set; }
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
         [Column("modified_at")]

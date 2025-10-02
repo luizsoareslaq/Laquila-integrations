@@ -124,6 +124,17 @@ namespace Laquila.Integrations.Application.Services
 
             var actualUser = await _userRepository.GetUserById(id);
 
+            actualUser.Hash = dto switch
+            {
+                { Password: not null, ConfirmPassword: null } => throw new BadRequestException("Confirm Password is required when updating the password."),
+                { Password: null, ConfirmPassword: not null } => throw new BadRequestException("Password is required when updating the password."),
+                { Password: not null, ConfirmPassword: not null } when dto.Password != dto.ConfirmPassword
+                    => throw new BadRequestException("Password and Confirm Password do not match."),
+                { Password: not null, ConfirmPassword: not null } when dto.Password == dto.ConfirmPassword
+                    => UserHelper.HashPassword(dto.Password, actualUser.Salt),
+                _ => actualUser.Hash
+            };
+
             var actualRoles = actualUser.UserRoles?.ToList() ?? new();
             var actualCompanies = actualUser.UserCompanies?.ToList() ?? new();
             var actualIntegrations = actualUser.UserIntegrations?.ToList() ?? new();
@@ -191,6 +202,8 @@ namespace Laquila.Integrations.Application.Services
                     await _userRepository.RemoveJoinedUserTables(rolesToRemove, companiesToRemove, integrationsToRemove);
 
                 var updatedUser = await _userRepository.UpdateUser(user);
+
+                await _unitOfWork.CommitAsync();
 
                 return new UserResponseDTO(
                             updatedUser.Id,

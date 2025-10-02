@@ -25,7 +25,7 @@ builder.Services.AddRateLimiter(options =>
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = 10,
-                Window = TimeSpan.FromSeconds(10)
+                Window = TimeSpan.FromSeconds(1)
             }));
 
     options.RejectionStatusCode = 429;
@@ -59,10 +59,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             OnMessageReceived = context =>
             {
-                if (context.Request.Cookies.ContainsKey("jwt"))
+                var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+                {
+                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                }
+                else if (context.Request.Cookies.ContainsKey("jwt"))
                 {
                     context.Token = context.Request.Cookies["jwt"];
                 }
+
+                Console.WriteLine("Token recebido: " + context.Token);
+
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("Falha na validação: " + context.Exception.Message);
                 return Task.CompletedTask;
             }
         };
@@ -122,7 +135,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("DynamicCors", policy =>
     {
         policy
-            .SetIsOriginAllowed(origin => origin.StartsWith("https://localhost"))
+            .SetIsOriginAllowed(origin => origin.StartsWith("https://localhostssssssss"))
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -132,6 +145,9 @@ builder.Services.AddCors(options =>
 // DB Context
 builder.Services.AddDbContext<LaquilaHubContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("LaquilaHubConnection")));
+
+builder.Services.AddDbContext<Everest30Context>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Everest30Connection")));
 
 builder.Services.AddSingleton<IDbConnectionFactory>(new DbConnectionFactory(builder.Configuration.GetConnectionString("Everest30Connection") ?? ""));
 
@@ -169,15 +185,16 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-app.UseMiddleware<Middleware>();
-
 app.UseRateLimiter();
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
+app.UseCors("DynamicCors");
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<Middleware>(); 
 
 app.MapControllers();
 

@@ -56,5 +56,10 @@ namespace Laquila.Integrations.Core.Infra.Repositories
 
             return (dados, total);
         }
+
+        public Task<(bool, string)> GetPrenotaStatusAsync(long lo_oe)
+        {
+            return null;
+        }
     }
 }

@@ -4,6 +4,7 @@ using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Romaneio.Request;
 using Laquila.Integrations.Core.Domain.Filters;
 using Laquila.Integrations.Core.Domain.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Laquila.Integrations.API.Controllers
@@ -39,10 +40,18 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         //1.1.2
+        [Authorize]
         [HttpPatch("orders/{lo_oe}/status")]
         public async Task<IActionResult> UpdateOrderStatusAsync([FromRoute] long lo_oe, [FromBody] PrenotaDatesDTO dto)
         {
-            return Ok();
+            if(dto.LoDtIniPicking == null && dto.LoDtEndPicking == null && dto.LoDtIniConf == null && dto.LoDtEndConf == null)
+            {
+                return BadRequest("At least one date must be provided.");
+            }
+
+            var response = await _prenotaService.UpdatePrenotasStatusAsync(lo_oe, dto);
+            
+            return Ok(response);
         }
 
         //1.1.3
