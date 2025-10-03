@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
@@ -19,6 +20,8 @@ namespace Laquila.Integrations.Application.Services
         private readonly IPrenotaRepository _prenotaRepository;
         private readonly IQueueService _queueService;
         private readonly IEverest30Service _everest30Service;
+        protected readonly ErrorCollector errors = new ErrorCollector();
+
         public PrenotaService(IPrenotaRepository prenotaRepository
                             , IQueueService queueService
                             , IEverest30Service everest30Service)
@@ -80,43 +83,58 @@ namespace Laquila.Integrations.Application.Services
                 _ => true
             };
 
-            var errors = new List<ResponseErrorsDto>();
-
             if (!continueProcess)
+                errors.Add("Order", "lo_oe", lo_oe.ToString(), $"The order {lo_oe} is not in a valid status for updating dates.", true);
+
+
+            var queue = await _queueService.EnqueueAsync("LoadOutDates", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1);
+
+            return new ResponseDto()
             {
-                errors.Add(new ResponseErrorsDto
-                {
-                    StatusCode = 400,
-                    Entity = "Order",
-                    Key = lo_oe.ToString(),
-                    Value = "",
-                    Message = $"The order {lo_oe} is not in a valid status for updating dates."
-                });
-            }
-
-            if (errors.Any())
-                throw new ResponseErrorException(errors);
-
-            try
-            {
-                var queue = await _queueService.EnqueueAsync("OrdersDate", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1);
-
-                return new ResponseDto()
-                {
-                    Data = new ResponseDataDto()
-                    { Message = $"The status update for order {lo_oe} was queued successfully with id {queue}.", StatusCode = "200" }
-                };
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
+                Data = new ResponseDataDto()
+                { Message = $"The status update for order {lo_oe} was queued successfully with id {queue}.", StatusCode = "200" }
+            };
         }
 
-        public Task<ResponseDto> UpdateRenouncedItemsAsync(long lo_oe, PrenotaRenouncedDTO dto)
+        public async Task<ResponseDto> UpdateRenouncedItemsAsync(long lo_oe, PrenotaRenouncedDTO dto)
         {
-            return null;
+            var ordersLine = await _everest30Service.GetOeItemsByLoOe(lo_oe);
+
+            var itemsNotFound = dto.Items.Where(i => !ordersLine.Any(ol => ol.OelId == i.OelId)).ToList();
+
+            int counter = 1;
+            bool throwError = false;
+
+            foreach (var item in itemsNotFound)
+            {
+                if (counter == itemsNotFound.Count)
+                    throwError = true;
+
+                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), $"Item with oel_id {item.OelId} not found in order {lo_oe}.", throwError);
+
+                counter++;
+            }
+
+            var orderLineItemsNotFoundInDto = ordersLine.Where(ol => !dto.Items.Any(i => i.OelId == ol.OelId)).ToList();
+
+            counter = 1;
+            throwError = false;
+            foreach (var item in orderLineItemsNotFoundInDto)
+            {
+                if (counter == orderLineItemsNotFoundInDto.Count)
+                    throwError = true;
+
+                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), $"Item with oel_id {item.OelId} not found in request body for order {lo_oe}.", throwError);
+            }
+
+            //Adicionar fila para atualizar as renuncias
+            var queue = await _queueService.EnqueueAsync("OrdersLine", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1);
+
+            return new ResponseDto()
+            {
+                Data = new ResponseDataDto()
+                { Message = $"Items update from order {lo_oe} were queued successfully.", StatusCode = "204" }
+            };
         }
     }
 }

@@ -9,17 +9,23 @@ namespace Laquila.Integrations.Domain.Helpers
 {
     public class QueueHelper
     {
-        public static LaqApiSyncQueue ModelToSyncQueue(string originTable, string originKey,string originValue, object dto, ApiStatusEnum ApiStatus, int attempCount = 1)
+        public static LaqApiSyncQueue ModelToSyncQueue(string originTable
+                                                    , string originKey
+                                                    , string originValue
+                                                    , object dto
+                                                    , ApiStatusEnum ApiStatus
+                                                    , string? companyCnpj)
         {
             var queue = new LaqApiSyncQueue()
             {
                 OriginTable = originTable,
                 OriginKey = originKey,
                 OriginValue = originValue,
+                CompanyCnpj = companyCnpj,
                 StatusId = (int)ApiStatus,
                 Payload = System.Text.Json.JsonSerializer.Serialize(dto),
                 CreatedAt = DateTime.UtcNow,
-                AttempCount = attempCount
+                AttempCount = 1
             };
 
             return queue;

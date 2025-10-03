@@ -14,6 +14,6 @@ namespace Laquila.Integrations.Core.Domain.DTO.Prenota.Request
         public long OelId { get; set; }
 
         [JsonProperty("oel_qty_renounced")]
-        public int OelQtyRenounced { get; set; }
+        public int OelQtyRenounced { get; set; } = 0;
     }
 }

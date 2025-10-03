@@ -98,5 +98,6 @@ namespace Laquila.Integrations.Domain.Models.Everest30
         [Column("LO_PRINT_REDESPACHO")]
         public int? LoPrintRedespacho { get; set; }
 
+        public virtual ICollection<Orders> Orders { get; set; } = new List<Orders>();
     }
 }

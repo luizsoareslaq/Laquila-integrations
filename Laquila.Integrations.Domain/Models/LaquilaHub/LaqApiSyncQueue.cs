@@ -10,6 +10,8 @@ namespace Laquila.Integrations.Domain.Models
         public string OriginKey { get; set; }
         [Column("origin_value")]
         public string OriginValue { get; set; }
+        [Column("company_cnpj")]
+        public string? CompanyCnpj { get; set; }
         [Column("status_id")]
         public int StatusId { get; set; }
         [Column("payload")]

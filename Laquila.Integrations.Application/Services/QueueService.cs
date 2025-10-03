@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Domain.Enums;
 using Laquila.Integrations.Domain.Helpers;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
@@ -18,7 +19,7 @@ namespace Laquila.Integrations.Application.Services
         }
         public async Task<Guid> EnqueueAsync(string originTable, string originKey, string originId, object payload, ApiStatusEnum status, int attempCount)
         {
-            var queue = QueueHelper.ModelToSyncQueue(originTable, originKey, originId, payload, status, attempCount);
+            var queue = QueueHelper.ModelToSyncQueue(originTable, originKey, originId, payload, status, UserContext.CompanyCnpj);
             await _queueRepository.InsertQueueAsync(queue);
 
             return queue.Id;

@@ -6,6 +6,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Channels;
+using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
@@ -21,7 +22,7 @@ namespace Laquila.Integrations.API.Middlewares
         static readonly SemaphoreSlim _fileLock = new(1, 1);
         static readonly ConcurrentDictionary<string, int> _dailyCount = new();
         static string TodayKey() => DateTime.UtcNow.ToString("yyyy_MM_dd", CultureInfo.InvariantCulture);
-
+        protected readonly ErrorCollector errors = new ErrorCollector();
 
         public Middleware(RequestDelegate next)
         {
@@ -75,13 +76,6 @@ namespace Laquila.Integrations.API.Middlewares
             catch (Exception ex)
             {
                 await HandleExceptionAsync(context, ex);
-
-                if (ex is CustomErrorException custom)
-                {
-                    entity = custom.Entity;
-                    key = custom.Key;
-                    value = custom.Value;
-                }
             }
 
             stopwatch.Stop();
@@ -132,6 +126,7 @@ namespace Laquila.Integrations.API.Middlewares
             context.Response.ContentType = "application/json";
 
             string message = ex.Message;
+
             if (ex.InnerException != null)
             {
                 message += " InnerException: " + ex.InnerException.Message;
@@ -175,7 +170,7 @@ namespace Laquila.Integrations.API.Middlewares
             response.Errors.Add(new ResponseErrorsDto
             {
                 StatusCode = (int)status,
-                Entity = ex.Source ?? "System",
+                Entity = string.Empty,
                 Key = string.Empty,
                 Value = string.Empty,
                 Message = responseMessage

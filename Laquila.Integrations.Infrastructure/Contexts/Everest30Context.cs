@@ -22,15 +22,36 @@ namespace Laquila.Integrations.Infrastructure.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Orders>().ToTable("ORDERS");
-            modelBuilder.Entity<OrdersLine>().ToTable("ORDERS_LINE");
+
+            modelBuilder.Entity<Orders>(entity =>
+            {
+                entity.ToTable("ORDERS");
+                entity.HasKey(e => e.OeId);
+                entity.HasOne(o => o.LoadOut)
+                    .WithMany(l => l.Orders)
+                    .HasForeignKey(o => o.OeLoId);
+
+                entity.HasMany(o => o.OrdersLines)
+                    .WithOne(ol => ol.Orders)
+                    .HasForeignKey(ol => ol.OelOeId);
+            });
+
+            modelBuilder.Entity<OrdersLine>(entity =>
+            {
+                entity.ToTable("ORDERS_LINE");
+                entity.HasKey(e => e.OelId);
+
+                entity.HasOne(ol => ol.Orders)
+                    .WithMany(o => o.OrdersLines)
+                    .HasForeignKey(ol => ol.OelOeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<LoadIn>().ToTable("LOAD_IN");
             modelBuilder.Entity<LoadOut>().ToTable("LOAD_OUT");
             modelBuilder.Entity<FiscalNotes>().ToTable("FISCAL_NOTES");
             modelBuilder.Entity<FnLine>().ToTable("FN_LINE");
 
-            modelBuilder.Entity<Orders>().HasKey(x => x.OeId);
-            modelBuilder.Entity<OrdersLine>().HasKey(x => x.OelId);
             modelBuilder.Entity<LoadIn>().HasKey(x => x.LiId);
             modelBuilder.Entity<LoadOut>().HasKey(x => x.LoId);
             modelBuilder.Entity<FiscalNotes>().HasKey(x => x.FnId);

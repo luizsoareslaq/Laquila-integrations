@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models.Everest30;
 
@@ -19,6 +20,11 @@ namespace Laquila.Integrations.Application.Services
         public async Task<LoadOut> GetLoadOutByLoOe(long loOe, string companyCnpj)
         {
             return await _everest30Repository.GetLoadOutByLoOe(loOe, companyCnpj);
+        }
+
+        public async Task<List<OrdersLine>> GetOeItemsByLoOe(long loOe)
+        {
+            return await _everest30Repository.GetOeItemsByLoOe(loOe);
         }
     }
 }

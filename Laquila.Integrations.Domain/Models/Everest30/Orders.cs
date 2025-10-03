@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Laquila.Integrations.Domain.Models.Everest30
@@ -39,5 +40,13 @@ namespace Laquila.Integrations.Domain.Models.Everest30
         public DateTime? OeDtIniBilling { get; set; }
         [Column("OE_DTEND_BILLING")]
         public DateTime? OeDtEndBilling { get; set; }
+
+        [JsonIgnore]
+        [NotMapped]
+        public virtual LoadOut LoadOut { get; set; }
+
+        [JsonIgnore]
+        [NotMapped]
+        public virtual ICollection<OrdersLine> OrdersLines { get; set; } = new List<OrdersLine>();
     }
 }
