@@ -35,10 +35,10 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         //1.1.1
-        [HttpPost("orders/external")]
-        public async Task<IActionResult> SendOrderAsync([FromBody] PrenotaDTO dto)
+        [HttpPost("orders/external/{apiIntegrationId}")]
+        public async Task<IActionResult> SendOrderAsync([FromBody] PrenotaDTO dto, Guid apiIntegrationId)
         {
-            var response = await _externalService.SendPrenotasAsync(dto);
+            var response = await _externalService.SendPrenotasAsync(dto, apiIntegrationId);
 
             return Ok(response);
         }
@@ -65,7 +65,7 @@ namespace Laquila.Integrations.API.Controllers
 
             var response = await _prenotaService.UpdateRenouncedItemsAsync(lo_oe, dto);
 
-            return Ok();
+            return Ok(response);
         }
 
         //1.2.1

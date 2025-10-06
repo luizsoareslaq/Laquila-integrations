@@ -33,7 +33,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                                         .Include(x => x.Orders)
                                            .ThenInclude(x => x.LoadOut)
                                         .Where(x => x.Orders.LoadOut.LoOe == loOe && x.Orders.LoadOut.LoMaCnpjOwner == UserContext.CompanyCnpj).ToListAsync() ?? throw new BadRequestException("Order items not found with the given id.");
-                                        
+
             return ordersLine;
         }
     }

@@ -152,9 +152,6 @@ namespace Laquila.Integrations.Infrastructure.Contexts
             modelBuilder.Entity<LaqApiUrlIntegrations>(entity =>
             {
                 entity.ToTable("laq_api_url_integrations");
-                entity.HasOne(e => e.User)
-                      .WithMany()
-                      .HasForeignKey(e => e.ApiUserId);
 
                 entity.HasOne(e => e.Integrations)
                       .WithMany()

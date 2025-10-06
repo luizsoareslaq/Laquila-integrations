@@ -1,3 +1,4 @@
+using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
 using Laquila.Integrations.Infrastructure.Contexts;
@@ -8,6 +9,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
 {
     public class ApiIntegrationsRepository : IApiIntegrationsRepository
     {
+        protected readonly ErrorCollector errors = new ErrorCollector();
         private readonly LaquilaHubContext _context;
         public ApiIntegrationsRepository(LaquilaHubContext context)
         {
@@ -77,6 +79,20 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                             .ToListAsync() ?? throw new NotFoundException("No integrations found with these filters.");
 
             return (items, totalItems);
+        }
+
+        public async Task<LaqApiUrlIntegrations> GetApiUrlIntegrationsByIntegrationIdAsync(Guid apiIntegrationId)
+        {
+            var urls = await _context.LaqApiUrlIntegrations.Where(x => x.ApiIntegrationId == apiIntegrationId).FirstOrDefaultAsync();
+
+            return urls ?? throw new NotFoundException("No integrations url found with the given id");
+        }
+
+        public async Task<LaqApiUrlIntegrations> GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(Guid apiIntegrationId, string endpointKey)
+        {
+            var urls = await _context.LaqApiUrlIntegrations.Where(x => x.ApiIntegrationId == apiIntegrationId && x.EndpointKey == endpointKey).FirstOrDefaultAsync();
+            
+            return urls ?? throw new NotFoundException("No integrations url found with the given id or endpoint key");
         }
 
         public Task RemoveJoinedIntegrationTables(List<LaqApiUserIntegrations> userIntegrations, List<LaqApiIntegrationCompanies> integrationCompanies)

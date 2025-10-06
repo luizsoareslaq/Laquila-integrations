@@ -10,6 +10,8 @@ namespace Laquila.Integrations.Domain.Interfaces.Repositories
         Task<LaqApiIntegrations> UpdateApiIntegration(LaqApiIntegrations apiIntegration);
 
         Task<bool> ApiIntegrationsExistsAsync(string integrationName, Guid id);
+        Task<LaqApiUrlIntegrations> GetApiUrlIntegrationsByIntegrationIdAsync(Guid apiIntegrationId);
+        Task<LaqApiUrlIntegrations> GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(Guid apiIntegrationId, string endpointKey);
         Task<List<Guid>> GetAllIntegrationIds();
 
         Task RemoveJoinedIntegrationTables(List<LaqApiUserIntegrations> userIntegrations, List<LaqApiIntegrationCompanies> integrationCompanies);

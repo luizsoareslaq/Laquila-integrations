@@ -5,6 +5,6 @@ namespace Laquila.Integrations.Application.Interfaces
 {
     public interface IExternalService
     {
-        public Task<ResponseDto> SendPrenotasAsync(PrenotaDTO dto);
+        public Task<ResponseDto> SendPrenotasAsync(PrenotaDTO dto,Guid apiIntegrationId);
     }
 }
