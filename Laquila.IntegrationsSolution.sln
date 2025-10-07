@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laquila.Integrations.Infras
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laquila.Integrations.Core", "Laquila.Integrations.Core\Laquila.Integrations.Core.csproj", "{ACBC8973-F010-4841-8781-2A08F5307477}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laquila.Integrations.Bootstrap", "Laquila.Integrations.Bootstrap\Laquila.Integrations.Bootstrap.csproj", "{E982C826-C934-438A-8A25-D0275C285C3F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{ACBC8973-F010-4841-8781-2A08F5307477}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACBC8973-F010-4841-8781-2A08F5307477}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACBC8973-F010-4841-8781-2A08F5307477}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E982C826-C934-438A-8A25-D0275C285C3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E982C826-C934-438A-8A25-D0275C285C3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E982C826-C934-438A-8A25-D0275C285C3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E982C826-C934-438A-8A25-D0275C285C3F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -58,9 +58,9 @@ namespace Laquila.Integrations.Application.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),   
-                new Claim(JwtRegisteredClaimNames.Name, user.Username),                  
-                new Claim("CompanyCnpj", companyCnpj),                      
+                new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Name, user.Username),
+                new Claim("CompanyCnpj", companyCnpj),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -71,7 +71,8 @@ namespace Laquila.Integrations.Application.Services
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expirationJwt = DateTime.Now.AddHours(1);
+            int expirationSeconds = 3600;
+            var expirationJwt = DateTime.Now.AddSeconds(expirationSeconds);
 
             var accessToken = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
                 issuer: _issuer,
@@ -111,6 +112,7 @@ namespace Laquila.Integrations.Application.Services
             var newRefreshToken = GenerateSecureRefreshToken();
             var expirationRefreshToken = DateTime.Now.AddDays(7);
 
+
             await _authRepository.SaveTokenAsync(new LaqApiAuthTokens(user.Id
                                                                     , tokenString
                                                                     , newRefreshToken
@@ -124,7 +126,7 @@ namespace Laquila.Integrations.Application.Services
             //                         }
             //                         );
 
-            return new TokenResponseDto(tokenString, expirationJwt, newRefreshToken, expirationRefreshToken);
+            return new TokenResponseDto(tokenString, expirationSeconds);
         }
 
         public async Task<Guid> GetIdByJwt()

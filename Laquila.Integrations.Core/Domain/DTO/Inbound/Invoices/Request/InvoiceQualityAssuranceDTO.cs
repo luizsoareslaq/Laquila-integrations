@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Laquila.Integrations.Core.Domain.DTO.Outbound.Invoices.Request
+namespace Laquila.Integrations.Core.Domain.DTO.Inbound.Invoices.Request
 {
     public class InvoiceQualityAssuranceDTO
     {

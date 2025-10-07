@@ -1,8 +1,10 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laquila.Integrations.Worker", "Laquila.Integrations.Worker.csproj", "{B6FF8C80-A387-B938-0E04-A4035D1CE620}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laquila.Integrations.Bootstrap", "..\Laquila.Integrations.Bootstrap\Laquila.Integrations.Bootstrap.csproj", "{075BF2B6-E0F7-40D5-9BBC-215CEC2DF078}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,6 +16,10 @@ Global
 		{B6FF8C80-A387-B938-0E04-A4035D1CE620}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6FF8C80-A387-B938-0E04-A4035D1CE620}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6FF8C80-A387-B938-0E04-A4035D1CE620}.Release|Any CPU.Build.0 = Release|Any CPU
+		{075BF2B6-E0F7-40D5-9BBC-215CEC2DF078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{075BF2B6-E0F7-40D5-9BBC-215CEC2DF078}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{075BF2B6-E0F7-40D5-9BBC-215CEC2DF078}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{075BF2B6-E0F7-40D5-9BBC-215CEC2DF078}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

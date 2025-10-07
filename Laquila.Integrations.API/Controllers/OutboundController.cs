@@ -1,6 +1,7 @@
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Core.Domain.DTO.Invoices.Request;
+using Laquila.Integrations.Core.Domain.DTO.Outbound.Invoices.Request;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Romaneio.Request;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
@@ -38,7 +39,7 @@ namespace Laquila.Integrations.API.Controllers
         [HttpPost("orders/external/{apiIntegrationId}")]
         public async Task<IActionResult> SendOrderAsync([FromBody] PrenotaDTO dto, Guid apiIntegrationId)
         {
-            var response = await _externalService.SendPrenotasAsync(dto, apiIntegrationId);
+            var response = await _externalService.SendOrdersAsync(dto, apiIntegrationId);
 
             return Ok(response);
         }
@@ -70,7 +71,7 @@ namespace Laquila.Integrations.API.Controllers
 
         //1.2.1
         [HttpPost("invoice/{lo_oe}")]
-        public async Task<IActionResult> SendInvoiceAsync([FromRoute] long lo_oe)
+        public async Task<IActionResult> SendInvoiceAsync([FromRoute] long lo_oe, [FromBody] InvoiceDTO dto)
         {
             return Ok();
         }
