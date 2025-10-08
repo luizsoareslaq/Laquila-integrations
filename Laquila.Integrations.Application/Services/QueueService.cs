@@ -17,9 +17,9 @@ namespace Laquila.Integrations.Application.Services
         {
             _queueRepository = queueRepository;
         }
-        public async Task<Guid> EnqueueAsync(string originTable, string originKey, string originId, object payload, ApiStatusEnum status, int attempCount)
+        public async Task<Guid> EnqueueAsync(string originTable, string originKey, string originId, object payload, ApiStatusEnum status, int attempCount,string? errorMessage)
         {
-            var queue = QueueHelper.ModelToSyncQueue(originTable, originKey, originId, payload, status, UserContext.CompanyCnpj);
+            var queue = QueueHelper.ModelToSyncQueue(originTable, originKey, originId, payload, status, UserContext.CompanyCnpj,errorMessage);
             await _queueRepository.InsertQueueAsync(queue);
 
             return queue.Id;

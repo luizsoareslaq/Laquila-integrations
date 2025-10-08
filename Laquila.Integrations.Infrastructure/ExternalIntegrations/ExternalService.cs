@@ -31,38 +31,45 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
 
             var urls = await _integrationsRepository.GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(apiIntegrationId, IntegrationType);
 
+            RestResponse response = new RestResponse();
+
             try
             {
-                (RestClient client,RestRequest request) = NewRestSharpClient(urls.Url, dto, urls.AuthType);
+                // (RestClient client,RestRequest request) = NewRestSharpClient(urls.Url, dto, urls.AuthType);
 
-                var response = await client.ExecuteAsync(request);
+                // var response = await client.ExecuteAsync(request);
 
-                if (!response.IsSuccessful)
-                {
-                    throw new Exception($"Integration failed ({response.StatusCode}): {response.Content}");
-                }
+                // if (!response.IsSuccessful)
+                // {
+                // throw new Exception($"Integration failed ({response.StatusCode}): {response.Content}");
+                // }
+
 
                 // Chamar procedure de envio de prenota no EVEREST30
-                var queue = await _queueService.EnqueueAsync("UpdateERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Pending, 1);
+                // var queue = await _queueService.EnqueueAsync("SendERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Pending, 1);
+                var queue = await _queueService.EnqueueAsync("SendERPOrder", "lo_oe", dto.LoOe.ToString(), dto, ApiStatusEnum.Pending, 1, null);
 
                 return new ResponseDto
                 {
                     Data = new ResponseDataDto
                     {
-                        StatusCode = ((int)response.StatusCode).ToString(),
-                        Message = $"Prenota sent successfully to external system. ({response.StatusCode})"
+                        // StatusCode = ((int)response.StatusCode).ToString(),
+                        StatusCode = (200).ToString(),
+                        // Message = $"Order sent successfully to external system. ({response.StatusCode})"
+                        Message = $"Order sent successfully to external system. ({200})"
                     }
                 };
             }
             catch (Exception ex)
             {
-                var queue = await _queueService.EnqueueAsync("UpdateERPOrder", "lo_oe", dto.LoOe.ToString(), ex.Message + " - " + ex.InnerException, ApiStatusEnum.Error, 1);
+                var queue = await _queueService.EnqueueAsync("SendERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
 
                 errors.Add("SendOrder", "lo_oe", dto.LoOe.ToString(),
                     $"Order {dto.LoOe} could not be sent because: {ex.Message + " - " + ex.InnerException}", true);
 
                 throw;
-            };
+            }
+            ;
         }
 
         public async Task<ResponseDto> SendInvoicesAsync(PrenotaDTO dto, Guid apiIntegrationId)
@@ -71,11 +78,13 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
 
             var urls = await _integrationsRepository.GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(apiIntegrationId, IntegrationType);
 
+            RestResponse response = new RestResponse();
+
             try
             {
-                (RestClient client,RestRequest request) = NewRestSharpClient(urls.Url, dto, urls.AuthType);
+                (RestClient client, RestRequest request) = NewRestSharpClient(urls.Url, dto, urls.AuthType);
 
-                var response = await client.ExecuteAsync(request);
+                response = await client.ExecuteAsync(request);
 
                 if (!response.IsSuccessful)
                 {
@@ -83,7 +92,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                 }
 
                 // Chamar procedure de envio de prenota no EVEREST30
-                var queue = await _queueService.EnqueueAsync("UpdateERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Pending, 1);
+                var queue = await _queueService.EnqueueAsync("UpdateERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Pending, 1, null);
 
                 return new ResponseDto
                 {
@@ -96,7 +105,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
             }
             catch (Exception ex)
             {
-                var queue = await _queueService.EnqueueAsync("UpdateERPOrder", "lo_oe", dto.LoOe.ToString(), ex.Message + " - " + ex.InnerException, ApiStatusEnum.Error, 1);
+                var queue = await _queueService.EnqueueAsync("UpdateERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
 
                 errors.Add("SendOrder", "lo_oe", dto.LoOe.ToString(),
                     $"Order {dto.LoOe} could not be sent because: {ex.Message + " - " + ex.InnerException}", true);

@@ -144,6 +144,7 @@ namespace Laquila.Integrations.Infrastructure.Contexts
             modelBuilder.Entity<LaqApiSyncQueue>(entity =>
             {
                 entity.ToTable("laq_api_sync_queue");
+
                 entity.HasOne(e => e.Status)
                     .WithOne()
                     .HasForeignKey<LaqApiSyncQueue>(i => i.StatusId);
@@ -153,13 +154,8 @@ namespace Laquila.Integrations.Infrastructure.Contexts
             {
                 entity.ToTable("laq_api_url_integrations");
 
-                entity.HasOne(e => e.Integrations)
-                      .WithMany()
-                      .HasForeignKey(e => e.ApiIntegrationId);
-
-                entity.HasOne(e => e.Status)
-                    .WithOne()
-                    .HasForeignKey<LaqApiUrlIntegrations>(i => i.StatusId);
+                // entity.Ignore(e => e.Integrations);
+                // entity.Ignore(e => e.Status);
             });
         }
     }

@@ -14,7 +14,8 @@ namespace Laquila.Integrations.Domain.Helpers
                                                     , string originValue
                                                     , object dto
                                                     , ApiStatusEnum ApiStatus
-                                                    , string? companyCnpj)
+                                                    , string? companyCnpj
+                                                    , string? errorMessage)
         {
             var queue = new LaqApiSyncQueue()
             {
@@ -27,6 +28,9 @@ namespace Laquila.Integrations.Domain.Helpers
                 CreatedAt = DateTime.UtcNow,
                 AttempCount = 1
             };
+
+            if (!string.IsNullOrEmpty(errorMessage))
+                queue.ErrorMessage = errorMessage;
 
             return queue;
         }

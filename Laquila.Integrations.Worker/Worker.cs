@@ -1,4 +1,6 @@
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
+using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Worker.Querys.Interfaces;
 
 namespace Laquila.Integrations.Worker;
@@ -17,22 +19,52 @@ public class Worker : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var query = scope.ServiceProvider.GetRequiredService<IEverest30Query>();
+            var prenotas = await GetOrders(stoppingToken);
 
-            _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-
-            var filters = new Laquila.Integrations.Core.Domain.Filters.LAQFilters
+            if (prenotas.Total > 0)
             {
-                Page = 1,
-                PageSize = 10,
-                LoIniGenTime = DateOnly.FromDateTime(DateTime.Now.AddDays(-7)),
-                LoEndGenTime = DateOnly.FromDateTime(DateTime.Now)
-            };
+                foreach (var item in prenotas.Items)
+                {
+                    await SendOrders(item, stoppingToken, Guid.Parse("F4C3C856-7D85-406F-9C29-08DDE65179AA"));
 
-            var result = await query.GetPrenotas(filters, stoppingToken);
+                    await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                }
+            }
 
-            await Task.Delay(1000, stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
     }
+
+    private async Task<PagedResult<PrenotaDTO>> GetOrders(CancellationToken ct)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var query = scope.ServiceProvider.GetRequiredService<IEverest30Query>();
+
+        var filters = new Laquila.Integrations.Core.Domain.Filters.LAQFilters
+        {
+            Page = 1,
+            PageSize = 10,
+            LoIniGenTime = DateOnly.FromDateTime(DateTime.Now.AddDays(-7)),
+            LoEndGenTime = DateOnly.FromDateTime(DateTime.Now)
+        };
+
+        return await query.GetOrders(filters, ct);
+    }
+
+    private async Task SendOrders(PrenotaDTO dto, CancellationToken ct, Guid IntegrationId)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var query = scope.ServiceProvider.GetRequiredService<IEverest30Query>();
+
+        var filters = new Laquila.Integrations.Core.Domain.Filters.LAQFilters
+        {
+            Page = 1,
+            PageSize = 10,
+            LoIniGenTime = DateOnly.FromDateTime(DateTime.Now.AddDays(-7)),
+            LoEndGenTime = DateOnly.FromDateTime(DateTime.Now)
+        };
+
+        await query.SendOrders(dto, ct, IntegrationId);
+    }
+
 }

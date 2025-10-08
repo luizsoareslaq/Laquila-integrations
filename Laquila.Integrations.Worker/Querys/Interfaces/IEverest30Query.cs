@@ -10,6 +10,7 @@ namespace Laquila.Integrations.Worker.Querys.Interfaces
 {
     public interface IEverest30Query
     {
-        Task<PagedResult<PrenotaDTO>> GetPrenotas(LAQFilters filters, CancellationToken ct);
+        Task<PagedResult<PrenotaDTO>> GetOrders(LAQFilters filters, CancellationToken ct);
+        Task<ResponseDto> SendOrders(PrenotaDTO dto, CancellationToken ct, Guid apiIntegrationId);
     }
 }

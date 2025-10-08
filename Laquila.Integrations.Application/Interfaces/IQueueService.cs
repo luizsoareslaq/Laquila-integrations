@@ -8,6 +8,6 @@ namespace Laquila.Integrations.Application.Interfaces
 {
     public interface IQueueService
     {
-        public Task<Guid> EnqueueAsync(string originTable, string originKey, string originId, object payload, ApiStatusEnum status, int attempCount);
+        public Task<Guid> EnqueueAsync(string originTable, string originKey, string originId, object payload, ApiStatusEnum status, int attempCount, string? errorMessage);
     }
 }

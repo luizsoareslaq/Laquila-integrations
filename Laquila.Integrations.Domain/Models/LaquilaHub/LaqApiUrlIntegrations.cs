@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Laquila.Integrations.Domain.Models
 {
@@ -37,7 +38,11 @@ namespace Laquila.Integrations.Domain.Models
         [Column("disabled_at")]
         public DateTime? DisabledAt { get; set; }
 
-        public virtual LaqApiIntegrations Integrations { get; set; }
-        public virtual LaqApiStatus Status { get; set; }
+        // [NotMapped]
+        // [JsonIgnore]
+        // public virtual LaqApiIntegrations Integrations { get; set; }
+        // [NotMapped]
+        // [JsonIgnore]
+        // public virtual LaqApiStatus Status { get; set; }
     }
 }

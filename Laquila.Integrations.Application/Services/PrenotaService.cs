@@ -87,7 +87,7 @@ namespace Laquila.Integrations.Application.Services
                 errors.Add("Order", "lo_oe", lo_oe.ToString(), $"The order {lo_oe} is not in a valid status for updating dates.", true);
 
 
-            var queue = await _queueService.EnqueueAsync("LoadOutDates", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1);
+            var queue = await _queueService.EnqueueAsync("LoadOutDates", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1,null);
 
             return new ResponseDto()
             {
@@ -128,7 +128,7 @@ namespace Laquila.Integrations.Application.Services
             }
 
             //Adicionar fila para atualizar as renuncias
-            var queue = await _queueService.EnqueueAsync("OrdersLine", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1);
+            var queue = await _queueService.EnqueueAsync("OrdersLine", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1,null);
 
             return new ResponseDto()
             {

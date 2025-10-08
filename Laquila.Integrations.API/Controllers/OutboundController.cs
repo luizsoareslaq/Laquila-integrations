@@ -27,6 +27,7 @@ namespace Laquila.Integrations.API.Controllers
             _externalService = externalService;
         }
 
+        [Authorize]
         [HttpGet("orders")]
         public async Task<IActionResult> GetOrdersAsync([FromQuery] LAQFilters filters)
         {
@@ -58,6 +59,7 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         //1.1.3
+        [Authorize]
         [HttpPut("orders/{lo_oe}")]
         public async Task<IActionResult> UpdateRenouncedItemsAsync([FromRoute] long lo_oe, [FromBody] PrenotaRenouncedDTO dto)
         {
@@ -77,6 +79,7 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         //1.2.2
+        [Authorize]
         [HttpPatch("invoice/{lo_oe}/status")]
         public async Task<IActionResult> UpdateInvoiceStatusAsync([FromRoute] long lo_oe, [FromBody] InvoiceDatesDTO dto)
         {
