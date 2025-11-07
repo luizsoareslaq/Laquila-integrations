@@ -26,6 +26,8 @@ namespace Laquila.Integrations.Domain.Models
         public DateTime? ModifiedAt { get; set; }
         [Column("disabled_at")]
         public DateTime? DisabledAt { get; set; }
+        [Column("language")]
+        public string Language { get; set; } = "en";
 
         public virtual LaqApiStatus? Status { get; set; }
         public virtual ICollection<LaqApiAuthTokens> AuthTokens { get; set; } = new List<LaqApiAuthTokens>();

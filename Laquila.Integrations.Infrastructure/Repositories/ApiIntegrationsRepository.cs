@@ -1,4 +1,6 @@
 using Laquila.Integrations.Application.Helpers;
+using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
 using Laquila.Integrations.Infrastructure.Contexts;
@@ -40,7 +42,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
 
             return await _context.LaqApiIntegrations
                 .Include(u => u.Status)
-                .FirstOrDefaultAsync(u => u.Id == apiIntegration.Id) ?? throw new EntityNotFoundAfterCreated("API Integration");
+                .FirstOrDefaultAsync(u => u.Id == apiIntegration.Id) ?? throw new EntityNotFoundAfterCreated("Integration");
         }
 
         public async Task<List<Guid>> GetAllIntegrationIds()
@@ -54,7 +56,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
             .Include(x => x.Status)
             .Include(x => x.IntegrationCompanies).ThenInclude(ic => ic.Company)
             .Include(x => x.UserIntegrations).ThenInclude(ic => ic.User)
-            .FirstOrDefaultAsync() ?? throw new NotFoundException("No integration found with the given ID.");
+            .FirstOrDefaultAsync() ?? throw new NotFoundException(MessageProvider.Get("IntegrationIDNotFound", UserContext.Language));
         }
 
         public async Task<(List<LaqApiIntegrations> Data, int DataCount)> GetApiIntegrations(int page, int pageSize, string orderBy, bool ascending)
@@ -76,7 +78,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                             .Include(x => x.Status)
                             .Include(x => x.IntegrationCompanies).ThenInclude(ic => ic.Company)
                             .Include(x => x.UserIntegrations).ThenInclude(ic => ic.User)
-                            .ToListAsync() ?? throw new NotFoundException("No integrations found with these filters.");
+                            .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("IntegrationsNotFound", UserContext.Language));
 
             return (items, totalItems);
         }
@@ -85,14 +87,14 @@ namespace Laquila.Integrations.Infrastructure.Repositories
         {
             var urls = await _context.LaqApiUrlIntegrations.Where(x => x.ApiIntegrationId == apiIntegrationId).FirstOrDefaultAsync();
 
-            return urls ?? throw new NotFoundException("No integrations url found with the given id");
+            return urls ?? throw new NotFoundException(MessageProvider.Get("IntegrationsURLIDNotFound", UserContext.Language));
         }
 
         public async Task<LaqApiUrlIntegrations> GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(Guid apiIntegrationId, string endpointKey)
         {
             var urls = await _context.LaqApiUrlIntegrations.Where(x => x.ApiIntegrationId == apiIntegrationId && x.EndpointKey == endpointKey).FirstOrDefaultAsync();
             
-            return urls ?? throw new NotFoundException("No integrations url found with the given id or endpoint key");
+            return urls ?? throw new NotFoundException(MessageProvider.Get("IntegrationsURLIDOrEndpointNotFound", UserContext.Language));
         }
 
         public Task RemoveJoinedIntegrationTables(List<LaqApiUserIntegrations> userIntegrations, List<LaqApiIntegrationCompanies> integrationCompanies)
@@ -111,7 +113,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
 
             return await _context.LaqApiIntegrations
                 .Include(u => u.Status)
-                .FirstOrDefaultAsync(u => u.Id == apiIntegration.Id) ?? throw new EntityNotFoundAfterUpdated("API Integration");
+                .FirstOrDefaultAsync(u => u.Id == apiIntegration.Id) ?? throw new EntityNotFoundAfterUpdated("Integration");
         }
     }
 }

@@ -1,17 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Azure;
 using Laquila.Integrations.Application.DTO.Auth.Request;
 using Laquila.Integrations.Application.DTO.Auth.Response;
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Domain.Filters;
-using Laquila.Integrations.Core.Domain.Services.Interfaces;
 using Laquila.Integrations.Worker.Context;
 using Laquila.Integrations.Worker.DTO;
 using Laquila.Integrations.Worker.Querys.Interfaces;

@@ -16,7 +16,7 @@ namespace Laquila.Integrations.Application.DTO.Auth.Request
         [JsonPropertyName("password")]
         public string Password { get; set; }
         [JsonPropertyName("company")]
-        public string Cnpj { get; set; }
+        public string? Cnpj { get; set; }
         
     }
 }

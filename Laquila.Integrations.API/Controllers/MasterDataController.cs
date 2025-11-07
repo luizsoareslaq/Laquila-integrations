@@ -19,14 +19,7 @@ namespace Laquila.Integrations.API.Controllers
             return Ok();
         }
 
-        //Adicionar método de GET para os itens também
 
-        //3.1.2
-        [HttpPost("items/packages")]
-        public async Task<IActionResult> SendItemPackages([FromBody] MasterDataItemPackagesDTO dto)
-        {
-            return Ok();
-        }
 
         //3.1.3
         [HttpPost("mandators")]

@@ -27,7 +27,7 @@ namespace Laquila.Integrations.Application.Services
         public async Task<ApiIntegrationResponseDTO> CreateApiIntegration(ApiIntegrationDTO dto)
         {
             if (await _apiIntegrationsRepository.ApiIntegrationsExistsAsync(dto.IntegrationName, Guid.Empty))
-                throw new BadRequestException("API Integration name already exists.");
+                throw new BadRequestException("Integration name already exists.");
 
             var apiIntegration = new LaqApiIntegrations(dto.IntegrationName, 1); // Default status to Active (1)
 

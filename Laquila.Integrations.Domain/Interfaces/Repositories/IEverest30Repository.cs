@@ -8,7 +8,7 @@ namespace Laquila.Integrations.Domain.Interfaces.Repositories
 {
     public interface IEverest30Repository
     {
-        Task<LoadOut> GetLoadOutByLoOe(long loOe, string companyCnpj);
+        Task<LoadOut> GetLoadOutByLoOe(long loOe);
         Task<List<OrdersLine>> GetOeItemsByLoOe(long loOe);
     }
 }

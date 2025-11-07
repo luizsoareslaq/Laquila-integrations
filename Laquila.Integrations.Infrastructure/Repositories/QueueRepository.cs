@@ -1,3 +1,5 @@
+using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Filters;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
@@ -55,7 +57,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                                         .Skip((page - 1) * pageSize)
                                         .Take(pageSize)
                                         .Include(x => x.Status)
-                                        .ToListAsync() ?? throw new NotFoundException("No Queues found with these filters.");
+                                        .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("QueuesNotFound", UserContext.Language));
 
 
             return (items, totalItems);
@@ -63,7 +65,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
 
         public async Task<LaqApiSyncQueue?> GetQueueAsyncById(Guid id)
         {
-            var queue = await _context.LaqApiSyncQueues.FirstOrDefaultAsync(q => q.Id == id) ?? throw new NotFoundException("No queue found with the given ID.");
+            var queue = await _context.LaqApiSyncQueues.FirstOrDefaultAsync(q => q.Id == id) ?? throw new NotFoundException(MessageProvider.Get("QueueIDNotFound", UserContext.Language));
             return queue;
         }
 

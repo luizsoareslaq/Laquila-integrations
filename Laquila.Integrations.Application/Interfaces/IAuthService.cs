@@ -7,7 +7,7 @@ namespace Laquila.Integrations.Application.Interfaces
 {
     public interface IAuthService
     {
-        Task<TokenResponseDto> GenerateToken(LaqApiUsers user, string companyCnpj);
+        Task<TokenResponseDto> GenerateToken(LaqApiUsers user, string companyCnpj, string language);
         bool VerifyPassword(string password, string storedHash, string salt);
         Task<ClaimsPrincipal> ValidateToken(string token);
         Task<Guid> GetIdByJwt();

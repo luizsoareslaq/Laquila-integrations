@@ -15,5 +15,8 @@ namespace Laquila.Integrations.Core.Domain.Models
         public long OelId { get; set; }
         public required string OelAtId { get; set; }
         public int OelQtyReq { get; set; }
+        public string PrecisaAtualizarItem { get; set; } = "N";
+        public string PrecisaAtualizarCliente { get; set; } = "N";
+        public string PrecisaAtualizarTransportador { get; set; } = "N";
     }
 }

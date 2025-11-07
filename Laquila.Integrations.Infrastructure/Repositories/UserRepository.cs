@@ -1,3 +1,5 @@
+using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Filters;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
@@ -37,7 +39,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
         public async Task<List<LaqApiRoles>> GetRolesAsync()
         {
             var roles = await _context.LaqApiRoles.ToListAsync();
-            return roles ?? throw new NotFoundException("No roles found.");
+            return roles ?? throw new NotFoundException(MessageProvider.Get("RolesDatabaseNotFound", UserContext.Language));
         }
 
         public async Task AddUserCompanies(List<LaqApiUserCompanies> userCompanies)
@@ -97,7 +99,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                             .Include(x => x.UserCompanies).ThenInclude(uc => uc.Company)
                             .Include(x => x.UserIntegrations).ThenInclude(ui => ui.Integration)
                             .Include(x => x.Status)
-                            .ToListAsync() ?? throw new NotFoundException("No Users found with these filters.");
+                            .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("UsersNotFound", UserContext.Language));
 
             return (items, totalItems);
         }
@@ -110,7 +112,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                 .Include(x => x.UserIntegrations).ThenInclude(ui => ui.Integration)
                 .Include(x => x.Status)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id) ?? throw new NotFoundException("No user found with the given id.");
+                .FirstOrDefaultAsync(x => x.Id == id) ?? throw new NotFoundException(MessageProvider.Get("UserIdNotFound", UserContext.Language));
         }
 
         public async Task<LaqApiUsers> UpdateUser(LaqApiUsers entity)
@@ -162,7 +164,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                             .FirstOrDefaultAsync(x => x.Username == username);
 
             if (user == null)
-                throw new NotFoundException($"Username: {username} was not found!");
+                throw new NotFoundException(string.Format(MessageProvider.Get("UsernameNotFound", UserContext.Language), username));
 
             return user;
         }

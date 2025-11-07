@@ -5,6 +5,8 @@ using System.Text;
 using Laquila.Integrations.Application.DTO.Auth.Request;
 using Laquila.Integrations.Application.DTO.Auth.Response;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Enums;
 using Laquila.Integrations.Domain.Helpers;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
@@ -43,24 +45,29 @@ namespace Laquila.Integrations.Application.Services
         {
             var user = await _userRepository.GetUserByUsername(dto.Username);
 
-            if (!VerifyPassword(dto.Password, user.Hash, user.Salt) || user.StatusId != (int)ApiStatusEnum.Active
-                || !CheckCompany(dto.Cnpj, user))
+            if (!VerifyPassword(dto.Password, user.Hash, user.Salt) || user.StatusId != (int)ApiStatusEnum.Active)
             {
-                throw new UnauthorizedAccessException("Invalid login attemp.");
+                throw new UnauthorizedAccessException(MessageProvider.Get("InvalidLogin", UserContext.Language));
             }
 
-            var token = await GenerateToken(user, dto.Cnpj);
+            var companyCnpj = CheckCompany(dto.Cnpj, user);
+
+            var token = await GenerateToken(user, companyCnpj, user.Language);
+
+            if(companyCnpj == null)
+                throw new UnauthorizedAccessException(MessageProvider.Get("UserCompanyNotFound", UserContext.Language));
 
             return token;
         }
 
-        public async Task<TokenResponseDto> GenerateToken(LaqApiUsers user, string companyCnpj)
+        public async Task<TokenResponseDto> GenerateToken(LaqApiUsers user, string companyCnpj, string language = "en")
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Name, user.Username),
                 new Claim("CompanyCnpj", companyCnpj),
+                new Claim("Language", language),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -85,7 +92,7 @@ namespace Laquila.Integrations.Application.Services
             var tokenString = new JwtSecurityTokenHandler().WriteToken(accessToken);
 
             var context = _httpContextAccessor.HttpContext;
-            if (context == null) throw new BadRequestException("Error while generating access token");
+            if (context == null) throw new BadRequestException(MessageProvider.Get("GeneratingTokenError", UserContext.Language));
 
             var origin = context.Request.Headers["Origin"].ToString();
 
@@ -119,12 +126,6 @@ namespace Laquila.Integrations.Application.Services
                                                                     , expirationJwt
                                                                     , expirationRefreshToken
                                                                     , companyCnpj));
-
-            // _ = Task.Run(async () =>
-            //                         {
-            //                             await _authRepository.DisableActiveTokens(user.Id, tokenString);
-            //                         }
-            //                         );
 
             return new TokenResponseDto(tokenString, expirationSeconds);
         }
@@ -213,7 +214,7 @@ namespace Laquila.Integrations.Application.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Error when validating token", ex);
+                throw new Exception(MessageProvider.Get("InvalidToken", UserContext.Language), ex);
             }
         }
 
@@ -223,12 +224,32 @@ namespace Laquila.Integrations.Application.Services
             return hashToCompare == storedHash;
         }
 
-        public bool CheckCompany(string companyCnpj, LaqApiUsers user)
+        public string CheckCompany(string? companyCnpj, LaqApiUsers user)
         {
-            if (user.UserCompanies == null || !user.UserCompanies.Any())
-                return false;
+            string selectedCnpj = string.Empty;
 
-            return user.UserCompanies.Any(uc => uc.Company.Document == companyCnpj);
+            if (user.UserCompanies.Count() == 0)
+                throw new UnauthorizedAccessException(MessageProvider.Get("NoCompanyAssigned", user.Language));
+
+            if (string.IsNullOrEmpty(companyCnpj))
+            {
+                if (user.UserCompanies.Count() > 1)
+                    throw new BadRequestException(MessageProvider.Get("MultipleCompaniesAssigned", user.Language));
+
+                selectedCnpj = user.UserCompanies.First().Company.Document;
+
+                return selectedCnpj;
+            }
+            else
+            {
+                var company = user.UserCompanies.FirstOrDefault(c => c.Company.Document == companyCnpj);
+                if (company == null)
+                    throw new UnauthorizedAccessException(MessageProvider.Get("UserCompanyNotFound", user.Language));
+
+                selectedCnpj = company.Company.Document;
+
+                return selectedCnpj;
+            }            
         }
 
         public async Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto)
@@ -236,13 +257,13 @@ namespace Laquila.Integrations.Application.Services
             var stored = await _authRepository.GetRefreshTokenAsync(dto.RefreshToken);
 
             if (stored == null || stored.RefreshTokenExpiresAt <= DateTime.Now)
-                throw new UnauthorizedAccessException("Refresh Token is invalid or expired.");
+                throw new UnauthorizedAccessException(MessageProvider.Get("InvalidRefreshToken", UserContext.Language));
 
             var user = await _userRepository.GetUserById(stored.ApiUserId);
 
             await _authRepository.DeleteTokenAsync(stored);
 
-            var token = await GenerateToken(user, stored.CompanyCnpj);
+            var token = await GenerateToken(user, stored.CompanyCnpj, user.Language);
             var newRefreshToken = GenerateSecureRefreshToken();
 
             return token;

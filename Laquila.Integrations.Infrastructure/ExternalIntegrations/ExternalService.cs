@@ -1,9 +1,11 @@
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Domain.DTO.Outbound.Invoices.Request;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Infra.Interfaces;
+using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Enums;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -56,7 +58,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                         // StatusCode = ((int)response.StatusCode).ToString(),
                         StatusCode = (200).ToString(),
                         // Message = $"Order sent successfully to external system. ({response.StatusCode})"
-                        Message = $"Order sent successfully to external system. ({200})"
+                        Message = string.Format(MessageProvider.Get("OrderSent", UserContext.Language),dto.LoOe)
                     }
                 };
             }
@@ -65,16 +67,16 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                 var queue = await _queueService.EnqueueAsync("SendERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
 
                 errors.Add("SendOrder", "lo_oe", dto.LoOe.ToString(),
-                    $"Order {dto.LoOe} could not be sent because: {ex.Message + " - " + ex.InnerException}", true);
+                    string.Format(MessageProvider.Get("OrderSentError",UserContext.Language),dto.LoOe, ex.Message + " - " + ex.InnerException), true);
 
                 throw;
             }
             ;
         }
 
-        public async Task<ResponseDto> SendInvoicesAsync(PrenotaDTO dto, Guid apiIntegrationId)
+        public async Task<ResponseDto> SendInvoicesAsync(InvoiceDTO dto, Guid apiIntegrationId)
         {
-            IntegrationType = "SendExternalOrders";
+            IntegrationType = "SendExternalInvoices";
 
             var urls = await _integrationsRepository.GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(apiIntegrationId, IntegrationType);
 
@@ -99,7 +101,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                     Data = new ResponseDataDto
                     {
                         StatusCode = ((int)response.StatusCode).ToString(),
-                        Message = $"Prenota sent successfully to external system. ({response.StatusCode})"
+                        Message = string.Format(MessageProvider.Get("InvoiceSent", UserContext.Language),dto.OeInvNumber, dto.LoOe)
                     }
                 };
             }
@@ -108,7 +110,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                 var queue = await _queueService.EnqueueAsync("UpdateERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
 
                 errors.Add("SendOrder", "lo_oe", dto.LoOe.ToString(),
-                    $"Order {dto.LoOe} could not be sent because: {ex.Message + " - " + ex.InnerException}", true);
+                    string.Format(MessageProvider.Get("InvoiceSentError",UserContext.Language),dto.OeInvNumber, dto.LoOe, ex.Message + " - " + ex.InnerException), true);
 
                 throw;
             }

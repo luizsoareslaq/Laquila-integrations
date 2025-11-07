@@ -1,3 +1,5 @@
+using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Filters;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
@@ -70,7 +72,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
                             .Skip((page - 1) * pageSize)
                             .Take(pageSize)
                             .Include(x => x.Status)
-                            .ToListAsync() ?? throw new NotFoundException("No Companies found with these filters.");
+                            .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("CompaniesNotFound", UserContext.Language));
 
             return (items, totalItems);
         }
@@ -79,7 +81,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories
         {
             return await _context.LaqApiCompanies.Where(x => x.Id == id)
                                                 .Include(x => x.Status)
-                                                .FirstOrDefaultAsync() ?? throw new NotFoundException("No company found with the given ID.");
+                                                .FirstOrDefaultAsync() ?? throw new NotFoundException(MessageProvider.Get("CompanyIdNotFound", UserContext.Language));
         }
 
         public async Task<bool> CompanyIdExists(Guid id)

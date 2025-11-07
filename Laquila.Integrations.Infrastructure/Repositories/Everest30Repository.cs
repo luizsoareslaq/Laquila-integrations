@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models.Everest30;
 using Laquila.Integrations.Infrastructure.Contexts;
@@ -19,10 +20,10 @@ namespace Laquila.Integrations.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<LoadOut> GetLoadOutByLoOe(long loOe, string companyCnpj)
+        public async Task<LoadOut> GetLoadOutByLoOe(long loOe)
         {
-            var orders = await _context.LoadOut.Where(x => x.LoOe == loOe && x.LoMaCnpjOwner == companyCnpj).FirstOrDefaultAsync()
-            ?? throw new BadRequestException("Order not found with the given id.");
+            var orders = await _context.LoadOut.Where(x => x.LoOe == loOe && x.LoMaCnpjOwner == UserContext.CompanyCnpj).FirstOrDefaultAsync()
+            ?? throw new BadRequestException(MessageProvider.Get("OrderIdNotFound", UserContext.Language));
 
             return orders;
         }
@@ -32,7 +33,8 @@ namespace Laquila.Integrations.Infrastructure.Repositories
             var ordersLine = await _context.OrdersLine
                                         .Include(x => x.Orders)
                                            .ThenInclude(x => x.LoadOut)
-                                        .Where(x => x.Orders.LoadOut.LoOe == loOe && x.Orders.LoadOut.LoMaCnpjOwner == UserContext.CompanyCnpj).ToListAsync() ?? throw new BadRequestException("Order items not found with the given id.");
+                                        .Where(x => x.Orders.LoadOut.LoOe == loOe && x.Orders.LoadOut.LoMaCnpjOwner == UserContext.CompanyCnpj).ToListAsync()
+                                                ?? throw new BadRequestException(MessageProvider.Get("OrderItemsNotFound", UserContext.Language));
 
             return ordersLine;
         }

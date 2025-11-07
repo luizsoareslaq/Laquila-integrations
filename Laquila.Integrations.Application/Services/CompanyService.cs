@@ -1,6 +1,8 @@
 using Laquila.Integrations.Application.DTO.Company.Request;
 using Laquila.Integrations.Application.DTO.Company.Response;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Filters;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
@@ -23,7 +25,7 @@ namespace Laquila.Integrations.Application.Services
         public async Task<CompanyResponseDTO> CreateCompany(CompanyDTO dto)
         {
             if (await _companyRepository.CompanyDocumentExists(dto.Document))
-                throw new BadRequestException("A company with the same document already exists.");
+                throw new BadRequestException(MessageProvider.Get("CompanyDocumentAlreadyExists", UserContext.Language));
 
             dto.StatusId = 1; // Default to Active
 
@@ -68,10 +70,10 @@ namespace Laquila.Integrations.Application.Services
         public async Task<CompanyResponseDTO> UpdateCompany(Guid id, CompanyDTO dto)
         {
             if (!await _companyRepository.CompanyIdExists(id))
-                throw new NotFoundException("No company found with the given id.");
+                throw new NotFoundException(MessageProvider.Get("CompanyIdNotFound", UserContext.Language));
 
             if (await _companyRepository.CompanyDocumentExistsWithId(dto.Document, id))
-                throw new BadRequestException("A company with the same document already exists.");
+                throw new BadRequestException(MessageProvider.Get("CompanyDocumentAlreadyExists", UserContext.Language));
 
             var company = new LaqApiCompany(dto.ErpCode, dto.CompanyName, dto.Document, dto.StatusId);
             company.Id = id;

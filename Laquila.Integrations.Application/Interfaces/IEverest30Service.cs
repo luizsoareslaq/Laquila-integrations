@@ -8,7 +8,7 @@ namespace Laquila.Integrations.Application.Interfaces
 {
     public interface IEverest30Service
     {
-        Task<LoadOut> GetLoadOutByLoOe(long loOe, string companyCnpj);
+        Task<LoadOut> GetLoadOutByLoOe(long loOe);
         Task<List<OrdersLine>> GetOeItemsByLoOe(long loOe);
     }
 }

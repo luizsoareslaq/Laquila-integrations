@@ -22,7 +22,7 @@ namespace Laquila.Integrations.API.Controllers
         {
             var company = await _companyService.CreateCompany(dto);
 
-            return Created($"Company {dto.CompanyName} created.", company);
+            return Created($"\"{dto.CompanyName}\" created.", company);
         }
 
         [HttpGet]

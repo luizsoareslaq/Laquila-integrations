@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Threading.RateLimiting;
+using DotNetEnv;
 using Laquila.Integrations.API.Configurations;
 using Laquila.Integrations.API.Middlewares;
 using Laquila.Integrations.Core.Infra.Interfaces;
@@ -12,6 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Env.Load();
 
 // Services
 builder.Services.AddDependencyInjection();
@@ -32,9 +35,11 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
-var secretKey = jwtSection["SecretKey"];
-var issuer = jwtSection["Issuer"];
-var audience = jwtSection["Audience"];
+
+var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+var issuer = Environment.GetEnvironmentVariable("ISSUER");
+var audience = Environment.GetEnvironmentVariable("AUDIENCE");
+
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
 // JWT Auth
@@ -80,6 +85,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
+
 
 // Swagger com JWT
 builder.Services.AddSwaggerGen(c =>
@@ -135,7 +141,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("DynamicCors", policy =>
     {
         policy
-            .SetIsOriginAllowed(origin => origin.StartsWith("https://localhostssssssss"))
+            .SetIsOriginAllowed(origin => origin.StartsWith("https://localhost"))
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();

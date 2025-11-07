@@ -22,13 +22,5 @@ namespace Laquila.Integrations.API.Controllers
 
             return Ok(token);
         }
-
-        [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto dto)
-        {
-            var tokenResult = await _authService.RefreshTokenAsync(dto);
-            return Ok(tokenResult);
-        }
-
     }
 }

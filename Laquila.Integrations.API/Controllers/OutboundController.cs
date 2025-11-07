@@ -1,5 +1,6 @@
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Domain.DTO.Invoices.Request;
 using Laquila.Integrations.Core.Domain.DTO.Outbound.Invoices.Request;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
@@ -7,6 +8,7 @@ using Laquila.Integrations.Core.Domain.DTO.Romaneio.Request;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Domain.Filters;
 using Laquila.Integrations.Core.Domain.Services.Interfaces;
+using Laquila.Integrations.Core.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,7 +29,7 @@ namespace Laquila.Integrations.API.Controllers
             _externalService = externalService;
         }
 
-        [Authorize]
+        [Authorize(Roles ="Admin,Read-Write,Read-Only")]
         [HttpGet("orders")]
         public async Task<IActionResult> GetOrdersAsync([FromQuery] LAQFilters filters)
         {
@@ -37,6 +39,7 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         //1.1.1
+        [Authorize(Roles="Admin")]
         [HttpPost("orders/external/{apiIntegrationId}")]
         public async Task<IActionResult> SendOrderAsync([FromBody] PrenotaDTO dto, Guid apiIntegrationId)
         {
@@ -46,12 +49,12 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         //1.1.2
-        [Authorize]
+        [Authorize(Roles ="Admin,Read-Write,Read-Only")]
         [HttpPatch("orders/{lo_oe}/status")]
         public async Task<IActionResult> UpdateOrderStatusAsync([FromRoute] long lo_oe, [FromBody] PrenotaDatesDTO dto)
         {
             if (dto.LoDtIniPicking == null && dto.LoDtEndPicking == null && dto.LoDtIniConf == null && dto.LoDtEndConf == null)
-                errors.Add("", "", "", "At least one date must be provided.", true);
+                errors.Add("", "", "", MessageProvider.Get("AtLeastOneDateRequired",UserContext.Language), true);
 
             var response = await _prenotaService.UpdatePrenotasStatusAsync(lo_oe, dto);
 
@@ -59,12 +62,12 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         //1.1.3
-        [Authorize]
+        [Authorize(Roles ="Admin,Read-Write,Read-Only")]
         [HttpPut("orders/{lo_oe}")]
         public async Task<IActionResult> UpdateRenouncedItemsAsync([FromRoute] long lo_oe, [FromBody] PrenotaRenouncedDTO dto)
         {
             if(dto.Items == null || !dto.Items.Any())
-                errors.Add("", "", "", "At least one item must be provided.", true);
+                errors.Add("", "", "", MessageProvider.Get("AtLeastOneItemRequired",UserContext.Language), true);
 
             var response = await _prenotaService.UpdateRenouncedItemsAsync(lo_oe, dto);
 
@@ -72,6 +75,7 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         //1.2.1
+        [Authorize(Roles ="Admin")]
         [HttpPost("invoice/{lo_oe}")]
         public async Task<IActionResult> SendInvoiceAsync([FromRoute] long lo_oe, [FromBody] InvoiceDTO dto)
         {
@@ -79,7 +83,7 @@ namespace Laquila.Integrations.API.Controllers
         }
 
         //1.2.2
-        [Authorize]
+        [Authorize(Roles ="Admin,Read-Write,Read-Only")]
         [HttpPatch("invoice/{lo_oe}/status")]
         public async Task<IActionResult> UpdateInvoiceStatusAsync([FromRoute] long lo_oe, [FromBody] InvoiceDatesDTO dto)
         {

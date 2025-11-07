@@ -1,6 +1,8 @@
 using Laquila.Integrations.Application.DTO.Users;
 using Laquila.Integrations.Application.DTO.Users.Request;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Filters;
 using Laquila.Integrations.Domain.Helpers;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
@@ -28,10 +30,10 @@ namespace Laquila.Integrations.Application.Services
         public async Task<UserResponseDTO> CreateUserAsync(UserDTO dto)
         {
             if (await _userRepository.UsernameExistsAsync(dto.Username))
-                throw new BadRequestException("Username already exists.");
+                throw new BadRequestException(MessageProvider.Get("UsernameAlreadyExists",UserContext.Language));
 
             if (dto.Password != dto.ConfirmPassword)
-                throw new BadRequestException("Password and Confirm Password do not match.");
+                throw new BadRequestException(MessageProvider.Get("PasswordConfirmPasswordNotMatch",UserContext.Language));
 
             var salt = UserHelper.GenerateSalt();
             var hashedPassword = UserHelper.HashPassword(dto.Password, salt);
@@ -44,7 +46,7 @@ namespace Laquila.Integrations.Application.Services
             var roles = await _userRepository.GetRolesAsync();
 
             if (dto.Roles == null || !dto.Roles.Any())
-                throw new BadRequestException("At least one role must be assigned to the user.");
+                throw new BadRequestException(MessageProvider.Get("NoRolesAssigned",UserContext.Language));
 
             var rolesResult = roles.Where(r => dto.Roles.Contains(r.RoleId)).Distinct().ToList();
 
@@ -62,10 +64,11 @@ namespace Laquila.Integrations.Application.Services
 
                 var createdUser = await _userRepository.CreateUserAsync(user);
                 var userRoles = rolesResult.Select(r => new LaqApiUserRoles(createdUser.Id, r.RoleId)).ToList();
+                
                 if (userRoles.Count > 0)
                     await _userRepository.AddUserRoles(userRoles);
                 else
-                    throw new BadRequestException("At least one valid role must be assigned to the user.");
+                    throw new BadRequestException(MessageProvider.Get("NoRolesAssigned",UserContext.Language));
 
                 var companiesRoles = companiesResult.Select(c => new LaqApiUserCompanies(createdUser.Id, c)).ToList();
 
@@ -120,16 +123,16 @@ namespace Laquila.Integrations.Application.Services
         public async Task<UserResponseDTO> UpdateUser(Guid id, UserDTO dto)
         {
             if (!await _userRepository.UserExistsAsync(id))
-                throw new NotFoundException("No user found with the given id.");
+                throw new NotFoundException(MessageProvider.Get("UserIdNotFound",UserContext.Language));
 
             var actualUser = await _userRepository.GetUserById(id);
 
             actualUser.Hash = dto switch
             {
-                { Password: not null, ConfirmPassword: null } => throw new BadRequestException("Confirm Password is required when updating the password."),
-                { Password: null, ConfirmPassword: not null } => throw new BadRequestException("Password is required when updating the password."),
+                { Password: not null, ConfirmPassword: null } => throw new BadRequestException(MessageProvider.Get("ConfirmPasswordRequired",UserContext.Language)),
+                { Password: null, ConfirmPassword: not null } => throw new BadRequestException(MessageProvider.Get("PasswordRequired",UserContext.Language)),
                 { Password: not null, ConfirmPassword: not null } when dto.Password != dto.ConfirmPassword
-                    => throw new BadRequestException("Password and Confirm Password do not match."),
+                    => throw new BadRequestException(MessageProvider.Get("PasswordConfirmPasswordNotMatch",UserContext.Language)),
                 { Password: not null, ConfirmPassword: not null } when dto.Password == dto.ConfirmPassword
                     => UserHelper.HashPassword(dto.Password, actualUser.Salt),
                 _ => actualUser.Hash
@@ -159,7 +162,7 @@ namespace Laquila.Integrations.Application.Services
             var rolesToRemove = actualRoles.Where(ar => !newRoles.Any(nr => nr.RoleId == ar.RoleId)).ToList();
 
             if (!newRoles.Any())
-                throw new BadRequestException("At least one valid role must be assigned to the user.");
+                throw new BadRequestException(MessageProvider.Get("NoRolesAssigned",UserContext.Language));
 
 
             // ----- COMPANIES -----

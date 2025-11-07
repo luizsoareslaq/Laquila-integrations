@@ -47,8 +47,10 @@ namespace Laquila.Integrations.API.Middlewares
             var username = context.User?.FindFirst(ClaimTypes.Name)?.Value;
             var cnpj = context.User?.FindFirst("CompanyCnpj")?.Value;
             var role = context.User?.FindFirst(ClaimTypes.Role)?.Value;
+            var language = context.User?.FindFirst("Language")?.Value;
 
             UserContext.CompanyCnpj = cnpj;
+            UserContext.Language = language;
 
             string? entity = null;
             string? key = null;
@@ -98,7 +100,10 @@ namespace Laquila.Integrations.API.Middlewares
             using var scope = context.RequestServices.CreateScope();
             var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
 
-            _ = LogChannel.Channel.Writer.WriteAsync(new LaqApiLogs(
+            response.Body.Seek(0, SeekOrigin.Begin);
+            await responseBody.CopyToAsync(originalBodyStream);
+
+            await LogChannel.Channel.Writer.WriteAsync(new LaqApiLogs(
                 Guid.TryParse(userId, out var id) ? id : (Guid?)null,
                 method,
                 endpoint,
@@ -114,9 +119,6 @@ namespace Laquila.Integrations.API.Middlewares
                 key,
                 value
             ));
-
-            response.Body.Seek(0, SeekOrigin.Begin);
-            await responseBody.CopyToAsync(originalBodyStream);
 
             UserContext.Clear();
         }

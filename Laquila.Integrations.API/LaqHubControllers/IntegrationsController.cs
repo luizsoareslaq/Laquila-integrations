@@ -21,7 +21,7 @@ namespace Laquila.Integrations.API.Controllers
         {
             var apiIntegration = await _integrationsService.CreateApiIntegration(dto);
 
-            return Created("Integration created successfully.", apiIntegration);
+            return Created("Created",apiIntegration);
         }
 
         [HttpGet]

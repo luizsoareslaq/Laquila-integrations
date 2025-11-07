@@ -398,6 +398,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.env
 
 # Ignore sensitive dev settings
 appsettings.Development.json

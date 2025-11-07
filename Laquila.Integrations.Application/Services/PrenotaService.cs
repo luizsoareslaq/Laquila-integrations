@@ -9,6 +9,7 @@ using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Domain.Filters;
 using Laquila.Integrations.Core.Domain.Services.Interfaces;
 using Laquila.Integrations.Core.Infra.Interfaces;
+using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Enums;
 using Laquila.Integrations.Domain.Enums.Everest30;
 using static Laquila.Integrations.Application.Exceptions.ApplicationException;
@@ -75,7 +76,7 @@ namespace Laquila.Integrations.Application.Services
 
         public async Task<ResponseDto> UpdatePrenotasStatusAsync(long lo_oe, PrenotaDatesDTO dto)
         {
-            var loadOut = await _everest30Service.GetLoadOutByLoOe(lo_oe, UserContext.CompanyCnpj ?? string.Empty);
+            var loadOut = await _everest30Service.GetLoadOutByLoOe(lo_oe);
 
             bool continueProcess = loadOut.LoStatus switch
             {
@@ -84,15 +85,16 @@ namespace Laquila.Integrations.Application.Services
             };
 
             if (!continueProcess)
-                errors.Add("Order", "lo_oe", lo_oe.ToString(), $"The order {lo_oe} is not in a valid status for updating dates.", true);
+                errors.Add("Order", "lo_oe", lo_oe.ToString(),
+            string.Format(MessageProvider.Get("OrderInvalidStatus", UserContext.Language), lo_oe), true);
 
 
-            var queue = await _queueService.EnqueueAsync("LoadOutDates", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1,null);
+            var queue = await _queueService.EnqueueAsync("LoadOutDates", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1, null);
 
             return new ResponseDto()
             {
                 Data = new ResponseDataDto()
-                { Message = $"The status update for order {lo_oe} was queued successfully with id {queue}.", StatusCode = "200" }
+                { Message = string.Format(MessageProvider.Get("OrderQueued", UserContext.Language), lo_oe, queue), StatusCode = "200" }
             };
         }
 
@@ -110,7 +112,7 @@ namespace Laquila.Integrations.Application.Services
                 if (counter == itemsNotFound.Count)
                     throwError = true;
 
-                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), $"Item with oel_id {item.OelId} not found in order {lo_oe}.", throwError);
+                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), string.Format(MessageProvider.Get("ItemOelIdNotFound", UserContext.Language),  item.OelId,lo_oe), throwError);
 
                 counter++;
             }
@@ -124,16 +126,16 @@ namespace Laquila.Integrations.Application.Services
                 if (counter == orderLineItemsNotFoundInDto.Count)
                     throwError = true;
 
-                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), $"Item with oel_id {item.OelId} not found in request body for order {lo_oe}.", throwError);
+                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), string.Format(MessageProvider.Get("ItemOelIdNotFoundRequestBody", UserContext.Language),item.OelId,lo_oe), throwError);
             }
 
             //Adicionar fila para atualizar as renuncias
-            var queue = await _queueService.EnqueueAsync("OrdersLine", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1,null);
+            var queue = await _queueService.EnqueueAsync("OrdersLine", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1, null);
 
             return new ResponseDto()
             {
                 Data = new ResponseDataDto()
-                { Message = $"Items update from order {lo_oe} were queued successfully.", StatusCode = "204" }
+                { Message = string.Format(MessageProvider.Get("ItemsUpdateSuccess", UserContext.Language),lo_oe), StatusCode = "204" }
             };
         }
     }

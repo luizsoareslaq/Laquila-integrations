@@ -17,9 +17,9 @@ namespace Laquila.Integrations.Application.Services
             _everest30Repository = everest30Repository;
         }
 
-        public async Task<LoadOut> GetLoadOutByLoOe(long loOe, string companyCnpj)
+        public async Task<LoadOut> GetLoadOutByLoOe(long loOe)
         {
-            return await _everest30Repository.GetLoadOutByLoOe(loOe, companyCnpj);
+            return await _everest30Repository.GetLoadOutByLoOe(loOe);
         }
 
         public async Task<List<OrdersLine>> GetOeItemsByLoOe(long loOe)
