@@ -10,7 +10,7 @@ namespace Laquila.Integrations.Core.Domain.Models
         public required int AtbBoxId { get; set; } 
         public required decimal AtbGrossWeight { get; set; } 
         public required decimal AtbNetWeight { get; set; } 
-        public required bool AtbFlStandardPackage { get; set; } 
+        public required string AtbFlStandardPackage { get; set; } 
         public required decimal AtbHeight { get; set; } 
         public required decimal AtbWidth { get; set; } 
         public required decimal AtbLength { get; set; } 
@@ -18,7 +18,7 @@ namespace Laquila.Integrations.Core.Domain.Models
         public int? AtbUnitsPerPallet { get; set; } 
         public int? AtbUnitsPerLayer { get; set; } 
         public int? AtbMaxStacking { get; set; }
-        public required decimal AtbVolumeFactor { get; set; } 
+        public decimal? AtbVolumeFactor { get; set; } 
         public required int AtbQtyPerPackage { get; set; } 
         public required int AtbEanType { get; set; } 
         public required string AtbEanBarcode { get; set; } 

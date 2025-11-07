@@ -33,6 +33,7 @@ namespace Laquila.Integrations.API.Configurations
             services.AddScoped<IQueueService, QueueService>();
 
             services.AddScoped<IOrdersService, OrdersService>();
+            services.AddScoped<IMasterDataService, MasterDataService>();
             services.AddScoped<IEverest30Service, Everest30Service>();
 
             services.AddHostedService<LogBackgroundService>();

@@ -4,20 +4,30 @@ using System.Linq;
 using System.Threading.Tasks;
 using Laquila.Integrations.Core.Domain.DTO.MasterData.Items;
 using Laquila.Integrations.Core.Domain.DTO.MasterData.Mandators.Request;
+using Laquila.Integrations.Core.Domain.Filters;
+using Laquila.Integrations.Core.Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Laquila.Integrations.API.Controllers
+namespace Laquila.Integrations.API.Controllers.Everest30Controllers
 {
     [ApiController]
     [Route("api/masterdata")]
     public class MasterDataController : ControllerBase
     {
-        /* ITENS */
+        private readonly IMasterDataService _masterDataService;
 
+        public MasterDataController(IMasterDataService masterDataService)
+        {
+            _masterDataService = masterDataService;
+        }
+
+        /* ITENS */
         [HttpGet("items")]
         public async Task<IActionResult> GetItems()
         {
-            return Ok();
+            var result = await _masterDataService.GetUnsentItemsAsync(new LAQFilters { PageSize = 100 }, CancellationToken.None);
+
+            return Ok(result);
         }
 
         //3.1.1
@@ -33,7 +43,9 @@ namespace Laquila.Integrations.API.Controllers
         [HttpGet("mandators")]
         public async Task<IActionResult> GetMandators()
         {
-            return Ok();
+            var result = await _masterDataService.GetUnsentMandatorAsync(new LAQFilters { PageSize = 100 }, CancellationToken.None);
+
+            return Ok(result);
         }
 
         [HttpPost("mandators")]

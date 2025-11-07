@@ -33,9 +33,9 @@ namespace Laquila.Integrations.Application.Services.LaqHub
                          , IAuthRepository authRepository)
         {
             _httpContextAccessor = httpContextAccessor;
-            _secretKey = configuration["Jwt:SecretKey"];
-            _issuer = configuration["Jwt:Issuer"];
-            _audience = configuration["Jwt:Audience"];
+            _secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+            _issuer = Environment.GetEnvironmentVariable("ISSUER");
+            _audience = Environment.GetEnvironmentVariable("AUDIENCE");
             _userRepository = userRepository;
             _authRepository = authRepository;
         }

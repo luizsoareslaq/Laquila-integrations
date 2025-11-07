@@ -10,6 +10,6 @@ namespace Laquila.Integrations.Core.Infra.Interfaces
     {
         Task<(IEnumerable<VMWMS_BuscarPrenotasNaoIntegradas>, int totalCount)> GetOrdersAsync(List<(string loMaCnpjOwner,long oeErpOrder)>? prenotas, int pageSize = 10);
         Task<(IEnumerable<VMWMS_BuscarItensNaoIntegrados>, int totalCount)> GetItemsAsync(List<string>? itens, int pageSize = 10);
-        Task<(IEnumerable<VMWMS_BuscarCadastrosNaoIntegrados>, int totalCount)> GetMasterDataAsync(List<string>? cadastros, string cnpjOuCodigo, int pageSize = 10);
+        Task<(IEnumerable<VMWMS_BuscarCadastrosNaoIntegrados>, int totalCount)> GetMandatorsAsync(List<string>? cadastros, string cnpjOuCodigo, int pageSize = 10);
     }
 }

@@ -5,7 +5,7 @@ using Laquila.Integrations.Domain.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Laquila.Integrations.API.Controllers
+namespace Laquila.Integrations.API.Controllers.LaqHubControllers
 {
     [ApiController]
     [Authorize(Roles = "Admin")]

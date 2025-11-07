@@ -3,7 +3,7 @@ using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Laquila.Integrations.API.Controllers
+namespace Laquila.Integrations.API.Controllers.LaqHubControllers
 {
     [ApiController]
     [Route("api/auth")]

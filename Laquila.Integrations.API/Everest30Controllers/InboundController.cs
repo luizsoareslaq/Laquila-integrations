@@ -2,7 +2,7 @@ using Laquila.Integrations.Core.Domain.DTO.Inbound.Invoices.Request;
 using Laquila.Integrations.Core.Domain.DTO.Outbound.Invoices.Request;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Laquila.Integrations.API.Controllers
+namespace Laquila.Integrations.API.Controllers.Everest30Controllers
 {
     [ApiController]
     [Route("api/inbound")]

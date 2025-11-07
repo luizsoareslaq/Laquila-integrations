@@ -12,7 +12,7 @@ using Laquila.Integrations.Core.Localization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Laquila.Integrations.API.Controllers
+namespace Laquila.Integrations.API.Controllers.Everest30Controllers
 {
     [ApiController]
     [Route("api/outbound")]

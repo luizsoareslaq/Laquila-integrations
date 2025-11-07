@@ -9,12 +9,19 @@ namespace Laquila.Integrations.Core.Domain.DTO.MasterData.Mandators.Request
 {
     public class MasterDataMandatorsDTO
     {
+        public MasterDataMandatorsDTO(List<MandatorsAttributesDTO> mandators)
+        {
+            Mandators = mandators;
+        }
+        
         [JsonPropertyName("mandators")]
-        public required List<MandatorsAttributesDTO> mandators { get; set; }
+        public List<MandatorsAttributesDTO> Mandators { get; set; }
     }
 
     public class MandatorsAttributesDTO
     {
+        public MandatorsAttributesDTO(){}
+        
         [JsonPropertyName("ma_name")]
         public required string MaName { get; set; } 
 
@@ -37,7 +44,7 @@ namespace Laquila.Integrations.Core.Domain.DTO.MasterData.Mandators.Request
         public string? MaFax { get; set; } 
 
         [JsonPropertyName("ma_type")]
-        public required MandatorsType MaType { get; set; } 
+        public MandatorsType MaType { get; set; } 
 
         [JsonPropertyName("ma_code")]
         public required long MaCode { get; set; }

@@ -11,6 +11,7 @@
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.3.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="swashbuckle.aspnetcore.annotations" Version="9.0.5" />
   </ItemGroup>
 

@@ -35,7 +35,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
             return (result,totalCount);
         }
 
-        public async Task<(IEnumerable<VMWMS_BuscarCadastrosNaoIntegrados>,int totalCount)> GetMasterDataAsync(List<string>? cadastros, string cnpjOuCodigo, int pageSize = 10)
+        public async Task<(IEnumerable<VMWMS_BuscarCadastrosNaoIntegrados>,int totalCount)> GetMandatorsAsync(List<string>? cadastros, string cnpjOuCodigo, int pageSize = 10)
         {
             var query = _db.VMWMS_BuscarCadastrosNaoIntegrados.AsQueryable();
 
