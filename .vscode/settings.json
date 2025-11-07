@@ -1,1 +1,28 @@
-{}
+{
+    "folder-color.pathColors": [
+        {
+            "folderPath": "Laquila-integrations\\Laquila.Integrations.Core\\",
+            "color": "foldercolorizer.color_33cc33"
+        },
+        {
+            "folderPath": "Laquila-integrations\\Laquila.Integrations.API\\",
+            "color": "foldercolorizer.color_99cc00"
+        },
+        {
+            "folderPath": "Laquila-integrations\\Laquila.Integrations.Application\\",
+            "color": "foldercolorizer.color_cc6600"
+        },
+        {
+            "folderPath": "Laquila-integrations\\Laquila.Integrations.Domain\\",
+            "color": "foldercolorizer.color_ffccff"
+        },
+        {
+            "folderPath": "Laquila-integrations\\Laquila.Integrations.Infrastructure\\",
+            "color": "foldercolorizer.color_66ffff"
+        },
+        {
+            "folderPath": "Laquila-integrations\\Laquila.Integrations.Worker\\",
+            "color": "foldercolorizer.color_999966"
+        }
+    ]
+}

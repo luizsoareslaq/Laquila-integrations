@@ -12,20 +12,35 @@ namespace Laquila.Integrations.API.Controllers
     [Route("api/masterdata")]
     public class MasterDataController : ControllerBase
     {
-        //3.1.1
-        [HttpPost("items")]
-        public async Task<IActionResult> SendItems([FromBody] MasterDataItemsDTO dto)
+        /* ITENS */
+
+        [HttpGet("items")]
+        public async Task<IActionResult> GetItems()
         {
             return Ok();
         }
 
+        //3.1.1
+        [HttpPost("items")]
+        public async Task<IActionResult> SendItems([FromBody] MasterDataItemsPackageDTO dto)
+        {
+            return Ok();
+        }
 
+        /* CLIENTES */
 
-        //3.1.3
+        //3.1.2
+        [HttpGet("mandators")]
+        public async Task<IActionResult> GetMandators()
+        {
+            return Ok();
+        }
+
         [HttpPost("mandators")]
         public async Task<IActionResult> SendMandators([FromBody] MasterDataMandatorsDTO dto)
         {
             return Ok();
         }
+
     }
 }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Channels;
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Application.Interfaces.LaqHub;
 using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Domain.Models;

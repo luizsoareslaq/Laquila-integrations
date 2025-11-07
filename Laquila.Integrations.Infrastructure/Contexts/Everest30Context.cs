@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Laquila.Integrations.Infrastructure.Contexts
 {
+    using Laquila.Integrations.Core.Domain.Models;
     using Laquila.Integrations.Domain.Models.Everest30;
     using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,10 @@ namespace Laquila.Integrations.Infrastructure.Contexts
         public DbSet<LoadOut> LoadOut { get; set; }
         public DbSet<FiscalNotes> FiscalNotes { get; set; }
         public DbSet<FnLine> FnLine { get; set; }
+
+        public DbSet<VMWMS_BuscarPrenotasNaoIntegradas> VMWMS_BuscarPrenotasNaoIntegradas { get; set; }
+        public DbSet<VMWMS_BuscarItensNaoIntegrados> VMWMS_BuscarItensNaoIntegrados { get; set; }
+        public DbSet<VMWMS_BuscarCadastrosNaoIntegrados> VMWMS_BuscarCadastrosNaoIntegrados { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -56,6 +61,10 @@ namespace Laquila.Integrations.Infrastructure.Contexts
             modelBuilder.Entity<LoadOut>().HasKey(x => x.LoId);
             modelBuilder.Entity<FiscalNotes>().HasKey(x => x.FnId);
             modelBuilder.Entity<FnLine>().HasKey(x => x.FnlId);
+
+            modelBuilder.Entity<VMWMS_BuscarPrenotasNaoIntegradas>().HasNoKey().ToView("VMWMS_BuscarPrenotasNaoIntegradas");
+            modelBuilder.Entity<VMWMS_BuscarItensNaoIntegrados>().HasNoKey().ToView("VMWMS_BuscarItensNaoIntegrados");
+            modelBuilder.Entity<VMWMS_BuscarCadastrosNaoIntegrados>().HasNoKey().ToView("VMWMS_BuscarCadastrosNaoIntegrados");
 
             base.OnModelCreating(modelBuilder);
         }

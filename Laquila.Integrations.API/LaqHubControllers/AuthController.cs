@@ -1,5 +1,6 @@
 using Laquila.Integrations.Application.DTO.Auth.Request;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Application.Interfaces.LaqHub;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Laquila.Integrations.API.Controllers

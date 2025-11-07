@@ -1,5 +1,6 @@
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Application.Interfaces.LaqHub;
 using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Domain.DTO.Outbound.Invoices.Request;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;

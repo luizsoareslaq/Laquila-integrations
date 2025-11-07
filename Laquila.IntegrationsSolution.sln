@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laquila.Integrations.Infras
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laquila.Integrations.Core", "Laquila.Integrations.Core\Laquila.Integrations.Core.csproj", "{ACBC8973-F010-4841-8781-2A08F5307477}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laquila.Integrations.Bootstrap", "Laquila.Integrations.Bootstrap\Laquila.Integrations.Bootstrap.csproj", "{E982C826-C934-438A-8A25-D0275C285C3F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

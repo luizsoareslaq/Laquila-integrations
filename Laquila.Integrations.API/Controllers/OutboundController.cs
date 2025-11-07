@@ -18,14 +18,14 @@ namespace Laquila.Integrations.API.Controllers
     [Route("api/outbound")]
     public class OutboundController : ControllerBase
     {
-        private readonly IPrenotaService _prenotaService;
+        private readonly IOrdersService _ordersService;
         private readonly IExternalService _externalService;
         protected readonly ErrorCollector errors = new ErrorCollector();
 
 
-        public OutboundController(IPrenotaService prenotaService, IExternalService externalService)
+        public OutboundController(IOrdersService ordersService, IExternalService externalService)
         {
-            _prenotaService = prenotaService;
+            _ordersService = ordersService;
             _externalService = externalService;
         }
 
@@ -33,7 +33,7 @@ namespace Laquila.Integrations.API.Controllers
         [HttpGet("orders")]
         public async Task<IActionResult> GetOrdersAsync([FromQuery] LAQFilters filters)
         {
-            var prenotas = await _prenotaService.GetPrenotasAsync(filters, CancellationToken.None);
+            var prenotas = await _ordersService.GetUnsentOrdersAsync(filters, CancellationToken.None);
 
             return Ok(prenotas);
         }
@@ -56,7 +56,7 @@ namespace Laquila.Integrations.API.Controllers
             if (dto.LoDtIniPicking == null && dto.LoDtEndPicking == null && dto.LoDtIniConf == null && dto.LoDtEndConf == null)
                 errors.Add("", "", "", MessageProvider.Get("AtLeastOneDateRequired",UserContext.Language), true);
 
-            var response = await _prenotaService.UpdatePrenotasStatusAsync(lo_oe, dto);
+            var response = await _ordersService.UpdateOrderStatusAsync(lo_oe, dto);
 
             return Ok(response);
         }
@@ -69,7 +69,7 @@ namespace Laquila.Integrations.API.Controllers
             if(dto.Items == null || !dto.Items.Any())
                 errors.Add("", "", "", MessageProvider.Get("AtLeastOneItemRequired",UserContext.Language), true);
 
-            var response = await _prenotaService.UpdateRenouncedItemsAsync(lo_oe, dto);
+            var response = await _ordersService.UpdateRenouncedItemsAsync(lo_oe, dto);
 
             return Ok(response);
         }

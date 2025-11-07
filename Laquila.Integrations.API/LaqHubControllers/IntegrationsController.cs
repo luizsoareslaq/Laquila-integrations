@@ -1,5 +1,6 @@
 using Laquila.Integrations.Application.DTO.ApiIntegration.Request;
 using Laquila.Integrations.Application.Interfaces;
+using Laquila.Integrations.Application.Interfaces.LaqHub;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
