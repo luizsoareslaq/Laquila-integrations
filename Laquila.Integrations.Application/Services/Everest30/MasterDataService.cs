@@ -79,7 +79,8 @@ namespace Laquila.Integrations.Application.Services.Everest30
                         MaFax = mandator.MaFax,
                         MaType = mandator.MaType,
                         MaCode = mandator.MaCode,
-                        MaDistrict = mandator.MaDistrict
+                        MaDistrict = mandator.MaDistrict,
+                        MaState = mandator.MaState
                     })
                 );
             }
@@ -134,25 +135,28 @@ namespace Laquila.Integrations.Application.Services.Everest30
 
         public async Task<ResponseDto> HandleMandatorsAsync(MasterDataMandatorsDTO dto)
         {
-            List<long> maCodes = dto.Mandators.Select(m => m.MaCode).ToList();
-            var existingMandators = await _masterDataRepository.GetMandatorsByMaCodeAsync(maCodes);
+            var distinctMandators = dto.Mandators
+                            .DistinctBy(x => x.MaCode)
+                            .ToList();
+
+            var mandators = distinctMandators
+                .Select(x => x.MaCode)
+                .ToList();
+
+            var existingMandators = await _masterDataRepository.GetMandatorsByMaCodeAsync(mandators);
+            var existingIds = existingMandators.Select(e => e.MaCode).ToHashSet();
 
             List<Mandator> mandatorsToInsert = new List<Mandator>();
             List<Mandator> mandatorsToUpdate = new List<Mandator>();
 
-            foreach (var mandatorDto in dto.Mandators)
+            foreach (var itemDto in distinctMandators)
             {
-                var existingMandator = existingMandators.FirstOrDefault(m => m.MaCode == mandatorDto.MaCode);
-                if (existingMandator != null)
-                {
-                    var updatedMandator = MappingHelpers.MandatorDtoToModel(mandatorDto);
-                    mandatorsToUpdate.Add(updatedMandator);
-                }
+                var model = MappingHelpers.MandatorDtoToModel(itemDto);
+
+                if (existingIds.Contains(model.MaCode))
+                    mandatorsToUpdate.Add(model);
                 else
-                {
-                    var newMandator = MappingHelpers.MandatorDtoToModel(mandatorDto);
-                    mandatorsToInsert.Add(newMandator);
-                }
+                    mandatorsToInsert.Add(model);
             }
 
             if (mandatorsToInsert.Count > 0)

@@ -34,6 +34,7 @@ namespace Laquila.Integrations.Core.Shared
                 MaType = (int)dto.MaType,
                 MaCode = dto.MaCode,
                 MaDistrict = dto.MaDistrict,
+                MaState = dto.MaState,
                 MaLastUpdateApi = DateTime.Now
             };
         }

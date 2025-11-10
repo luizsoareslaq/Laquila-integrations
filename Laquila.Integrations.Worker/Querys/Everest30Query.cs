@@ -2,13 +2,16 @@ using Laquila.Integrations.Application.DTO.Auth.Request;
 using Laquila.Integrations.Application.DTO.Auth.Response;
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Core.Domain.DTO.MasterData.Items;
+using Laquila.Integrations.Core.Domain.DTO.MasterData.Mandators.Request;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Domain.Filters;
 using Laquila.Integrations.Core.Shared;
 using Laquila.Integrations.Worker.Context;
 using Laquila.Integrations.Worker.Querys.Interfaces;
+using Microsoft.Extensions.Hosting;
 using RestSharp;
+
 
 namespace Laquila.Integrations.Worker.Querys
 {
@@ -16,10 +19,13 @@ namespace Laquila.Integrations.Worker.Querys
     {
         private readonly AuthContext _context;
         protected readonly ErrorCollector errors = new ErrorCollector();
+        private string urlBase;
 
-        public Everest30Query(AuthContext context)
+        public Everest30Query(AuthContext context
+                            , IHostEnvironment env)
         {
             _context = context;
+            urlBase = env.IsDevelopment() ? Environment.GetEnvironmentVariable("BASE_DEV_URL") ?? string.Empty : Environment.GetEnvironmentVariable("BASE_PROD_URL") ?? string.Empty;
         }
 
         public async Task<PagedResult<PrenotaDTO>> GetOrders(LAQFilters filters, CancellationToken ct)
@@ -53,7 +59,7 @@ namespace Laquila.Integrations.Worker.Querys
                 authDto.Token = token;
             }
 
-            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"https://localhost:5001/api/outbound/orders/external/{apiIntegrationId}", dto, null, authType, authDto, "post");
+            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"{urlBase}/outbound/orders/external/{apiIntegrationId}", dto, null, authType, authDto, "post");
 
             var response = await client.ExecuteAsync<ResponseDto>(request);
 
@@ -73,7 +79,7 @@ namespace Laquila.Integrations.Worker.Querys
                 authDto.Token = token;
             }
 
-            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"https://localhost:5001/api/masterdata/items", null, pageSize, authType, authDto, "get");
+            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"{urlBase}/masterdata/items", null, pageSize, authType, authDto, "get");
 
             var response = await client.ExecuteAsync<MasterDataItemsPackageDTO>(request);
 
@@ -93,7 +99,7 @@ namespace Laquila.Integrations.Worker.Querys
                 authDto.Token = token;
             }
 
-            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"https://localhost:5001/api/masterdata/items/{integrationId}", dto, null, authType, authDto, "post");
+            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"{urlBase}/masterdata/items/{integrationId}", dto, null, authType, authDto, "post");
 
             var response = await client.ExecuteAsync<MasterDataItemsPackageDTO>(request);
 
@@ -130,6 +136,46 @@ namespace Laquila.Integrations.Worker.Querys
             }
 
             return retorno.JWTToken;
+        }
+
+        public async Task<MasterDataMandatorsDTO> GetMandators(CancellationToken ct, int pageSize = 100)
+        {
+            var authType = "Bearer";
+            TokenAuthDTO authDto = new TokenAuthDTO();
+
+            if (authType != null)
+            {
+                var token = await GetValidTokenAsync(ct);
+                authDto.Token = token;
+            }
+
+            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"{urlBase}/masterdata/mandators", null, pageSize, authType, authDto, "get");
+
+            var response = await client.ExecuteAsync<MasterDataMandatorsDTO>(request);
+
+            var retorno = response.Data;
+
+            return retorno;
+        }
+
+        public async Task<MasterDataMandatorsDTO> SendMandators(CancellationToken ct, MasterDataMandatorsDTO dto, Guid integrationId)
+        {
+            var authType = "Bearer";
+            TokenAuthDTO authDto = new TokenAuthDTO();
+
+            if (authType != null)
+            {
+                var token = await GetValidTokenAsync(ct);
+                authDto.Token = token;
+            }
+
+            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"{urlBase}/masterdata/mandators/{integrationId}", dto, null, authType, authDto, "post");
+
+            var response = await client.ExecuteAsync<MasterDataMandatorsDTO>(request);
+
+            var retorno = response.Data;
+
+            return retorno;
         }
     }
 }

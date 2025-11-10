@@ -65,7 +65,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         [HttpPost("mandators/{integrationId}")]
         public async Task<IActionResult> SendMandators([FromBody] MasterDataMandatorsDTO dto, Guid integrationId)
         {
-            var result = await _externalService.SendMandatorAsync(dto, integrationId);
+            // var result = await _externalService.SendMandatorAsync(dto, integrationId);
 
             var response = await _masterDataService.HandleMandatorsAsync(dto);
 

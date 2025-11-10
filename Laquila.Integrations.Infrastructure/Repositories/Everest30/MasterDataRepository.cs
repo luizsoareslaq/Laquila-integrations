@@ -53,7 +53,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
         }
 
 
-        public async Task<List<Mandator>> GetMandatorsByMaCodeAsync(List<long> maCodes)
+        public async Task<List<Mandator>> GetMandatorsByMaCodeAsync(List<int> maCodes)
         {
             var mandators = await _db.Mandator.Where(m => maCodes.Contains(m.MaCode))
                             .AsNoTracking()
@@ -63,6 +63,8 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
         }
         public async Task InsertMandatorsAsync(List<Mandator> mandators)
         {
+            await _unitOfWork.DetachEverest30EntitiesAsync(mandators);
+
             _db.ChangeTracker.Clear();
             _db.Mandator.AddRange(mandators);
             await _db.SaveChangesAsync();
