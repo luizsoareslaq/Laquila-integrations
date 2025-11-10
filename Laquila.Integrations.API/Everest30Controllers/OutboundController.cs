@@ -40,10 +40,10 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
 
         //1.1.1
         [Authorize(Roles="Admin")]
-        [HttpPost("orders/external/{apiIntegrationId}")]
-        public async Task<IActionResult> SendOrderAsync([FromBody] PrenotaDTO dto, Guid apiIntegrationId)
+        [HttpPost("orders/external/{integrationId}")]
+        public async Task<IActionResult> SendOrderAsync([FromBody] PrenotaDTO dto, Guid integrationId)
         {
-            var response = await _externalService.SendOrdersAsync(dto, apiIntegrationId);
+            var response = await _externalService.SendOrdersAsync(dto, integrationId);
 
             return Ok(response);
         }
