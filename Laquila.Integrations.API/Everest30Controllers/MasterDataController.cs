@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Core.Domain.DTO.MasterData.Items;
 using Laquila.Integrations.Core.Domain.DTO.MasterData.Mandators.Request;
 using Laquila.Integrations.Core.Domain.Filters;
@@ -15,10 +16,13 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
     public class MasterDataController : ControllerBase
     {
         private readonly IMasterDataService _masterDataService;
+        private readonly IExternalService _externalService;
 
-        public MasterDataController(IMasterDataService masterDataService)
+        public MasterDataController(IMasterDataService masterDataService
+                                  , IExternalService externalService)
         {
             _masterDataService = masterDataService;
+            _externalService = externalService;
         }
 
         /* ITENS */
@@ -31,9 +35,11 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         }
 
         //3.1.1
-        [HttpPost("items")]
-        public async Task<IActionResult> SendItems([FromBody] MasterDataItemsPackageDTO dto)
+        [HttpPost("items/{integrationId}")]
+        public async Task<IActionResult> SendItems([FromBody] MasterDataItemsPackageDTO dto, Guid integrationId)
         {
+            var result = await _externalService.SendItemsAsync(dto, integrationId);
+
             return Ok();
         }
 
@@ -48,9 +54,11 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
             return Ok(result);
         }
 
-        [HttpPost("mandators")]
-        public async Task<IActionResult> SendMandators([FromBody] MasterDataMandatorsDTO dto)
+        [HttpPost("mandators/{integrationId}")]
+        public async Task<IActionResult> SendMandators([FromBody] MasterDataMandatorsDTO dto, Guid integrationId)
         {
+            var result = await _externalService.SendMandatorAsync(dto, integrationId);
+
             return Ok();
         }
 

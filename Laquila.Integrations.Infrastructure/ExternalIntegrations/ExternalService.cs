@@ -2,11 +2,14 @@ using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
 using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Domain.DTO.MasterData.Items;
+using Laquila.Integrations.Core.Domain.DTO.MasterData.Mandators.Request;
 using Laquila.Integrations.Core.Domain.DTO.Outbound.Invoices.Request;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Infra.Interfaces;
 using Laquila.Integrations.Core.Localization;
+using Laquila.Integrations.Core.Shared;
 using Laquila.Integrations.Domain.Enums;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -26,6 +29,88 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
         {
             _integrationsRepository = integrationsRepository;
             _queueService = queueService;
+        }
+
+        public async Task<ResponseDto> SendMandatorAsync(MasterDataMandatorsDTO dto, Guid apiIntegrationId)
+        {
+            IntegrationType = "SendMandators";
+
+            var urls = await _integrationsRepository.GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(apiIntegrationId, IntegrationType);
+
+            RestResponse response = new RestResponse();
+
+            try
+            {
+                (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient(urls.Url, dto, null, urls.AuthType, null, urls.Type);
+
+                response = await client.ExecuteAsync(request);
+
+                if (!response.IsSuccessful)
+                {
+                    throw new Exception($"Integration failed ({response.StatusCode}): {response.Content}");
+                }
+
+
+                return new ResponseDto
+                {
+                    Data = new ResponseDataDto
+                    {
+                        StatusCode = ((int)response.StatusCode).ToString(),
+                        Message = string.Format(MessageProvider.Get("MandatorsSent", UserContext.Language))
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                //Adicionar envio de email
+
+
+                errors.Add("SendMandators", "error", "ma_code",
+                    string.Format(MessageProvider.Get("MandatorsSentError",UserContext.Language), ex.Message + " - " + ex.InnerException), true);
+
+                throw;
+            }
+        }
+
+        public async Task<ResponseDto> SendItemsAsync (MasterDataItemsPackageDTO dto, Guid apiIntegrationId)
+        {
+            IntegrationType = "SendItems";
+
+            var urls = await _integrationsRepository.GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(apiIntegrationId, IntegrationType);
+
+            RestResponse response = new RestResponse();
+
+            try
+            {
+                (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient(urls.Url, dto, null, urls.AuthType, null, urls.Type);
+
+                response = await client.ExecuteAsync(request);
+
+                if (!response.IsSuccessful)
+                {
+                    throw new Exception($"Integration failed ({response.StatusCode}): {response.Content}");
+                }
+
+
+                return new ResponseDto
+                {
+                    Data = new ResponseDataDto
+                    {
+                        StatusCode = ((int)response.StatusCode).ToString(),
+                        Message = string.Format(MessageProvider.Get("ItemsSent", UserContext.Language))
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                //Adicionar envio de email
+
+
+                errors.Add("SendItems", "error", "at_id",
+                    string.Format(MessageProvider.Get("ItemsSentError",UserContext.Language), ex.Message + " - " + ex.InnerException), true);
+
+                throw;
+            }
         }
 
         public async Task<ResponseDto> SendOrdersAsync(PrenotaDTO dto, Guid apiIntegrationId)
@@ -59,7 +144,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                         // StatusCode = ((int)response.StatusCode).ToString(),
                         StatusCode = (200).ToString(),
                         // Message = $"Order sent successfully to external system. ({response.StatusCode})"
-                        Message = string.Format(MessageProvider.Get("OrderSent", UserContext.Language),dto.LoOe)
+                        Message = string.Format(MessageProvider.Get("OrderSent", UserContext.Language), dto.LoOe)
                     }
                 };
             }
@@ -68,7 +153,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                 var queue = await _queueService.EnqueueAsync("SendERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
 
                 errors.Add("SendOrder", "lo_oe", dto.LoOe.ToString(),
-                    string.Format(MessageProvider.Get("OrderSentError",UserContext.Language),dto.LoOe, ex.Message + " - " + ex.InnerException), true);
+                    string.Format(MessageProvider.Get("OrderSentError", UserContext.Language), dto.LoOe, ex.Message + " - " + ex.InnerException), true);
 
                 throw;
             }
@@ -85,7 +170,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
 
             try
             {
-                (RestClient client, RestRequest request) = NewRestSharpClient(urls.Url, dto, urls.AuthType);
+                (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient(urls.Url, dto, null, urls.AuthType, null, urls.Type);
 
                 response = await client.ExecuteAsync(request);
 
@@ -115,24 +200,6 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
 
                 throw;
             }
-        }
-
-        private static (RestClient,RestRequest) NewRestSharpClient(string url, object dto, string authType)
-        {
-            var client = new RestClient(url);
-
-            var request = new RestRequest(url, Method.Post);
-
-            request.AddHeader("Content-Type", "application/json");
-
-            if (!string.IsNullOrEmpty(authType) && authType.Equals("Bearer", StringComparison.OrdinalIgnoreCase))
-            {
-                // Exemplo: request.AddHeader("Authorization", $"Bearer {token}");
-            }
-
-            request.AddJsonBody(dto);
-
-            return (client, request);
         }
     }
 }

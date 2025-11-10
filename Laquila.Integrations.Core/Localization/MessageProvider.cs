@@ -31,7 +31,7 @@ namespace Laquila.Integrations.Core.Localization
 
                 ("CompaniesNotFound", "pt") => "Nenhuma empresa encontrada com estes filtros",
                 ("CompaniesNotFound", "en") => "No Companies found with these filters.",
-                
+
                 ("UserCompanyNotFound", "pt") => "Empresa não vinculada para este usuário.",
                 ("UserCompanyNotFound", "en") => "The specified company is not associated with this user.",
 
@@ -89,6 +89,19 @@ namespace Laquila.Integrations.Core.Localization
 
                 ("InvoiceSentError", "pt") => "Não foi possível enviar a nota fiscal {0} do pedido {1} : {2}.",
                 ("InvoiceSentError", "en") => "Failed to sent Invoice {0} from order {1} : {2}.",
+
+                ("MandatorsSent", "pt") => "Clientes integrados com sucesso ao sistema externo.",
+                ("MandatorsSent", "en") => "Mandators successfully sent to the external system.",
+
+                ("MandatorsSentError", "pt") => "Não foi possível enviar a atualização de clientes: {0}",
+                ("MandatorsSentError", "en") => "Failed to sent mandators update: {0}",
+
+                ("ItemsSent", "pt") => "Itens integrados com sucesso ao sistema externo.",
+                ("ItemsSent", "en") => "Items successfully sent to the external system.",
+
+                ("ItemsSentError", "pt") => "Não foi possível enviar a atualização de itens: {0}",
+                ("ItemsSentError", "en") => "Failed to sent items update: {0}",
+
 
                 //Other messages
                 ("ItemsUpdateSuccess", "pt") => "A atualização dos status dos itens da prenota {0} foi enfileirada com sucesso.",
