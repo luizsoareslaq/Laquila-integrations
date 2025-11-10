@@ -1,7 +1,7 @@
 using Laquila.Integrations.Domain.Filters;
 using Laquila.Integrations.Domain.Models;
 
-namespace Laquila.Integrations.Domain.Interfaces.Repositories
+namespace Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub
 {
     public interface IUserRepository
     {

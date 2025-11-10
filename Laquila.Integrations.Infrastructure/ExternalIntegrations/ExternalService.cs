@@ -12,6 +12,7 @@ using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Core.Shared;
 using Laquila.Integrations.Domain.Enums;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
+using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using RestSharp;
 using static Laquila.Integrations.Application.Exceptions.ApplicationException;

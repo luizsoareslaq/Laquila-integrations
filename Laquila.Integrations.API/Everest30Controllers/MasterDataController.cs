@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Core.Domain.DTO.MasterData.Items;
 using Laquila.Integrations.Core.Domain.DTO.MasterData.Mandators.Request;
+using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Domain.Filters;
 using Laquila.Integrations.Core.Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -25,11 +26,14 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
             _externalService = externalService;
         }
 
-        /* ITENS */
+        /*************************************************************************************************************************************/
+        /**************************************************************** ITENS **************************************************************/
+        /*************************************************************************************************************************************/
+
         [HttpGet("items")]
-        public async Task<IActionResult> GetItems()
+        public async Task<IActionResult> GetItems([FromQuery] int pageSize = 100)
         {
-            var result = await _masterDataService.GetUnsentItemsAsync(new LAQFilters { PageSize = 100 }, CancellationToken.None);
+            var result = await _masterDataService.GetUnsentItemsAsync(new LAQFilters { PageSize = pageSize }, CancellationToken.None);
 
             return Ok(result);
         }
@@ -38,18 +42,22 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         [HttpPost("items/{integrationId}")]
         public async Task<IActionResult> SendItems([FromBody] MasterDataItemsPackageDTO dto, Guid integrationId)
         {
-            var result = await _externalService.SendItemsAsync(dto, integrationId);
+            // var result = await _externalService.SendItemsAsync(dto, integrationId);
 
-            return Ok();
+            var response = await _masterDataService.HandleItemsAsync(dto);
+
+            return Ok(response);
         }
 
-        /* CLIENTES */
+        /*************************************************************************************************************************************/
+        /************************************************************** CLIENTES *************************************************************/
+        /*************************************************************************************************************************************/
 
         //3.1.2
         [HttpGet("mandators")]
-        public async Task<IActionResult> GetMandators()
+        public async Task<IActionResult> GetMandators([FromQuery] int pageSize = 100)
         {
-            var result = await _masterDataService.GetUnsentMandatorAsync(new LAQFilters { PageSize = 100 }, CancellationToken.None);
+            var result = await _masterDataService.GetUnsentMandatorAsync(new LAQFilters { PageSize = pageSize }, CancellationToken.None);
 
             return Ok(result);
         }
@@ -59,7 +67,9 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         {
             var result = await _externalService.SendMandatorAsync(dto, integrationId);
 
-            return Ok();
+            var response = await _masterDataService.HandleMandatorsAsync(dto);
+
+            return Ok(response);
         }
 
     }

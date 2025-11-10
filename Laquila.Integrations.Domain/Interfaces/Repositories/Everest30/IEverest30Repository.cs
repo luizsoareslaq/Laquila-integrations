@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Laquila.Integrations.Domain.Models.Everest30;
 
-namespace Laquila.Integrations.Domain.Interfaces.Repositories
+namespace Laquila.Integrations.Domain.Interfaces.Repositories.Everest30
 {
     public interface IEverest30Repository
     {

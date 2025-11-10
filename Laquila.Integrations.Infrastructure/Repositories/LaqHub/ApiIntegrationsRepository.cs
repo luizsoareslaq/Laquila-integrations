@@ -1,7 +1,7 @@
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Localization;
-using Laquila.Integrations.Domain.Interfaces.Repositories;
+using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Laquila.Integrations.Domain.Models;
 using Laquila.Integrations.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;

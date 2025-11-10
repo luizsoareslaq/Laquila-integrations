@@ -1,4 +1,4 @@
-using Laquila.Integrations.Domain.Interfaces.Repositories;
+using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Laquila.Integrations.Domain.Models;
 using Laquila.Integrations.Infrastructure.Contexts;
 

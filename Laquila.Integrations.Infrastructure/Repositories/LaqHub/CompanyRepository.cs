@@ -1,9 +1,9 @@
 using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Filters;
-using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Models;
 using Laquila.Integrations.Infrastructure.Contexts;
+using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Microsoft.EntityFrameworkCore;
 using static Laquila.Integrations.Application.Exceptions.ApplicationException;
 

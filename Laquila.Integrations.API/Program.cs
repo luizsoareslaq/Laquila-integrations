@@ -150,10 +150,20 @@ builder.Services.AddCors(options =>
 
 // DB Context
 builder.Services.AddDbContext<LaquilaHubContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("LaquilaHubConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("LaquilaHubConnection"))
+#if DEBUG
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors()
+#endif
+        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
 builder.Services.AddDbContext<Everest30Context>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Everest30Connection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Everest30Connection"))
+#if DEBUG
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors()
+#endif
+        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
 builder.Services.AddSingleton<IDbConnectionFactory>(new DbConnectionFactory(builder.Configuration.GetConnectionString("Everest30Connection") ?? ""));
 

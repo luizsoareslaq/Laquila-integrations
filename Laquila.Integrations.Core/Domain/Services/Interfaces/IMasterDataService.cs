@@ -10,5 +10,8 @@ namespace Laquila.Integrations.Core.Domain.Services.Interfaces
     {
         Task<MasterDataMandatorsDTO> GetUnsentMandatorAsync(LAQFilters filters, CancellationToken ct);
         Task<MasterDataItemsPackageDTO> GetUnsentItemsAsync(LAQFilters filters, CancellationToken ct);
+
+        Task<ResponseDto> HandleItemsAsync(MasterDataItemsPackageDTO dto);
+        Task<ResponseDto> HandleMandatorsAsync(MasterDataMandatorsDTO dto);
     }
 }

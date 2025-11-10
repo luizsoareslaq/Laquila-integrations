@@ -6,6 +6,7 @@ using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Filters;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
+using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Laquila.Integrations.Domain.Models;
 using static Laquila.Integrations.Application.Exceptions.ApplicationException;
 

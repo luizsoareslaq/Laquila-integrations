@@ -158,5 +158,13 @@ namespace Laquila.Integrations.Infrastructure.Contexts
                 // entity.Ignore(e => e.Status);
             });
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            }
+        }
     }
 }

@@ -10,6 +10,8 @@ using Laquila.Integrations.Core.Domain.Services.Interfaces;
 using Laquila.Integrations.Core.Infra.Interfaces;
 using Laquila.Integrations.Core.Infra.Repositories;
 using Laquila.Integrations.Domain.Interfaces.Repositories;
+using Laquila.Integrations.Domain.Interfaces.Repositories.Everest30;
+using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Laquila.Integrations.Infrastructure.ExternalServices;
 using Laquila.Integrations.Infrastructure.Repositories;
 using Laquila.Integrations.Infrastructure.Repositories.Everest30;
@@ -50,6 +52,7 @@ namespace Laquila.Integrations.API.Configurations
             
             services.AddScoped<IViewsRepository, ViewsRepository>();
             services.AddScoped<IEverest30Repository, Everest30Repository>();
+            services.AddScoped<IMasterDataRepository, MasterDataRepository>();
 
             return services;
         }

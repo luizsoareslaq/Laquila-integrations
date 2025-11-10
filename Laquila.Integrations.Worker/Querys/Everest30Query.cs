@@ -1,6 +1,7 @@
 using Laquila.Integrations.Application.DTO.Auth.Request;
 using Laquila.Integrations.Application.DTO.Auth.Response;
 using Laquila.Integrations.Application.Helpers;
+using Laquila.Integrations.Core.Domain.DTO.MasterData.Items;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Domain.Filters;
@@ -61,7 +62,46 @@ namespace Laquila.Integrations.Worker.Querys
             return retorno;
         }
 
-        
+        public async Task<MasterDataItemsPackageDTO> GetItems(CancellationToken ct, int pageSize = 100)
+        {
+            var authType = "Bearer";
+            TokenAuthDTO authDto = new TokenAuthDTO();
+
+            if (authType != null)
+            {
+                var token = await GetValidTokenAsync(ct);
+                authDto.Token = token;
+            }
+
+            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"https://localhost:5001/api/masterdata/items", null, pageSize, authType, authDto, "get");
+
+            var response = await client.ExecuteAsync<MasterDataItemsPackageDTO>(request);
+
+            var retorno = response.Data;
+
+            return retorno;
+        }
+
+        public async Task<MasterDataItemsPackageDTO> SendItems(CancellationToken ct, MasterDataItemsPackageDTO dto, Guid integrationId)
+        {
+            var authType = "Bearer";
+            TokenAuthDTO authDto = new TokenAuthDTO();
+
+            if (authType != null)
+            {
+                var token = await GetValidTokenAsync(ct);
+                authDto.Token = token;
+            }
+
+            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"https://localhost:5001/api/masterdata/items/{integrationId}", dto, null, authType, authDto, "post");
+
+            var response = await client.ExecuteAsync<MasterDataItemsPackageDTO>(request);
+
+            var retorno = response.Data;
+
+            return retorno;
+        }
+
 
         public async Task<string> GetValidTokenAsync(CancellationToken ct)
         {

@@ -20,6 +20,8 @@ namespace Laquila.Integrations.Infrastructure.Contexts
         public DbSet<LoadOut> LoadOut { get; set; }
         public DbSet<FiscalNotes> FiscalNotes { get; set; }
         public DbSet<FnLine> FnLine { get; set; }
+        public DbSet<Article> Article { get; set; }
+        public DbSet<Mandator> Mandator { get; set; }
 
         public DbSet<VMWMS_BuscarPrenotasNaoIntegradas> VMWMS_BuscarPrenotasNaoIntegradas { get; set; }
         public DbSet<VMWMS_BuscarItensNaoIntegrados> VMWMS_BuscarItensNaoIntegrados { get; set; }
@@ -62,11 +64,25 @@ namespace Laquila.Integrations.Infrastructure.Contexts
             modelBuilder.Entity<FiscalNotes>().HasKey(x => x.FnId);
             modelBuilder.Entity<FnLine>().HasKey(x => x.FnlId);
 
+            modelBuilder.Entity<Article>().ToTable("ARTICLE");
+            modelBuilder.Entity<Article>().HasKey(x => x.AtId);
+
+            modelBuilder.Entity<Mandator>().ToTable("MANDATOR");
+            modelBuilder.Entity<Mandator>().HasKey(x => x.MaCode);
+
             modelBuilder.Entity<VMWMS_BuscarPrenotasNaoIntegradas>().HasNoKey().ToView("VMWMS_BuscarPrenotasNaoIntegradas");
             modelBuilder.Entity<VMWMS_BuscarItensNaoIntegrados>().HasNoKey().ToView("VMWMS_BuscarItensNaoIntegrados");
             modelBuilder.Entity<VMWMS_BuscarCadastrosNaoIntegrados>().HasNoKey().ToView("VMWMS_BuscarCadastrosNaoIntegrados");
 
             base.OnModelCreating(modelBuilder);
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            }
         }
     }
 }

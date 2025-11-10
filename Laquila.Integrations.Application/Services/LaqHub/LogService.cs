@@ -1,6 +1,5 @@
-using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
-using Laquila.Integrations.Domain.Interfaces.Repositories;
+using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Laquila.Integrations.Domain.Models;
 
 namespace Laquila.Integrations.Application.Services.LaqHub

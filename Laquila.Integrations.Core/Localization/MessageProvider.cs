@@ -102,7 +102,9 @@ namespace Laquila.Integrations.Core.Localization
                 ("ItemsSentError", "pt") => "Não foi possível enviar a atualização de itens: {0}",
                 ("ItemsSentError", "en") => "Failed to sent items update: {0}",
 
-
+                ("ItemsProcessed", "pt") => "Itens processados com sucesso no banco de dados.",
+                ("ItemsProcessed", "en") => "Items successfully processed in the database.",
+                
                 //Other messages
                 ("ItemsUpdateSuccess", "pt") => "A atualização dos status dos itens da prenota {0} foi enfileirada com sucesso.",
                 ("ItemsUpdateSuccess", "en") => "Items update from order {0} were queued successfully.",

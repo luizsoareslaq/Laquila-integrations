@@ -2,7 +2,7 @@ using Laquila.Integrations.Application.DTO.ApiIntegration.Request;
 using Laquila.Integrations.Application.DTO.ApiIntegration.Response;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
-using Laquila.Integrations.Domain.Interfaces.Repositories;
+using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Laquila.Integrations.Domain.Models;
 using static Laquila.Integrations.Application.Exceptions.ApplicationException;
 

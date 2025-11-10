@@ -9,7 +9,7 @@ using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Enums;
 using Laquila.Integrations.Domain.Helpers;
-using Laquila.Integrations.Domain.Interfaces.Repositories;
+using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Laquila.Integrations.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;

@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.Everest30;
-using Laquila.Integrations.Core.Context;
-using Laquila.Integrations.Domain.Interfaces.Repositories;
+using Laquila.Integrations.Domain.Interfaces.Repositories.Everest30;
 using Laquila.Integrations.Domain.Models.Everest30;
 
 namespace Laquila.Integrations.Application.Services.Everest30
