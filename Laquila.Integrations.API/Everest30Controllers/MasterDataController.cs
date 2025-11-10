@@ -8,6 +8,7 @@ using Laquila.Integrations.Core.Domain.DTO.MasterData.Mandators.Request;
 using Laquila.Integrations.Core.Domain.DTO.Shared;
 using Laquila.Integrations.Core.Domain.Filters;
 using Laquila.Integrations.Core.Domain.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Laquila.Integrations.API.Controllers.Everest30Controllers
@@ -30,6 +31,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         /**************************************************************** ITENS **************************************************************/
         /*************************************************************************************************************************************/
 
+        [Authorize(Roles="Admin")]
         [HttpGet("items")]
         public async Task<IActionResult> GetItems([FromQuery] int pageSize = 100)
         {
@@ -39,6 +41,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         }
 
         //3.1.1
+        [Authorize(Roles="Admin")]
         [HttpPost("items/{integrationId}")]
         public async Task<IActionResult> SendItems([FromBody] MasterDataItemsPackageDTO dto, Guid integrationId)
         {
@@ -54,6 +57,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         /*************************************************************************************************************************************/
 
         //3.1.2
+        [Authorize(Roles="Admin")]
         [HttpGet("mandators")]
         public async Task<IActionResult> GetMandators([FromQuery] int pageSize = 100)
         {
@@ -62,6 +66,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles="Admin")]
         [HttpPost("mandators/{integrationId}")]
         public async Task<IActionResult> SendMandators([FromBody] MasterDataMandatorsDTO dto, Guid integrationId)
         {

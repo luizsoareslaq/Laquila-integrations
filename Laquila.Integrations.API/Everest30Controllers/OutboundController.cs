@@ -29,7 +29,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
             _externalService = externalService;
         }
 
-        [Authorize(Roles ="Admin,Read-Write,Read-Only")]
+        [Authorize(Roles ="Admin")]
         [HttpGet("orders")]
         public async Task<IActionResult> GetOrdersAsync([FromQuery] LAQFilters filters)
         {

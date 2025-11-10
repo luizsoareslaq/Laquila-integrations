@@ -40,6 +40,7 @@ namespace Laquila.Integrations.Worker.Services
                 await _everestQuery.SendMandators(ct, cadastros, maersk_integration_id);
 
             
+
         }
     }
 }
