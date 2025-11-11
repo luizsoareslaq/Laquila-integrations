@@ -33,9 +33,9 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
 
         [Authorize(Roles="Admin")]
         [HttpGet("items")]
-        public async Task<IActionResult> GetItems([FromQuery] int pageSize = 100)
+        public async Task<IActionResult> GetItems([FromQuery] MasterDataFilters filters)
         {
-            var result = await _masterDataService.GetUnsentItemsAsync(new LAQFilters { PageSize = pageSize }, CancellationToken.None);
+            var result = await _masterDataService.GetUnsentItemsAsync(filters, CancellationToken.None);
 
             return Ok(result);
         }
@@ -59,9 +59,9 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         //3.1.2
         [Authorize(Roles="Admin")]
         [HttpGet("mandators")]
-        public async Task<IActionResult> GetMandators([FromQuery] int pageSize = 100)
+        public async Task<IActionResult> GetMandators([FromQuery] MasterDataFilters filters)
         {
-            var result = await _masterDataService.GetUnsentMandatorAsync(new LAQFilters { PageSize = pageSize }, CancellationToken.None);
+            var result = await _masterDataService.GetUnsentMandatorAsync(filters, CancellationToken.None);
 
             return Ok(result);
         }

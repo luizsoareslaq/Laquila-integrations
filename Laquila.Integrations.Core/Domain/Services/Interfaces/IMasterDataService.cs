@@ -8,8 +8,8 @@ namespace Laquila.Integrations.Core.Domain.Services.Interfaces
 {
     public interface IMasterDataService
     {
-        Task<MasterDataMandatorsDTO> GetUnsentMandatorAsync(LAQFilters filters, CancellationToken ct);
-        Task<MasterDataItemsPackageDTO> GetUnsentItemsAsync(LAQFilters filters, CancellationToken ct);
+        Task<MasterDataMandatorsDTO> GetUnsentMandatorAsync(MasterDataFilters filters, CancellationToken ct);
+        Task<MasterDataItemsPackageDTO> GetUnsentItemsAsync(MasterDataFilters filters, CancellationToken ct);
 
         Task<ResponseDto> HandleItemsAsync(MasterDataItemsPackageDTO dto);
         Task<ResponseDto> HandleMandatorsAsync(MasterDataMandatorsDTO dto);

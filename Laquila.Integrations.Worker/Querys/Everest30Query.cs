@@ -39,7 +39,7 @@ namespace Laquila.Integrations.Worker.Querys
                 authDto.Token = token;
             }
 
-            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient("https://localhost:5001/api/outbound/orders", null, filters, authType, authDto, "get");
+            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"{urlBase}/outbound/orders", null, filters, authType, authDto, "get");
 
             var response = await client.ExecuteAsync<PagedResult<PrenotaDTO>>(request);
 
@@ -117,7 +117,7 @@ namespace Laquila.Integrations.Worker.Querys
             var company_cnpj = "03902443000670";
             LoginRequestDto login = new LoginRequestDto("luiz.soares", "laquilateste", "03902443000670");
 
-            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"https://localhost:5001/api/auth/login", login, null, null, null, "post");
+            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"{urlBase}/auth/login", login, null, null, null, "post");
 
             var response = await client.ExecuteAsync<TokenResponseDto>(request);
 

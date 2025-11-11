@@ -21,9 +21,9 @@ namespace Laquila.Integrations.Application.Services.Everest30
             _masterDataRepository = masterDataRepository;
         }
 
-        public async Task<MasterDataItemsPackageDTO> GetUnsentItemsAsync(LAQFilters filters, CancellationToken ct)
+        public async Task<MasterDataItemsPackageDTO> GetUnsentItemsAsync(MasterDataFilters filters, CancellationToken ct)
         {
-            (var itemsList, int TotalCount) = await _viewsRepository.GetItemsAsync(new List<string>(), filters.PageSize);
+            (var itemsList, int TotalCount) = await _viewsRepository.GetItemsAsync(filters.Items, filters.PageSize);
 
             var itens = new MasterDataItemsPackageDTO(new List<ItemsDetailsDTO>());
 
@@ -59,9 +59,9 @@ namespace Laquila.Integrations.Application.Services.Everest30
             return itens;
         }
 
-        public async Task<MasterDataMandatorsDTO> GetUnsentMandatorAsync(LAQFilters filters, CancellationToken ct)
+        public async Task<MasterDataMandatorsDTO> GetUnsentMandatorAsync(MasterDataFilters filters, CancellationToken ct)
         {
-            (var mandatorsList, int TotalCount) = await _viewsRepository.GetMandatorsAsync(new List<string>(), "cnpj", filters.PageSize);
+            (var mandatorsList, int TotalCount) = await _viewsRepository.GetMandatorsAsync(filters.Items, "cnpj", filters.PageSize);
 
             var mandators = new MasterDataMandatorsDTO(new List<MandatorsAttributesDTO>());
 
