@@ -1,6 +1,7 @@
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces.Everest30;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
+using Laquila.Integrations.Application.Validators;
 using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Romaneio.Request;
@@ -33,7 +34,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
 
         public async Task<PagedResult<PrenotaDTO>> GetUnsentOrdersAsync(LAQFilters filters, CancellationToken ct)
         {
-            (var prenotasList, int TotalCount) = await _viewsRepository.GetOrdersAsync(new List<(string,long)>(), filters.PageSize);
+            (var prenotasList, int TotalCount) = await _viewsRepository.GetOrdersAsync(new List<(string, long)>(), filters.PageSize);
 
             var response = new PagedResult<PrenotaDTO>() { };
 
@@ -77,16 +78,20 @@ namespace Laquila.Integrations.Application.Services.Everest30
         {
             var loadOut = await _everest30Service.GetLoadOutByLoOe(lo_oe);
 
-            bool continueProcess = loadOut.LoStatus switch
+            if (!OrderValidator.CanUpdateStatus(loadOut.LoStatus))
             {
-                var status when status != (int)LoStatusEnum.Separacao && status != (int)LoStatusEnum.Conferencia => false,
-                _ => true
-            };
-
-            if (!continueProcess)
                 errors.Add("Order", "lo_oe", lo_oe.ToString(),
-            string.Format(MessageProvider.Get("OrderInvalidStatus", UserContext.Language), lo_oe), true);
+                    string.Format(MessageProvider.Get("OrderInvalidStatus", UserContext.Language), lo_oe), true);
+            }
 
+            var dateValidation = OrderValidator.CanUpdateDates(loadOut, dto);
+
+            if (!dateValidation.canUpdate)
+            {
+                errors.Add("Order", "lo_oe", lo_oe.ToString(), dateValidation.message, true);
+            }
+
+            dto.LoStatusAtual = loadOut.LoStatus;
 
             var queue = await _queueService.EnqueueAsync("LoadOutDates", "lo_oe", lo_oe.ToString(), dto, ApiStatusEnum.Pending, 1, null);
 
@@ -111,7 +116,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
                 if (counter == itemsNotFound.Count)
                     throwError = true;
 
-                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), string.Format(MessageProvider.Get("ItemOelIdNotFound", UserContext.Language),  item.OelId,lo_oe), throwError);
+                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), string.Format(MessageProvider.Get("ItemOelIdNotFound", UserContext.Language), item.OelId, lo_oe), throwError);
 
                 counter++;
             }
@@ -125,7 +130,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
                 if (counter == orderLineItemsNotFoundInDto.Count)
                     throwError = true;
 
-                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), string.Format(MessageProvider.Get("ItemOelIdNotFoundRequestBody", UserContext.Language),item.OelId,lo_oe), throwError);
+                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), string.Format(MessageProvider.Get("ItemOelIdNotFoundRequestBody", UserContext.Language), item.OelId, lo_oe), throwError);
             }
 
             //Adicionar fila para atualizar as renuncias
@@ -134,7 +139,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
             return new ResponseDto()
             {
                 Data = new ResponseDataDto()
-                { Message = string.Format(MessageProvider.Get("ItemsUpdateSuccess", UserContext.Language),lo_oe), StatusCode = "204" }
+                { Message = string.Format(MessageProvider.Get("ItemsUpdateSuccess", UserContext.Language), lo_oe), StatusCode = "204" }
             };
         }
     }

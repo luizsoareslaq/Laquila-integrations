@@ -27,10 +27,10 @@ namespace Laquila.Integrations.Core.Domain.DTO.Prenota.Request
         public int LoType { get; set; }
 
         [JsonPropertyName("lo_oe")]
-        public long LoOe { get; set; }
+        public int LoOe { get; set; }
 
         [JsonPropertyName("oe_erp_order")]
-        public long OeErpOrder { get; set; }
+        public int OeErpOrder { get; set; }
 
         [JsonPropertyName("items")]
         public List<PrenotaItemsDTO> Items { get; set; } = new List<PrenotaItemsDTO>();

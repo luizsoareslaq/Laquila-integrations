@@ -10,9 +10,9 @@ namespace Laquila.Integrations.Core.Domain.Models
         public string? LoMaCnpjRedespacho { get; set; }
         public int LoPriority { get; set; }
         public int LoType { get; set; }
-        public long LoOe { get; set; }
-        public long OeErpOrder { get; set; }
-        public long OelId { get; set; }
+        public int LoOe { get; set; }
+        public int OeErpOrder { get; set; }
+        public int OelId { get; set; }
         public required string OelAtId { get; set; }
         public int OelQtyReq { get; set; }
         public string PrecisaAtualizarItem { get; set; } = "N";

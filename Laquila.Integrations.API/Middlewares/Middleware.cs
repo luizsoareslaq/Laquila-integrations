@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Channels;
 using Laquila.Integrations.Application.Helpers;
@@ -24,10 +25,12 @@ namespace Laquila.Integrations.API.Middlewares
         static readonly ConcurrentDictionary<string, int> _dailyCount = new();
         static string TodayKey() => DateTime.UtcNow.ToString("yyyy_MM_dd", CultureInfo.InvariantCulture);
         protected readonly ErrorCollector errors = new ErrorCollector();
+        private readonly IMemoryCache _cache;
 
-        public Middleware(RequestDelegate next)
+        public Middleware(RequestDelegate next, IMemoryCache cache)
         {
             _next = next;
+            _cache = cache;
         }
 
         public async Task Invoke(HttpContext context)
@@ -45,9 +48,7 @@ namespace Laquila.Integrations.API.Middlewares
             var ipAddress = context.Connection.RemoteIpAddress?.ToString();
             var userAgent = request.Headers["User-Agent"].ToString();
             var userId = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var username = context.User?.FindFirst(ClaimTypes.Name)?.Value;
             var cnpj = context.User?.FindFirst("CompanyCnpj")?.Value;
-            var role = context.User?.FindFirst(ClaimTypes.Role)?.Value;
             var language = context.User?.FindFirst("Language")?.Value;
 
             UserContext.CompanyCnpj = cnpj;
@@ -67,6 +68,20 @@ namespace Laquila.Integrations.API.Middlewares
 
             if (requestBody.Length > 10_000)
                 requestBody = "[Truncated Payload]";
+
+            var requestSignature = GenerateHash($"{userId}-{method}-{endpoint}-{requestBody}");
+
+            if (_cache.TryGetValue(requestSignature, out _))
+            {
+                context.Response.StatusCode = StatusCodes.Status409Conflict;
+                await context.Response.WriteAsync("Duplicate request detected. Please wait a few seconds.");
+                UserContext.Clear();
+                return;
+            }
+            else
+            {
+                _cache.Set(requestSignature, true, TimeSpan.FromSeconds(10));
+            }
 
             var originalBodyStream = response.Body;
             using var responseBody = new MemoryStream();
@@ -206,42 +221,18 @@ namespace Laquila.Integrations.API.Middlewares
             }
             finally { _fileLock.Release(); }
         }
+
+        private string GenerateHash(string input)
+        {
+            using var sha = SHA256.Create();
+            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
+            return Convert.ToBase64String(bytes);
+        }
     }
 
     public static class LogChannel
     {
         public static readonly Channel<LaqApiLogs> Channel =
             System.Threading.Channels.Channel.CreateUnbounded<LaqApiLogs>();
-    }
-
-    public class LogBackgroundService : BackgroundService
-    {
-        private readonly IServiceProvider _serviceProvider;
-
-        public LogBackgroundService(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            var reader = LogChannel.Channel.Reader;
-
-            while (await reader.WaitToReadAsync(stoppingToken))
-            {
-                while (reader.TryRead(out var log))
-                {
-                    try
-                    {
-                        using var scope = _serviceProvider.CreateScope();
-                        var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
-                        await logService.HandleLogAsync(log);
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-        }
     }
 }

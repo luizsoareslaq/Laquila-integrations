@@ -1,23 +1,16 @@
-using Laquila.Integrations.API.Middlewares;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.Everest30;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
-using Laquila.Integrations.Application.Services;
 using Laquila.Integrations.Application.Services.Everest30;
 using Laquila.Integrations.Application.Services.LaqHub;
-using Laquila.Integrations.Core.Domain.Services;
 using Laquila.Integrations.Core.Domain.Services.Interfaces;
 using Laquila.Integrations.Core.Infra.Interfaces;
-using Laquila.Integrations.Core.Infra.Repositories;
-using Laquila.Integrations.Domain.Interfaces.Repositories;
 using Laquila.Integrations.Domain.Interfaces.Repositories.Everest30;
 using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Laquila.Integrations.Infrastructure.ExternalServices;
 using Laquila.Integrations.Infrastructure.Repositories;
 using Laquila.Integrations.Infrastructure.Repositories.Everest30;
 using Laquila.Integrations.Infrastructure.Repositories.LaqHub;
-using static Laquila.Integrations.API.Middlewares.Middleware;
-
 
 namespace Laquila.Integrations.API.Configurations
 {
@@ -38,9 +31,6 @@ namespace Laquila.Integrations.API.Configurations
             services.AddScoped<IMasterDataService, MasterDataService>();
             services.AddScoped<IEverest30Service, Everest30Service>();
 
-            services.AddHostedService<LogBackgroundService>();
-
-
             //Repositories
             services.AddScoped<IUnitOfWork, EfUnitOfWork>();
             services.AddScoped<IUserRepository, UserRepository>();
@@ -53,6 +43,8 @@ namespace Laquila.Integrations.API.Configurations
             services.AddScoped<IViewsRepository, ViewsRepository>();
             services.AddScoped<IEverest30Repository, Everest30Repository>();
             services.AddScoped<IMasterDataRepository, MasterDataRepository>();
+
+            services.AddMemoryCache();
 
             return services;
         }

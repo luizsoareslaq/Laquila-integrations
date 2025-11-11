@@ -7,7 +7,7 @@ namespace Laquila.Integrations.Core.Domain.DTO.Romaneio.Shared
     {
         [JsonPropertyName("oel_id")]
         [SwaggerSchema("ID único do item do pedido")]
-        public long OelId { get; set; }
+        public int OelId { get; set; }
 
         [JsonPropertyName("oel_at_id")]
         [SwaggerSchema("SKU do item")]

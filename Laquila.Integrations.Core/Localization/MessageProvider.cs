@@ -75,6 +75,24 @@ namespace Laquila.Integrations.Core.Localization
                 ("OrderInvalidStatus", "pt") => "O pedido {0} não está em um status válido para atualização de datas.",
                 ("OrderInvalidStatus", "en") => "The order {0} is not in a valid status for updating dates.",
 
+                ("OrderInvalidStatusIniPicking", "pt") =>
+                    "Não é possível definir a data de fim da separação ou datas de conferência antes de definir a data de início da separação para o pedido {0}.",
+
+                ("OrderInvalidStatusIniPicking", "en") =>
+                    "It is not possible to set picking end or conference dates before setting the picking start date for order {0}.",
+
+                ("OrderInvalidStatusEndPicking", "pt") =>
+                    "Não é possível definir datas de conferência antes de definir a data de fim da separação para o pedido {0}.",
+
+                ("OrderInvalidStatusEndPicking", "en") =>
+                    "It is not possible to set conference dates before setting the picking end date for order {0}.",
+
+                ("OrderInvalidStatusIniConf", "pt") =>
+                    "Não é possível definir a data final de conferência antes de definir a data de início da conferência para o pedido {0}.",
+
+                ("OrderInvalidStatusIniConf", "en") =>
+                    "It is not possible to set the conference end date before setting the conference start date for order {0}.",
+
                 ("OrderQueued", "pt") => "A atualização de status do pedido {0} foi enfileirada com sucesso com id {1}.",
                 ("OrderQueued", "en") => "The status update for order {0} was queued successfully with id {1}.",
 
@@ -104,7 +122,7 @@ namespace Laquila.Integrations.Core.Localization
 
                 ("ItemsProcessed", "pt") => "Itens processados com sucesso no banco de dados.",
                 ("ItemsProcessed", "en") => "Items successfully processed in the database.",
-                
+
                 //Other messages
                 ("ItemsUpdateSuccess", "pt") => "A atualização dos status dos itens da prenota {0} foi enfileirada com sucesso.",
                 ("ItemsUpdateSuccess", "en") => "Items update from order {0} were queued successfully.",

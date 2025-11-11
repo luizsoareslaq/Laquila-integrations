@@ -13,5 +13,8 @@ namespace Laquila.Integrations.Core.Domain.DTO.Romaneio.Request
         public DateTime? LoDtIniConf { get; set; }
         [JsonPropertyName("lo_dt_end_conf")]
         public DateTime? LoDtEndConf { get; set; }
+
+        [JsonPropertyName("lo_status_atual")]
+        public int? LoStatusAtual { get; set; }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Laquila.Integrations.Core.Domain.Filters;
 using Laquila.Integrations.Worker.Querys.Interfaces;
 using Laquila.Integrations.Worker.Services.Interfaces;
 
@@ -22,24 +23,48 @@ namespace Laquila.Integrations.Worker.Services
 
         public async Task ProcessAsync(CancellationToken ct)
         {
-            /**********************************************************
-            ************************** ITENS **************************
-            **********************************************************/
-            var items = await _everestQuery.GetItems(ct, 100);
+            // /**********************************************************
+            // ************************** ITENS **************************
+            // **********************************************************/
+            // var items = await _everestQuery.GetItems(ct, 100);
 
-            if (items?.ItemAttributes?.Count > 0)
-                await _everestQuery.SendItems(ct, items, maersk_integration_id);
+            // if (items?.ItemAttributes?.Count > 0)
+            //     await _everestQuery.SendItems(ct, items, maersk_integration_id);
+
+
+            // /**************************************************************
+            // ************************** CADASTROS **************************
+            // **************************************************************/
+            // var cadastros = await _everestQuery.GetMandators(ct, 100);
+
+            // if (cadastros?.Mandators?.Count > 0)
+            //     await _everestQuery.SendMandators(ct, cadastros, maersk_integration_id);
 
 
             /**************************************************************
-            ************************** CADASTROS **************************
+            ************************** PRENOTAS ***************************
             **************************************************************/
-            var cadastros = await _everestQuery.GetMandators(ct, 100);
 
-            if (cadastros?.Mandators?.Count > 0)
-                await _everestQuery.SendMandators(ct, cadastros, maersk_integration_id);
+            LAQFilters filters = new LAQFilters
+            {
+                Page = 1,
+                PageSize = 10
+            };
 
-            
+            var prenotas = await _everestQuery.GetOrders(filters, ct);
+
+            if (prenotas.Items.Count() > 0)
+            {
+                foreach (var prenota in prenotas.Items)
+                {
+                    var response = await _everestQuery.SendOrders(prenota, ct, maersk_integration_id);
+
+                    if (response != null &&  response.Errors == null )
+                        _logger.LogInformation("Romaneio {0} enviado com sucesso.", prenota.LoOe);
+                    else
+                        _logger.LogError("Erro ao enviar romaneio {0}.", prenota.LoOe);
+                }
+            }
 
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Laquila.Integrations.Core.Domain.Models;
 using Laquila.Integrations.Core.Infra.Interfaces;
@@ -19,7 +20,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
             _db = db;
         }
 
-        public async Task<(IEnumerable<VMWMS_BuscarItensNaoIntegrados>,int totalCount)> GetItemsAsync(List<string>? itens, int pageSize = 10)
+        public async Task<(IEnumerable<VMWMS_BuscarItensNaoIntegrados>, int totalCount)> GetItemsAsync(List<string>? itens, int pageSize = 10)
         {
             var query = _db.VMWMS_BuscarItensNaoIntegrados.AsQueryable();
 
@@ -32,10 +33,10 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
 
             var result = await query.Take(pageSize).ToListAsync();
 
-            return (result,totalCount);
+            return (result, totalCount);
         }
 
-        public async Task<(IEnumerable<VMWMS_BuscarCadastrosNaoIntegrados>,int totalCount)> GetMandatorsAsync(List<string>? cadastros, string cnpjOuCodigo, int pageSize = 10)
+        public async Task<(IEnumerable<VMWMS_BuscarCadastrosNaoIntegrados>, int totalCount)> GetMandatorsAsync(List<string>? cadastros, string cnpjOuCodigo, int pageSize = 10)
         {
             var query = _db.VMWMS_BuscarCadastrosNaoIntegrados.AsQueryable();
 
@@ -60,10 +61,10 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
 
             var result = await query.Take(pageSize).ToListAsync();
 
-            return (result,totalCount);
+            return (result, totalCount);
         }
 
-        public async Task<(IEnumerable<VMWMS_BuscarPrenotasNaoIntegradas>,int totalCount)> GetOrdersAsync(List<(string loMaCnpjOwner,long oeErpOrder)>? prenotas, int pageSize = 10)
+        public async Task<(IEnumerable<VMWMS_BuscarPrenotasNaoIntegradas>, int totalCount)> GetOrdersAsync(List<(string loMaCnpjOwner, long oeErpOrder)>? prenotas, int pageSize = 10)
         {
             var query = _db.VMWMS_BuscarPrenotasNaoIntegradas.AsQueryable();
 
@@ -71,15 +72,15 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
             {
                 query = query.Where(i =>
                     prenotas.Any(p =>
-                        p.loMaCnpjOwner == i.LoMaCnpjOwner && 
+                        p.loMaCnpjOwner == i.LoMaCnpjOwner &&
                         p.oeErpOrder == i.OeErpOrder));
             }
 
-            var totalCount = await query.CountAsync();
-
             var result = await query.Take(pageSize).ToListAsync();
 
-            return (result,totalCount);
+            var totalCount = result.Select(x=>x.LoOe).Distinct().Count();
+
+            return (result, totalCount);
         }
     }
 }
