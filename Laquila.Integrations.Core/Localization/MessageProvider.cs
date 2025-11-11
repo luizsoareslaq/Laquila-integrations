@@ -93,6 +93,12 @@ namespace Laquila.Integrations.Core.Localization
                 ("OrderInvalidStatusIniConf", "en") =>
                     "It is not possible to set the conference end date before setting the conference start date for order {0}.",
 
+                ("OrderInvalidStatusRenounced", "pt") =>
+                    "Não foi possíve atualizar a renúncia dos itens pois o pedido {0} não se encontra no estágio de faturamento",
+
+                ("OrderInvalidStatusRenounced", "en") =>
+                    "It was not possible to update the item renouncement because order {0} is not in the invoicing stage.",
+
                 ("OrderQueued", "pt") => "A atualização de status do pedido {0} foi enfileirada com sucesso com id {1}.",
                 ("OrderQueued", "en") => "The status update for order {0} was queued successfully with id {1}.",
 

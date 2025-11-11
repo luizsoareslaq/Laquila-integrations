@@ -17,12 +17,17 @@ namespace Laquila.Integrations.Application.Validators
             return loStatus == (int)LoStatusEnum.Separacao
                 || loStatus == (int)LoStatusEnum.Conferencia;
         }
+        
+        public static bool CanUpdateConfStatus(int loStatus)
+        {
+            return loStatus == (int)LoStatusEnum.Faturamento;
+        }
 
         public static (bool canUpdate, string message) CanUpdateDates(LoadOut entity, PrenotaDatesDTO dto)
         {
             if (entity.LoStatus == (int)LoStatusEnum.Separacao)
             {
-                if (entity.LoDtIniPicking is null && dto.LoDtIniPicking is null  && (dto.LoDtEndPicking.HasValue
+                if (entity.LoDtIniPicking is null && dto.LoDtIniPicking is null && (dto.LoDtEndPicking.HasValue
                                                                                 || dto.LoDtIniConf.HasValue
                                                                                 || dto.LoDtEndConf.HasValue)
                  )
@@ -39,7 +44,7 @@ namespace Laquila.Integrations.Application.Validators
                     return (false, string.Format(MessageProvider.Get("OrderInvalidStatusIniConf", UserContext.Language), entity.LoOe));
             }
 
-            return (true,string.Empty);
+            return (true, string.Empty);
         }
     }
 }

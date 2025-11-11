@@ -106,6 +106,14 @@ namespace Laquila.Integrations.Application.Services.Everest30
         {
             var ordersLine = await _everest30Service.GetOeItemsByLoOe(lo_oe);
 
+            var loStatus = ordersLine.FirstOrDefault()?.Orders.LoadOut.LoStatus ?? 0;
+
+            if (!OrderValidator.CanUpdateConfStatus(loStatus))
+            {
+                errors.Add("Order", "lo_oe", lo_oe.ToString(),
+                    string.Format(MessageProvider.Get("OrderInvalidStatusRenounced", UserContext.Language), lo_oe), true);
+            }
+
             var itemsNotFound = dto.Items.Where(i => !ordersLine.Any(ol => ol.OelId == i.OelId)).ToList();
 
             int counter = 1;
