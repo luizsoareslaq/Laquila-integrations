@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Laquila.Integrations.API.Controllers.LaqHubControllers
 {
     [ApiController]
-    [Authorize(Roles = "Admin")]
     [Route("api/users")]
     public class UserController : ControllerBase
     {
@@ -20,6 +19,7 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Post([FromBody] UserDTO dto)
         {
             var user = await _userService.CreateUserAsync(dto);
@@ -28,6 +28,7 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Get(int page = 1, int pageSize = 10, string orderBy = "id", bool ascending = true, [FromQuery] UserFilters? filters = null)
         {
             (var users, int count) = await _userService.GetUsers(page, pageSize, orderBy, ascending, filters);
@@ -36,6 +37,7 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var user = await _userService.GetUserById(id);
@@ -44,6 +46,7 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Put(Guid id, [FromBody] UserDTO dto)
         {
             await _userService.UpdateUser(id, dto);

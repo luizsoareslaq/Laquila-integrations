@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Laquila.Integrations.API.Controllers.LaqHubControllers
 {
     [ApiController]
-    [Authorize(Roles = "Admin")]
     [Route("api/integrations")]
     public class IntegrationsController : ControllerBase
     {
@@ -18,14 +17,16 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Post([FromBody, Bind("IntegrationName,StatusId")] ApiIntegrationDTO dto)
         {
             var apiIntegration = await _integrationsService.CreateApiIntegration(dto);
 
-            return Created("Created",apiIntegration);
+            return Created("Created", apiIntegration);
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Get(int page = 1, int pageSize = 10, string orderBy = "id", bool ascending = true)
         {
             (var apiIntegrations, int count) = await _integrationsService.GetApiIntegrations(page, pageSize, orderBy, ascending);
@@ -34,6 +35,7 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var apiIntegration = await _integrationsService.GetApiIntegrationById(id);
@@ -42,6 +44,7 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Put(Guid id, [FromBody] ApiIntegrationDTO dto)
         {
             await _integrationsService.UpdateApiIntegration(id, dto);

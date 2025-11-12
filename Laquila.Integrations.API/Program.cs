@@ -16,6 +16,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 Env.Load();
 
+var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+var issuer = Environment.GetEnvironmentVariable("ISSUER");
+var audience = Environment.GetEnvironmentVariable("AUDIENCE");
+
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+
 // Services
 builder.Services.AddDependencyInjection();
 builder.Services.AddHttpContextAccessor();
@@ -34,13 +40,6 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = 429;
 });
 
-var jwtSection = builder.Configuration.GetSection("Jwt");
-
-var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-var issuer = Environment.GetEnvironmentVariable("ISSUER");
-var audience = Environment.GetEnvironmentVariable("AUDIENCE");
-
-var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
 // JWT Auth
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -87,46 +86,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 
-// Swagger com JWT
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Laquila API", Version = "v1" });
-
-    var jwtScheme = new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Description = "Insira o token JWT no formato **Bearer {seu_token}**",
-        Reference = new OpenApiReference
-        {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
-        }
-    };
-
-    c.AddSecurityDefinition("Bearer", jwtScheme);
-
-    var requirement = new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    };
-
-    c.AddSecurityRequirement(requirement);
-});
-
+SwaggerConfig.AddSwagger(builder.Services);
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -179,9 +139,26 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+
+    app.UseWhen(ctx => ctx.Request.Path.StartsWithSegments("/swagger"), subApp =>
+    {
+        subApp.Use(async (context, next) =>
+        {
+            if (!context.Request.Headers.ContainsKey("Authorization"))
+            {
+                context.Response.StatusCode = 401;
+                await context.Response.WriteAsync("Unauthorized");
+                return;
+            }
+
+            await next();
+        });
+    });
+
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
+        c.IndexStream = () => File.OpenRead("wwwroot/swagger/index.html"); // custom UI
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Laquila API v1");
         c.RoutePrefix = string.Empty;
     });
@@ -210,7 +187,7 @@ app.UseCors("DynamicCors");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<Middleware>(); 
+app.UseMiddleware<Middleware>();
 
 app.MapControllers();
 

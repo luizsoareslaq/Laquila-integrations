@@ -66,8 +66,8 @@ namespace Laquila.Integrations.API.Middlewares
                 request.Body.Position = 0;
             }
 
-            if (requestBody.Length > 10_000)
-                requestBody = "[Truncated Payload]";
+            // if (requestBody.Length > 10_000)
+            //     requestBody = "[Truncated Payload]";
 
             var requestSignature = GenerateHash($"{userId}-{method}-{endpoint}-{requestBody}");
 

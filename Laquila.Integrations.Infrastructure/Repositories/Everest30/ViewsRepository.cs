@@ -78,6 +78,25 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
 
             var result = await query.Take(pageSize).ToListAsync();
 
+            var totalCount = result.Select(x => x.LoOe).Distinct().Count();
+
+            return (result, totalCount);
+        }
+        
+        public async Task<(IEnumerable<VMWMS_BuscarNotasNaoIntegradas>, int totalCount)> GetNotasOutboundAsync(List<(string loMaCnpjOwner, long oeErpOrder)>? prenotas, int pageSize = 10)
+        {
+            var query = _db.VMWMS_BuscarNotasNaoIntegradas.AsQueryable();
+
+            if (prenotas != null && prenotas.Count > 0)
+            {
+                query = query.Where(i =>
+                    prenotas.Any(p =>
+                        p.loMaCnpjOwner == i.LoMaCnpjOwner &&
+                        p.oeErpOrder == i.OeErpOrder));
+            }
+
+            var result = await query.Take(pageSize).ToListAsync();
+
             var totalCount = result.Select(x=>x.LoOe).Distinct().Count();
 
             return (result, totalCount);

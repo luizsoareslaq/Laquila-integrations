@@ -26,6 +26,7 @@ namespace Laquila.Integrations.Infrastructure.Contexts
         public DbSet<VMWMS_BuscarPrenotasNaoIntegradas> VMWMS_BuscarPrenotasNaoIntegradas { get; set; }
         public DbSet<VMWMS_BuscarItensNaoIntegrados> VMWMS_BuscarItensNaoIntegrados { get; set; }
         public DbSet<VMWMS_BuscarCadastrosNaoIntegrados> VMWMS_BuscarCadastrosNaoIntegrados { get; set; }
+        public DbSet<VMWMS_BuscarNotasNaoIntegradas> VMWMS_BuscarNotasNaoIntegradas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -73,6 +74,7 @@ namespace Laquila.Integrations.Infrastructure.Contexts
             modelBuilder.Entity<VMWMS_BuscarPrenotasNaoIntegradas>().HasNoKey().ToView("VMWMS_BuscarPrenotasNaoIntegradas");
             modelBuilder.Entity<VMWMS_BuscarItensNaoIntegrados>().HasNoKey().ToView("VMWMS_BuscarItensNaoIntegrados");
             modelBuilder.Entity<VMWMS_BuscarCadastrosNaoIntegrados>().HasNoKey().ToView("VMWMS_BuscarCadastrosNaoIntegrados");
+            modelBuilder.Entity<VMWMS_BuscarNotasNaoIntegradas>().HasNoKey().ToView("VMWMS_BuscarNotasNaoIntegradas");
 
             base.OnModelCreating(modelBuilder);
         }

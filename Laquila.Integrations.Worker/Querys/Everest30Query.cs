@@ -59,7 +59,7 @@ namespace Laquila.Integrations.Worker.Querys
                 authDto.Token = token;
             }
 
-            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"{urlBase}/outbound/orders/external/{apiIntegrationId}", dto, null, authType, authDto, "post");
+            (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient($"{urlBase}/outbound/orders/{apiIntegrationId}", dto, null, authType, authDto, "post");
 
             var response = await client.ExecuteAsync<ResponseDto>(request);
 

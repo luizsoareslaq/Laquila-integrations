@@ -1,6 +1,7 @@
 using Laquila.Integrations.Application.DTO.Auth.Request;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Laquila.Integrations.API.Controllers.LaqHubControllers
@@ -22,6 +23,13 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
             var token = await _authService.DoLoginAsync(dto);
 
             return Ok(token);
+        }
+
+        [Authorize]
+        [HttpPost("check-auth")]
+        public IActionResult CheckAuth()
+        {
+            return Ok();
         }
     }
 }

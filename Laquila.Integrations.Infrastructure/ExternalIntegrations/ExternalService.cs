@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
@@ -67,13 +68,13 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
 
 
                 errors.Add("SendMandators", "error", "ma_code",
-                    string.Format(MessageProvider.Get("MandatorsSentError",UserContext.Language), ex.Message + " - " + ex.InnerException), true);
+                    string.Format(MessageProvider.Get("MandatorsSentError", UserContext.Language), ex.Message + " - " + ex.InnerException), true);
 
                 throw;
             }
         }
 
-        public async Task<ResponseDto> SendItemsAsync (MasterDataItemsPackageDTO dto, Guid apiIntegrationId)
+        public async Task<ResponseDto> SendItemsAsync(MasterDataItemsPackageDTO dto, Guid apiIntegrationId)
         {
             IntegrationType = "SendItems";
 
@@ -108,7 +109,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
 
 
                 errors.Add("SendItems", "error", "at_id",
-                    string.Format(MessageProvider.Get("ItemsSentError",UserContext.Language), ex.Message + " - " + ex.InnerException), true);
+                    string.Format(MessageProvider.Get("ItemsSentError", UserContext.Language), ex.Message + " - " + ex.InnerException), true);
 
                 throw;
             }
@@ -165,39 +166,46 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
         {
             IntegrationType = "SendExternalInvoices";
 
-            var urls = await _integrationsRepository.GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(apiIntegrationId, IntegrationType);
+            // var urls = await _integrationsRepository.GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(apiIntegrationId, IntegrationType);
 
             RestResponse response = new RestResponse();
 
+            // Fazendo desta forma pois o dto original está com o OeId preenchido, e não queremos enviar este campo para o sistema externo
+            var dtoToSend = JsonSerializer.Deserialize<InvoiceDTO>(
+                JsonSerializer.Serialize(dto)
+            );
+            dtoToSend.OeId = null;
+
             try
             {
-                (RestClient client, RestRequest request) = RestSharpHelper.NewRestSharpClient(urls.Url, dto, null, urls.AuthType, null, urls.Type);
+                // (RestClient client,RestRequest request) = NewRestSharpClient(urls.Url, dtoToSend, urls.AuthType);
 
-                response = await client.ExecuteAsync(request);
+                // var response = await client.ExecuteAsync(request);
 
-                if (!response.IsSuccessful)
-                {
-                    throw new Exception($"Integration failed ({response.StatusCode}): {response.Content}");
-                }
+                // if (!response.IsSuccessful)
+                // {
+                // throw new Exception($"Integration failed ({response.StatusCode}): {response.Content}");
+                // }
+
 
                 // Chamar procedure de envio de prenota no EVEREST30
-                var queue = await _queueService.EnqueueAsync("UpdateERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Pending, 1, null);
+                var queue = await _queueService.EnqueueAsync("SendInvoiceOrder", "oe_id", dto.OeId.ToString(), dto, ApiStatusEnum.Pending, 1, null);
 
                 return new ResponseDto
                 {
                     Data = new ResponseDataDto
                     {
                         StatusCode = ((int)response.StatusCode).ToString(),
-                        Message = string.Format(MessageProvider.Get("InvoiceSent", UserContext.Language),dto.OeInvNumber, dto.LoOe)
+                        Message = string.Format(MessageProvider.Get("InvoiceSent", UserContext.Language), dto.OeInvNumber, dto.LoOe)
                     }
                 };
             }
             catch (Exception ex)
             {
-                var queue = await _queueService.EnqueueAsync("UpdateERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
+                var queue = await _queueService.EnqueueAsync("SendInvoiceOrder", "oe_id", dto.OeId.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
 
                 errors.Add("SendOrder", "lo_oe", dto.LoOe.ToString(),
-                    string.Format(MessageProvider.Get("InvoiceSentError",UserContext.Language),dto.OeInvNumber, dto.LoOe, ex.Message + " - " + ex.InnerException), true);
+                    string.Format(MessageProvider.Get("InvoiceSentError", UserContext.Language), dto.OeInvNumber, dto.LoOe, ex.Message + " - " + ex.InnerException), true);
 
                 throw;
             }

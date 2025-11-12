@@ -31,8 +31,8 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         /**************************************************************** ITENS **************************************************************/
         /*************************************************************************************************************************************/
 
-        [Authorize(Roles="Admin")]
         [HttpGet("items")]
+        [Authorize(Roles="Admin")]
         public async Task<IActionResult> GetItems([FromQuery] MasterDataFilters filters)
         {
             var result = await _masterDataService.GetUnsentItemsAsync(filters, CancellationToken.None);
@@ -41,8 +41,8 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         }
 
         //3.1.1
-        [Authorize(Roles="Admin")]
         [HttpPost("items/{integrationId}")]
+        [Authorize(Roles="Admin")]
         public async Task<IActionResult> SendItems([FromBody] MasterDataItemsPackageDTO dto, Guid integrationId)
         {
             // var result = await _externalService.SendItemsAsync(dto, integrationId);
@@ -57,8 +57,8 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         /*************************************************************************************************************************************/
 
         //3.1.2
-        [Authorize(Roles="Admin")]
         [HttpGet("mandators")]
+        [Authorize(Roles="Admin")]
         public async Task<IActionResult> GetMandators([FromQuery] MasterDataFilters filters)
         {
             var result = await _masterDataService.GetUnsentMandatorAsync(filters, CancellationToken.None);

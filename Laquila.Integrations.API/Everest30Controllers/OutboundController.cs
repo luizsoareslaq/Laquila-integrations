@@ -40,7 +40,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
 
         //1.1.1
         [Authorize(Roles="Admin")]
-        [HttpPost("orders/external/{integrationId}")]
+        [HttpPost("orders/{integrationId}")]
         public async Task<IActionResult> SendOrderAsync([FromBody] PrenotaDTO dto, Guid integrationId)
         {
             var response = await _externalService.SendOrdersAsync(dto, integrationId);
@@ -74,12 +74,23 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
             return Ok(response);
         }
 
-        //1.2.1
         [Authorize(Roles ="Admin")]
-        [HttpPost("invoice/{lo_oe}")]
-        public async Task<IActionResult> SendInvoiceAsync([FromRoute] long lo_oe, [FromBody] InvoiceDTO dto)
+        [HttpGet("invoice")]
+        public async Task<IActionResult> GetInvoiceOrdersAsync([FromQuery] LAQFilters filters)
         {
-            return Ok();
+            var prenotas = await _ordersService.GetUnsentInvoicesAsync(filters, CancellationToken.None);
+
+            return Ok(prenotas);
+        }
+
+        //1.2.1
+        [Authorize(Roles = "Admin")]
+        [HttpPost("invoice/{integrationId}")]
+        public async Task<IActionResult> SendInvoiceAsync([FromBody] InvoiceDTO dto, Guid integrationId)
+        {
+            var response = await _externalService.SendInvoicesAsync(dto, integrationId);
+
+            return Ok(response);
         }
 
         //1.2.2

@@ -3,6 +3,7 @@ using Laquila.Integrations.Application.Interfaces.Everest30;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
 using Laquila.Integrations.Application.Validators;
 using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Domain.DTO.Outbound.Invoices.Request;
 using Laquila.Integrations.Core.Domain.DTO.Prenota.Request;
 using Laquila.Integrations.Core.Domain.DTO.Romaneio.Request;
 using Laquila.Integrations.Core.Domain.DTO.Romaneio.Shared;
@@ -30,6 +31,48 @@ namespace Laquila.Integrations.Application.Services.Everest30
             _viewsRepository = viewsRepository;
             _queueService = queueService;
             _everest30Service = everest30Service;
+        }
+
+        public async Task<PagedResult<InvoiceDTO>> GetUnsentInvoicesAsync(LAQFilters filters, CancellationToken ct)
+        {
+            (var notasList, int TotalCount) = await _viewsRepository.GetNotasOutboundAsync(new List<(string, long)>(), filters.PageSize);
+
+            var response = new PagedResult<InvoiceDTO>() { };
+
+            response.Total = TotalCount;
+            response.Page = filters.Page;
+            response.PageSize = filters.PageSize;
+
+            var notas = new List<InvoiceDTO>();
+
+            if (notasList.Count() > 0)
+            {
+                notas = notasList.GroupBy(x => x.LoOe).Select(grupo =>
+                {
+                    var notaBase = grupo.First();
+                    return new InvoiceDTO
+                    {
+                        LoMaCnpjOwner = notaBase.LoMaCnpjOwner,
+                        LoMaCnpj = notaBase.LoMaCnpj,
+                        LoMaCnpjCarrier = notaBase.LoMaCnpjCarrier,
+                        LoMaCnpjRedespacho = notaBase.LoMaCnpjRedespacho,
+                        LoOe = notaBase.LoOe,
+                        OeSerialNr = notaBase.OeSerialNr,
+                        OeInvNumber = notaBase.OeInvNumber,
+                        OeId = notaBase.OeId,
+                        Items = grupo.Select(item => new InvoiceItemsDTO
+                        {
+                            OelId = item.OelId,
+                            OelAtId = item.OelAtId,
+                            OelQtyAtend = item.OelQtyAtend
+                        }).ToList()
+                    };
+                }).ToList();
+
+                response.Items = notas;
+            }
+
+            return response;
         }
 
         public async Task<PagedResult<PrenotaDTO>> GetUnsentOrdersAsync(LAQFilters filters, CancellationToken ct)
