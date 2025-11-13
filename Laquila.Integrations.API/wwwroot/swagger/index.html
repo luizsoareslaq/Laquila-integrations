@@ -159,12 +159,14 @@
             const roles = decoded?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
             const rolesArray = Array.isArray(roles) ? roles : [roles];
 
+            console.log(roles);
+
             const schemaCheck = setInterval(() => {
                 const schemaSection = document.querySelector('.models');
 
                 if (!schemaSection) return;
 
-                if (!rolesArray.includes("admin")) {
+                if (!rolesArray.includes("Admin")) {
                     schemaSection.style.display = "none";
                 }
 
