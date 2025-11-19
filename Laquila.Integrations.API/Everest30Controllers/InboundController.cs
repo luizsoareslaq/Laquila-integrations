@@ -26,9 +26,17 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         }
 
         //2.1.3
+        [HttpPatch("invoice/{li_id}/items/receiving")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateInvoiceItemStatusAsync([FromRoute] long li_id, [FromBody] InvoiceItemStatusDTO dto)
+        {
+            return Ok();
+        }
+
+        //2.1.4
         [HttpPut("invoice/{li_id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateInvoiceQualityAssurance([FromRoute] long li_id, [FromBody] InvoiceQualityAssuranceDTO dto)
+        public async Task<IActionResult> UpdateInvoiceQualityAssuranceAsync([FromRoute] long li_id, [FromBody] InvoiceQualityAssuranceDTO dto)
         {
             return Ok();
         }
