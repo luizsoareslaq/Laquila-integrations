@@ -13,6 +13,7 @@ using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Laquila.Integrations.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Protocols.WSFederation.Metadata;
 using Microsoft.IdentityModel.SecurityTokenService;
 using Microsoft.IdentityModel.Tokens;
 using static Laquila.Integrations.Application.Exceptions.ApplicationException;
@@ -73,10 +74,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            foreach (var role in user.UserRoles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role.Role.RoleName));
-            }
+            claims.AddRange(user.UserRoles.Select(x => new Claim(ClaimTypes.Role, x.Role.RoleName)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
