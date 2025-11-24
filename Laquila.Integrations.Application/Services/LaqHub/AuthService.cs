@@ -1,20 +1,18 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using Laquila.Integrations.Application.DTO.Auth.Request;
 using Laquila.Integrations.Application.DTO.Auth.Response;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
 using Laquila.Integrations.Core.Context;
 using Laquila.Integrations.Core.Localization;
+using Laquila.Integrations.Core.Shared;
 using Laquila.Integrations.Domain.Enums;
 using Laquila.Integrations.Domain.Helpers;
 using Laquila.Integrations.Domain.Interfaces.Repositories.LaqHub;
 using Laquila.Integrations.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Protocols.WSFederation.Metadata;
-using Microsoft.IdentityModel.SecurityTokenService;
 using Microsoft.IdentityModel.Tokens;
 using static Laquila.Integrations.Application.Exceptions.ApplicationException;
 using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
@@ -117,7 +115,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
             context.Response.Cookies.Append("jwt", tokenString, secureCookie);
             context.Response.Cookies.Append("userName", user.Username, nonHttpOnlyCookie);
 
-            var newRefreshToken = GenerateSecureRefreshToken();
+            var newRefreshToken = DomainHelpers.GenerateSecureRefreshToken();
             var expirationRefreshToken = DateTime.Now.AddDays(7);
 
 
@@ -131,7 +129,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
             return new TokenResponseDto(tokenString, expirationSeconds);
         }
 
-        public async Task<Guid> GetIdByJwt()
+        public Guid GetIdByJwt()
         {
             var context = _httpContextAccessor.HttpContext;
             if (context.Request.Cookies.TryGetValue("jwt", out var token))
@@ -143,14 +141,14 @@ namespace Laquila.Integrations.Application.Services.LaqHub
 
                 if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
                 {
-                    return await Task.FromResult<Guid>(userId);
+                    return userId;
                 }
             }
 
-            return await Task.FromResult<Guid>(Guid.Empty);
+            return Guid.Empty;
         }
 
-        public async Task<string> GetNameByJwt()
+        public string GetNameByJwt()
         {
             var context = _httpContextAccessor.HttpContext;
 
@@ -163,14 +161,14 @@ namespace Laquila.Integrations.Application.Services.LaqHub
 
                 if (loginClaim != null)
                 {
-                    return await Task.FromResult(loginClaim.Value);
+                    return loginClaim.Value;
                 }
             }
 
-            return await Task.FromResult(string.Empty);
+            return string.Empty;
         }
 
-        public async Task<string> GetRoleByJwt()
+        public string GetRoleByJwt()
         {
             var context = _httpContextAccessor.HttpContext;
 
@@ -187,10 +185,10 @@ namespace Laquila.Integrations.Application.Services.LaqHub
                 }
             }
 
-            return await Task.FromResult(string.Empty);
+            return string.Empty;
         }
 
-        public async Task<ClaimsPrincipal> ValidateToken(string token)
+        public ClaimsPrincipal ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_secretKey);
@@ -264,17 +262,10 @@ namespace Laquila.Integrations.Application.Services.LaqHub
             await _authRepository.DeleteTokenAsync(stored);
 
             var token = await GenerateToken(user, stored.CompanyCnpj, user.Language);
-            var newRefreshToken = GenerateSecureRefreshToken();
+            var newRefreshToken = DomainHelpers.GenerateSecureRefreshToken();
 
             return token;
         }
-
-        private string GenerateSecureRefreshToken()
-        {
-            var bytes = new byte[256];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(bytes);
-            return Convert.ToBase64String(bytes);
-        }
+       
     }
 }
