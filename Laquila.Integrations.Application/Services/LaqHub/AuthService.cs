@@ -190,7 +190,6 @@ namespace Laquila.Integrations.Application.Services.LaqHub
             return await Task.FromResult(string.Empty);
         }
 
-
         public async Task<ClaimsPrincipal> ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();

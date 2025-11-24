@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Laquila.Integrations.Application.DTO.Auth.Request;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
@@ -26,10 +27,23 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
         }
 
         [Authorize]
-        [HttpPost("check-auth")]
-        public IActionResult CheckAuth()
+        [HttpGet("/me")]
+        public IActionResult Me()
         {
-            return Ok();
+            var userId = User.FindFirst("id")?.Value;
+            var nome = User.FindFirst("nome")?.Value;
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+            var isAdmin = roles.Contains("Admin");
+
+            return Ok(new
+            {
+                IdUsuario = userId,
+                Nome = nome,
+                Email = email,
+                Role = roles,
+                IsAdmin = isAdmin
+            });
         }
     }
 }
