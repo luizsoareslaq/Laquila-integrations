@@ -179,16 +179,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRateLimiter();
-
 app.UseHttpsRedirection();
-
 app.UseCors("DynamicCors");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseMiddleware<Middleware>();
-
 app.MapControllers();
-
 app.Run();

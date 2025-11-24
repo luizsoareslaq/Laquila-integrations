@@ -12,6 +12,8 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
     public class QueueRepository : IQueueRepository
     {
         private readonly LaquilaHubContext _context;
+        private readonly string lang = UserContext.Language ?? "en";
+
         public QueueRepository(LaquilaHubContext context)
         {
             _context = context;
@@ -57,7 +59,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
                                         .Skip((page - 1) * pageSize)
                                         .Take(pageSize)
                                         .Include(x => x.Status)
-                                        .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("QueuesNotFound", UserContext.Language));
+                                        .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("QueuesNotFound", lang));
 
 
             return (items, totalItems);
@@ -65,7 +67,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
 
         public async Task<LaqApiSyncQueue?> GetQueueAsyncById(Guid id)
         {
-            var queue = await _context.LaqApiSyncQueues.FirstOrDefaultAsync(q => q.Id == id) ?? throw new NotFoundException(MessageProvider.Get("QueueIDNotFound", UserContext.Language));
+            var queue = await _context.LaqApiSyncQueues.FirstOrDefaultAsync(q => q.Id == id) ?? throw new NotFoundException(MessageProvider.Get("QueueIDNotFound", lang));
             return queue;
         }
 

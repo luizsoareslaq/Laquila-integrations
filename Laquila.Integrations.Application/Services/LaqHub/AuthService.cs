@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.SecurityTokenService;
 using Microsoft.IdentityModel.Tokens;
+using static Laquila.Integrations.Application.Exceptions.ApplicationException;
 using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
 namespace Laquila.Integrations.Application.Services.LaqHub
@@ -27,15 +28,17 @@ namespace Laquila.Integrations.Application.Services.LaqHub
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserRepository _userRepository;
         private readonly IAuthRepository _authRepository;
+        private readonly string lang = UserContext.Language ?? "en";
+
         public AuthService(IHttpContextAccessor httpContextAccessor
                          , IConfiguration configuration
                          , IUserRepository userRepository
                          , IAuthRepository authRepository)
         {
             _httpContextAccessor = httpContextAccessor;
-            _secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-            _issuer = Environment.GetEnvironmentVariable("ISSUER");
-            _audience = Environment.GetEnvironmentVariable("AUDIENCE");
+            _secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? throw new NotFoundException("JWT_SECRET_KEY não encontrado.");
+            _issuer = Environment.GetEnvironmentVariable("ISSUER") ?? throw new NotFoundException("ISSUER não encontrado.");
+            _audience = Environment.GetEnvironmentVariable("AUDIENCE") ?? throw new NotFoundException("AUDIENTE não encontrado.");
             _userRepository = userRepository;
             _authRepository = authRepository;
         }
@@ -46,7 +49,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
 
             if (!VerifyPassword(dto.Password, user.Hash, user.Salt) || user.StatusId != (int)ApiStatusEnum.Active)
             {
-                throw new UnauthorizedAccessException(MessageProvider.Get("InvalidLogin", UserContext.Language));
+                throw new UnauthorizedAccessException(MessageProvider.Get("InvalidLogin", lang));
             }
 
             var companyCnpj = CheckCompany(dto.Cnpj, user);
@@ -54,7 +57,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
             var token = await GenerateToken(user, companyCnpj, user.Language);
 
             if(companyCnpj == null)
-                throw new UnauthorizedAccessException(MessageProvider.Get("UserCompanyNotFound", UserContext.Language));
+                throw new UnauthorizedAccessException(MessageProvider.Get("UserCompanyNotFound", lang));
 
             return token;
         }
@@ -91,7 +94,8 @@ namespace Laquila.Integrations.Application.Services.LaqHub
             var tokenString = new JwtSecurityTokenHandler().WriteToken(accessToken);
 
             var context = _httpContextAccessor.HttpContext;
-            if (context == null) throw new BadRequestException(MessageProvider.Get("GeneratingTokenError", UserContext.Language));
+            if (context == null)
+                throw new Exceptions.ApplicationException.BadRequestException(MessageProvider.Get("GeneratingTokenError", lang));
 
             var origin = context.Request.Headers["Origin"].ToString();
 
@@ -213,7 +217,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
             }
             catch (Exception ex)
             {
-                throw new Exception(MessageProvider.Get("InvalidToken", UserContext.Language), ex);
+                throw new Exception(MessageProvider.Get("InvalidToken", lang), ex);
             }
         }
 
@@ -233,7 +237,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
             if (string.IsNullOrEmpty(companyCnpj))
             {
                 if (user.UserCompanies.Count() > 1)
-                    throw new BadRequestException(MessageProvider.Get("MultipleCompaniesAssigned", user.Language));
+                    throw new Exceptions.ApplicationException.BadRequestException(MessageProvider.Get("MultipleCompaniesAssigned", user.Language));
 
                 selectedCnpj = user.UserCompanies.First().Company.Document;
 
@@ -256,7 +260,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
             var stored = await _authRepository.GetRefreshTokenAsync(dto.RefreshToken);
 
             if (stored == null || stored.RefreshTokenExpiresAt <= DateTime.Now)
-                throw new UnauthorizedAccessException(MessageProvider.Get("InvalidRefreshToken", UserContext.Language));
+                throw new UnauthorizedAccessException(MessageProvider.Get("InvalidRefreshToken", lang));
 
             var user = await _userRepository.GetUserById(stored.ApiUserId);
 

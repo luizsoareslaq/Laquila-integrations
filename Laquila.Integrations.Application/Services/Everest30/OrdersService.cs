@@ -14,6 +14,7 @@ using Laquila.Integrations.Core.Infra.Interfaces;
 using Laquila.Integrations.Core.Localization;
 using Laquila.Integrations.Domain.Enums;
 using Laquila.Integrations.Domain.Enums.Everest30;
+using Microsoft.CodeAnalysis;
 
 namespace Laquila.Integrations.Application.Services.Everest30
 {
@@ -23,6 +24,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
         private readonly IQueueService _queueService;
         private readonly IEverest30Service _everest30Service;
         protected readonly ErrorCollector errors = new ErrorCollector();
+        private readonly string lang = UserContext.Language ?? "en";
 
         public OrdersService(IViewsRepository viewsRepository
                             , IQueueService queueService
@@ -124,7 +126,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
             if (!OrderValidator.CanUpdateStatus(loadOut.LoStatus))
             {
                 errors.Add("Order", "lo_oe", lo_oe.ToString(),
-                    string.Format(MessageProvider.Get("OrderInvalidStatus", UserContext.Language), lo_oe), true);
+                    string.Format(MessageProvider.Get("OrderInvalidStatus", lang), lo_oe), true);
             }
 
             var dateValidation = OrderValidator.CanUpdateDates(loadOut, dto);
@@ -141,7 +143,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
             return new ResponseDto()
             {
                 Data = new ResponseDataDto()
-                { Message = string.Format(MessageProvider.Get("OrderQueued", UserContext.Language), lo_oe, queue), StatusCode = "200" }
+                { Message = string.Format(MessageProvider.Get("OrderQueued", lang), lo_oe, queue), StatusCode = "200" }
             };
         }
 
@@ -154,7 +156,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
             if (!OrderValidator.CanUpdateConfStatus(loStatus))
             {
                 errors.Add("Order", "lo_oe", lo_oe.ToString(),
-                    string.Format(MessageProvider.Get("OrderInvalidStatusRenounced", UserContext.Language), lo_oe), true);
+                    string.Format(MessageProvider.Get("OrderInvalidStatusRenounced", lang), lo_oe), true);
             }
 
             var itemsNotFound = dto.Items.Where(i => !ordersLine.Any(ol => ol.OelId == i.OelId)).ToList();
@@ -167,7 +169,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
                 if (counter == itemsNotFound.Count)
                     throwError = true;
 
-                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), string.Format(MessageProvider.Get("ItemOelIdNotFound", UserContext.Language), item.OelId, lo_oe), throwError);
+                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), string.Format(MessageProvider.Get("ItemOelIdNotFound", lang), item.OelId, lo_oe), throwError);
 
                 counter++;
             }
@@ -181,7 +183,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
                 if (counter == orderLineItemsNotFoundInDto.Count)
                     throwError = true;
 
-                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), string.Format(MessageProvider.Get("ItemOelIdNotFoundRequestBody", UserContext.Language), item.OelId, lo_oe), throwError);
+                errors.Add("OrderLine", "oel_id", item.OelId.ToString(), string.Format(MessageProvider.Get("ItemOelIdNotFoundRequestBody", lang), item.OelId, lo_oe), throwError);
             }
 
             //Adicionar fila para atualizar as renuncias
@@ -190,7 +192,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
             return new ResponseDto()
             {
                 Data = new ResponseDataDto()
-                { Message = string.Format(MessageProvider.Get("ItemsUpdateSuccess", UserContext.Language), lo_oe), StatusCode = "204" }
+                { Message = string.Format(MessageProvider.Get("ItemsUpdateSuccess", lang), lo_oe), StatusCode = "204" }
             };
         }
     }

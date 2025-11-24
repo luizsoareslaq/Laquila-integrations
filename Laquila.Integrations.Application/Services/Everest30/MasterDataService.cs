@@ -7,6 +7,7 @@ using Laquila.Integrations.Core.Infra.Interfaces;
 using Laquila.Integrations.Core.Shared;
 using Laquila.Integrations.Domain.Interfaces.Repositories.Everest30;
 using Laquila.Integrations.Domain.Models.Everest30;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Laquila.Integrations.Application.Services.Everest30
 {
@@ -53,8 +54,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
                     })
                 );
 
-            }
-            ;
+            };
 
             return itens;
         }
@@ -83,8 +83,7 @@ namespace Laquila.Integrations.Application.Services.Everest30
                         MaState = mandator.MaState
                     })
                 );
-            }
-            ;
+            };
 
             return mandators;
         }
@@ -103,17 +102,15 @@ namespace Laquila.Integrations.Application.Services.Everest30
             var existingIds = existingItems.Select(e => e.AtId).ToHashSet();
 
             List<Article> itemsToInsert = new();
-            List<Article> itemsToUpdate = new();
+            List<Article> itemsToUpdate = distinctItems
+                                            .Where(x => existingIds.Contains(x.AtId))
+                                            .Select(MappingHelpers.ArticleDtoToModel)
+                                            .ToList();
 
-            foreach (var itemDto in distinctItems)
-            {
-                var model = MappingHelpers.ArticleDtoToModel(itemDto);
-
-                if (existingIds.Contains(model.AtId))
-                    itemsToUpdate.Add(model);
-                else
-                    itemsToInsert.Add(model);
-            }
+            itemsToInsert.AddRange(distinctItems
+                                    .Where(x => !existingIds.Contains(x.AtId))
+                                    .Select(MappingHelpers.ArticleDtoToModel)
+                                    );
 
             if (itemsToInsert.Count > 0)
                 await _masterDataRepository.InsertItemsAsync(itemsToInsert);
@@ -147,17 +144,17 @@ namespace Laquila.Integrations.Application.Services.Everest30
             var existingIds = existingMandators.Select(e => e.MaCode).ToHashSet();
 
             List<Mandator> mandatorsToInsert = new List<Mandator>();
-            List<Mandator> mandatorsToUpdate = new List<Mandator>();
+            List<Mandator> mandatorsToUpdate = distinctMandators
+                                            .Where(x => existingIds.Contains(x.MaCode))
+                                            .Select(MappingHelpers.MandatorDtoToModel)
+                                            .ToList();
 
-            foreach (var itemDto in distinctMandators)
-            {
-                var model = MappingHelpers.MandatorDtoToModel(itemDto);
+            mandatorsToInsert.AddRange(
+                distinctMandators
+                    .Where(x => !existingIds.Contains(x.MaCode))
+                    .Select(MappingHelpers.MandatorDtoToModel)
+            );
 
-                if (existingIds.Contains(model.MaCode))
-                    mandatorsToUpdate.Add(model);
-                else
-                    mandatorsToInsert.Add(model);
-            }
 
             if (mandatorsToInsert.Count > 0)
                 await _masterDataRepository.InsertMandatorsAsync(mandatorsToInsert);

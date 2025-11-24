@@ -26,6 +26,8 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
         private readonly IApiIntegrationsRepository _integrationsRepository;
         private readonly IQueueService _queueService;
         private string? IntegrationType;
+        private readonly string lang = UserContext.Language ?? "en";
+        
         public ExternalService(IApiIntegrationsRepository integrationsRepository
                              , IQueueService queueService)
         {
@@ -58,7 +60,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                     Data = new ResponseDataDto
                     {
                         StatusCode = ((int)response.StatusCode).ToString(),
-                        Message = string.Format(MessageProvider.Get("MandatorsSent", UserContext.Language))
+                        Message = string.Format(MessageProvider.Get("MandatorsSent", lang))
                     }
                 };
             }
@@ -68,7 +70,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
 
 
                 errors.Add("SendMandators", "error", "ma_code",
-                    string.Format(MessageProvider.Get("MandatorsSentError", UserContext.Language), ex.Message + " - " + ex.InnerException), true);
+                    string.Format(MessageProvider.Get("MandatorsSentError", lang), ex.Message + " - " + ex.InnerException), true);
 
                 throw;
             }
@@ -99,7 +101,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                     Data = new ResponseDataDto
                     {
                         StatusCode = ((int)response.StatusCode).ToString(),
-                        Message = string.Format(MessageProvider.Get("ItemsSent", UserContext.Language))
+                        Message = string.Format(MessageProvider.Get("ItemsSent", lang))
                     }
                 };
             }
@@ -109,7 +111,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
 
 
                 errors.Add("SendItems", "error", "at_id",
-                    string.Format(MessageProvider.Get("ItemsSentError", UserContext.Language), ex.Message + " - " + ex.InnerException), true);
+                    string.Format(MessageProvider.Get("ItemsSentError", lang), ex.Message + " - " + ex.InnerException), true);
 
                 throw;
             }
@@ -146,7 +148,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                         // StatusCode = ((int)response.StatusCode).ToString(),
                         StatusCode = (200).ToString(),
                         // Message = $"Order sent successfully to external system. ({response.StatusCode})"
-                        Message = string.Format(MessageProvider.Get("OrderSent", UserContext.Language), dto.LoOe)
+                        Message = string.Format(MessageProvider.Get("OrderSent", lang), dto.LoOe)
                     }
                 };
             }
@@ -155,7 +157,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                 var queue = await _queueService.EnqueueAsync("SendERPOrder", "lo_oe", dto.LoOe.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
 
                 errors.Add("SendOrder", "lo_oe", dto.LoOe.ToString(),
-                    string.Format(MessageProvider.Get("OrderSentError", UserContext.Language), dto.LoOe, ex.Message + " - " + ex.InnerException), true);
+                    string.Format(MessageProvider.Get("OrderSentError", lang), dto.LoOe, ex.Message + " - " + ex.InnerException), true);
 
                 throw;
             }
@@ -196,7 +198,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                     Data = new ResponseDataDto
                     {
                         StatusCode = ((int)response.StatusCode).ToString(),
-                        Message = string.Format(MessageProvider.Get("InvoiceSent", UserContext.Language), dto.OeInvNumber, dto.LoOe)
+                        Message = string.Format(MessageProvider.Get("InvoiceSent", lang), dto.OeInvNumber, dto.LoOe)
                     }
                 };
             }
@@ -205,7 +207,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                 var queue = await _queueService.EnqueueAsync("SendInvoiceOrder", "oe_id", dto.OeId.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
 
                 errors.Add("SendOrder", "lo_oe", dto.LoOe.ToString(),
-                    string.Format(MessageProvider.Get("InvoiceSentError", UserContext.Language), dto.OeInvNumber, dto.LoOe, ex.Message + " - " + ex.InnerException), true);
+                    string.Format(MessageProvider.Get("InvoiceSentError", lang), dto.OeInvNumber, dto.LoOe, ex.Message + " - " + ex.InnerException), true);
 
                 throw;
             }

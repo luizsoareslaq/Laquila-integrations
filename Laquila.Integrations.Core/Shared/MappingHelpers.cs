@@ -37,8 +37,6 @@ namespace Laquila.Integrations.Core.Shared
                 MaState = dto.MaState,
                 MaLastUpdateApi = DateTime.Now
             };
-        }
-
-        
+        }        
     }
 }

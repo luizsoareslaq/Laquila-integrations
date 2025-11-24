@@ -17,7 +17,7 @@ namespace Laquila.Integrations.Application.Validators
             return loStatus == (int)LoStatusEnum.Separacao
                 || loStatus == (int)LoStatusEnum.Conferencia;
         }
-        
+
         public static bool CanUpdateConfStatus(int loStatus)
         {
             return loStatus == (int)LoStatusEnum.Faturamento;
@@ -25,26 +25,50 @@ namespace Laquila.Integrations.Application.Validators
 
         public static (bool canUpdate, string message) CanUpdateDates(LoadOut entity, PrenotaDatesDTO dto)
         {
-            if (entity.LoStatus == (int)LoStatusEnum.Separacao)
+            switch (entity.LoStatus)
             {
-                if (entity.LoDtIniPicking is null && dto.LoDtIniPicking is null && (dto.LoDtEndPicking.HasValue
-                                                                                || dto.LoDtIniConf.HasValue
-                                                                                || dto.LoDtEndConf.HasValue)
-                 )
-                    return (false, string.Format(MessageProvider.Get("OrderInvalidStatusIniPicking", UserContext.Language), entity.LoOe));
+                case (int)LoStatusEnum.Separacao:
+                    {
+                        if (entity.LoDtIniPicking is null
+                            && dto.LoDtIniPicking is null
+                            && (dto.LoDtEndPicking.HasValue
+                             || dto.LoDtIniConf.HasValue
+                             || dto.LoDtEndConf.HasValue))
+                        {
+                            return (false, string.Format(
+                                MessageProvider.Get("OrderInvalidStatusIniPicking", UserContext.Language),
+                                entity.LoOe));
+                        }
 
+                        if (entity.LoDtEndPicking is null
+                            && dto.LoDtEndPicking is null
+                            && (dto.LoDtIniConf.HasValue || dto.LoDtEndConf.HasValue))
+                        {
+                            return (false, string.Format(
+                                MessageProvider.Get("OrderInvalidStatusEndPicking", UserContext.Language),
+                                entity.LoOe));
+                        }
 
-                if (entity.LoDtEndPicking is null && dto.LoDtEndPicking is null && (dto.LoDtIniConf.HasValue
-                                                || dto.LoDtEndConf.HasValue))
-                    return (false, string.Format(MessageProvider.Get("OrderInvalidStatusEndPicking", UserContext.Language), entity.LoOe));
-            }
-            else if (entity.LoStatus == (int)LoStatusEnum.Conferencia)
-            {
-                if (entity.LoDtIniConf is null && dto.LoDtIniConf is null && dto.LoDtEndConf.HasValue)
-                    return (false, string.Format(MessageProvider.Get("OrderInvalidStatusIniConf", UserContext.Language), entity.LoOe));
+                        break;
+                    }
+
+                case (int)LoStatusEnum.Conferencia:
+                    {
+                        if (entity.LoDtIniConf is null
+                            && dto.LoDtIniConf is null
+                            && dto.LoDtEndConf.HasValue)
+                        {
+                            return (false, string.Format(
+                                MessageProvider.Get("OrderInvalidStatusIniConf", UserContext.Language),
+                                entity.LoOe));
+                        }
+
+                        break;
+                    }
             }
 
             return (true, string.Empty);
         }
+
     }
 }

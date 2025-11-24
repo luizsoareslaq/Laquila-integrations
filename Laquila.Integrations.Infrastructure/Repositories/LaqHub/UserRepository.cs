@@ -12,6 +12,8 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
     public class UserRepository : IUserRepository
     {
         private readonly LaquilaHubContext _context;
+        private readonly string lang = UserContext.Language ?? "en";
+
         public UserRepository(LaquilaHubContext laqHubContext)
         {
             _context = laqHubContext;
@@ -39,7 +41,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
         public async Task<List<LaqApiRoles>> GetRolesAsync()
         {
             var roles = await _context.LaqApiRoles.ToListAsync();
-            return roles ?? throw new NotFoundException(MessageProvider.Get("RolesDatabaseNotFound", UserContext.Language));
+            return roles ?? throw new NotFoundException(MessageProvider.Get("RolesDatabaseNotFound", lang));
         }
 
         public async Task AddUserCompanies(List<LaqApiUserCompanies> userCompanies)
@@ -99,7 +101,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
                             .Include(x => x.UserCompanies).ThenInclude(uc => uc.Company)
                             .Include(x => x.UserIntegrations).ThenInclude(ui => ui.Integration)
                             .Include(x => x.Status)
-                            .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("UsersNotFound", UserContext.Language));
+                            .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("UsersNotFound", lang));
 
             return (items, totalItems);
         }
@@ -112,7 +114,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
                 .Include(x => x.UserIntegrations).ThenInclude(ui => ui.Integration)
                 .Include(x => x.Status)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id) ?? throw new NotFoundException(MessageProvider.Get("UserIdNotFound", UserContext.Language));
+                .FirstOrDefaultAsync(x => x.Id == id) ?? throw new NotFoundException(MessageProvider.Get("UserIdNotFound", lang));
         }
 
         public async Task<LaqApiUsers> UpdateUser(LaqApiUsers entity)
@@ -164,7 +166,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
                             .FirstOrDefaultAsync(x => x.Username == username);
 
             if (user == null)
-                throw new NotFoundException(string.Format(MessageProvider.Get("UsernameNotFound", UserContext.Language), username));
+                throw new NotFoundException(string.Format(MessageProvider.Get("UsernameNotFound", lang), username));
 
             return user;
         }

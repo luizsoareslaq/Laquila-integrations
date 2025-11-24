@@ -13,6 +13,8 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
     {
         protected readonly ErrorCollector errors = new ErrorCollector();
         private readonly LaquilaHubContext _context;
+        private readonly string lang = UserContext.Language ?? "en";
+
         public ApiIntegrationsRepository(LaquilaHubContext context)
         {
             _context = context;
@@ -56,7 +58,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
             .Include(x => x.Status)
             .Include(x => x.IntegrationCompanies).ThenInclude(ic => ic.Company)
             .Include(x => x.UserIntegrations).ThenInclude(ic => ic.User)
-            .FirstOrDefaultAsync() ?? throw new NotFoundException(MessageProvider.Get("IntegrationIDNotFound", UserContext.Language));
+            .FirstOrDefaultAsync() ?? throw new NotFoundException(MessageProvider.Get("IntegrationIDNotFound", lang));
         }
 
         public async Task<(List<LaqApiIntegrations> Data, int DataCount)> GetApiIntegrations(int page, int pageSize, string orderBy, bool ascending)
@@ -78,7 +80,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
                             .Include(x => x.Status)
                             .Include(x => x.IntegrationCompanies).ThenInclude(ic => ic.Company)
                             .Include(x => x.UserIntegrations).ThenInclude(ic => ic.User)
-                            .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("IntegrationsNotFound", UserContext.Language));
+                            .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("IntegrationsNotFound", lang));
 
             return (items, totalItems);
         }
@@ -87,14 +89,14 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
         {
             var urls = await _context.LaqApiUrlIntegrations.Where(x => x.ApiIntegrationId == apiIntegrationId).FirstOrDefaultAsync();
 
-            return urls ?? throw new NotFoundException(MessageProvider.Get("IntegrationsURLIDNotFound", UserContext.Language));
+            return urls ?? throw new NotFoundException(MessageProvider.Get("IntegrationsURLIDNotFound", lang));
         }
 
         public async Task<LaqApiUrlIntegrations> GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(Guid apiIntegrationId, string endpointKey)
         {
             var urls = await _context.LaqApiUrlIntegrations.Where(x => x.ApiIntegrationId == apiIntegrationId && x.EndpointKey == endpointKey).FirstOrDefaultAsync();
             
-            return urls ?? throw new NotFoundException(MessageProvider.Get("IntegrationsURLIDOrEndpointNotFound", UserContext.Language));
+            return urls ?? throw new NotFoundException(MessageProvider.Get("IntegrationsURLIDOrEndpointNotFound", lang));
         }
 
         public Task RemoveJoinedIntegrationTables(List<LaqApiUserIntegrations> userIntegrations, List<LaqApiIntegrationCompanies> integrationCompanies)

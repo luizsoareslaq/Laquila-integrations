@@ -12,6 +12,8 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
     public class CompanyRepository : ICompanyRepository
     {
         private readonly LaquilaHubContext _context;
+        private readonly string lang = UserContext.Language ?? "en";
+
         public CompanyRepository(LaquilaHubContext context)
         {
             _context = context;
@@ -72,7 +74,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
                             .Skip((page - 1) * pageSize)
                             .Take(pageSize)
                             .Include(x => x.Status)
-                            .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("CompaniesNotFound", UserContext.Language));
+                            .ToListAsync() ?? throw new NotFoundException(MessageProvider.Get("CompaniesNotFound", lang));
 
             return (items, totalItems);
         }
@@ -81,7 +83,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.LaqHub
         {
             return await _context.LaqApiCompanies.Where(x => x.Id == id)
                                                 .Include(x => x.Status)
-                                                .FirstOrDefaultAsync() ?? throw new NotFoundException(MessageProvider.Get("CompanyIdNotFound", UserContext.Language));
+                                                .FirstOrDefaultAsync() ?? throw new NotFoundException(MessageProvider.Get("CompanyIdNotFound", lang));
         }
 
         public async Task<bool> CompanyIdExists(Guid id)

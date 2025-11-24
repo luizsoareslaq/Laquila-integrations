@@ -11,6 +11,8 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
     public class Everest30Repository : IEverest30Repository
     {
         private readonly Everest30Context _context;
+        private readonly string lang = UserContext.Language ?? "en";
+
         public Everest30Repository(Everest30Context context)
         {
             _context = context;
@@ -18,7 +20,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
         public async Task<LoadOut> GetLoadOutByLoOe(long loOe)
         {
             var orders = await _context.LoadOut.Where(x => x.LoOe == loOe && x.LoMaCnpjOwner == UserContext.CompanyCnpj).FirstOrDefaultAsync()
-            ?? throw new BadRequestException(MessageProvider.Get("OrderIdNotFound", UserContext.Language));
+            ?? throw new BadRequestException(MessageProvider.Get("OrderIdNotFound", lang));
 
             return orders;
         }
@@ -29,7 +31,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
                                         .Include(x => x.Orders)
                                            .ThenInclude(x => x.LoadOut)
                                         .Where(x => x.Orders.LoadOut.LoOe == loOe && x.Orders.LoadOut.LoMaCnpjOwner == UserContext.CompanyCnpj).ToListAsync()
-                                                ?? throw new BadRequestException(MessageProvider.Get("OrderItemsNotFound", UserContext.Language));
+                                                ?? throw new BadRequestException(MessageProvider.Get("OrderItemsNotFound", lang));
 
             return ordersLine;
         }

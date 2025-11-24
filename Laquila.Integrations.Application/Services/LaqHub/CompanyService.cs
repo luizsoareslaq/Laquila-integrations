@@ -16,6 +16,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
     {
         private readonly ICompanyRepository _companyRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly string lang = UserContext.Language ?? "en";
 
         public CompanyService(ICompanyRepository companyRepository
                             , IUnitOfWork unitOfWork)
@@ -27,7 +28,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
         public async Task<CompanyResponseDTO> CreateCompany(CompanyDTO dto)
         {
             if (await _companyRepository.CompanyDocumentExists(dto.Document))
-                throw new BadRequestException(MessageProvider.Get("CompanyDocumentAlreadyExists", UserContext.Language));
+                throw new BadRequestException(MessageProvider.Get("CompanyDocumentAlreadyExists", lang));
 
             dto.StatusId = 1; // Default to Active
 
@@ -72,10 +73,10 @@ namespace Laquila.Integrations.Application.Services.LaqHub
         public async Task<CompanyResponseDTO> UpdateCompany(Guid id, CompanyDTO dto)
         {
             if (!await _companyRepository.CompanyIdExists(id))
-                throw new NotFoundException(MessageProvider.Get("CompanyIdNotFound", UserContext.Language));
+                throw new NotFoundException(MessageProvider.Get("CompanyIdNotFound", lang));
 
             if (await _companyRepository.CompanyDocumentExistsWithId(dto.Document, id))
-                throw new BadRequestException(MessageProvider.Get("CompanyDocumentAlreadyExists", UserContext.Language));
+                throw new BadRequestException(MessageProvider.Get("CompanyDocumentAlreadyExists", lang));
 
             var company = new LaqApiCompany(dto.ErpCode, dto.CompanyName, dto.Document, dto.StatusId);
             company.Id = id;

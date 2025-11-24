@@ -22,6 +22,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         private readonly IExternalService _externalService;
         protected readonly ErrorCollector errors = new ErrorCollector();
 
+        private readonly string lang = UserContext.Language ?? "en";
 
         public OutboundController(IOrdersService ordersService, IExternalService externalService)
         {
@@ -54,7 +55,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         public async Task<IActionResult> UpdateOrderStatusAsync([FromRoute] long lo_oe, [FromBody] PrenotaDatesDTO dto)
         {
             if (dto.LoDtIniPicking == null && dto.LoDtEndPicking == null && dto.LoDtIniConf == null && dto.LoDtEndConf == null)
-                errors.Add("", "", "", MessageProvider.Get("AtLeastOneDateRequired",UserContext.Language), true);
+                errors.Add("", "", "", MessageProvider.Get("AtLeastOneDateRequired",lang), true);
 
             var response = await _ordersService.UpdateOrderStatusAsync(lo_oe, dto);
 
@@ -67,7 +68,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         public async Task<IActionResult> UpdateRenouncedItemsAsync([FromRoute] long lo_oe, [FromBody] PrenotaRenouncedDTO dto)
         {
             if(dto.Items == null || !dto.Items.Any())
-                errors.Add("", "", "", MessageProvider.Get("AtLeastOneItemRequired",UserContext.Language), true);
+                errors.Add("", "", "", MessageProvider.Get("AtLeastOneItemRequired",lang), true);
 
             var response = await _ordersService.UpdateRenouncedItemsAsync(lo_oe, dto);
 
