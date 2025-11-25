@@ -82,7 +82,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
 
             return (result, totalCount);
         }
-        
+
         public async Task<(IEnumerable<VMWMS_BuscarNotasNaoIntegradas>, int totalCount)> GetNotasOutboundAsync(List<(string loMaCnpjOwner, long oeErpOrder)>? prenotas, int pageSize = 10)
         {
             var query = _db.VMWMS_BuscarNotasNaoIntegradas.AsQueryable();
@@ -97,7 +97,18 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
 
             var result = await query.Take(pageSize).ToListAsync();
 
-            var totalCount = result.Select(x=>x.LoOe).Distinct().Count();
+            var totalCount = result.Select(x => x.LoOe).Distinct().Count();
+
+            return (result, totalCount);
+        }
+
+        public async Task<(IEnumerable<VMWMS_BuscarRecebimentosNaoIntegrados>, int totalCount)> GetReceiveInvoicesAsync(int pageSize = 10)
+        {
+            var query = _db.VMWMS_BuscarRecebimentosNaoIntegrados.AsQueryable();
+
+            var result = await query.Take(pageSize).ToListAsync();
+
+            var totalCount = result.Select(x => x.LiId).Distinct().Count();
 
             return (result, totalCount);
         }
