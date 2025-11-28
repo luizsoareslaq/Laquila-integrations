@@ -27,7 +27,7 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
         }
 
         [Authorize]
-        [HttpGet("/me")]
+        [HttpGet("/api/me")]
         public IActionResult Me()
         {
             var language = User.FindFirst("Language")?.Value;
