@@ -20,6 +20,9 @@ var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 var issuer = Environment.GetEnvironmentVariable("ISSUER");
 var audience = Environment.GetEnvironmentVariable("AUDIENCE");
 
+var connEverest30 = Environment.GetEnvironmentVariable("CONNECTION_STRING_EVEREST30");
+var connLaqHub = Environment.GetEnvironmentVariable("CONNECTION_STRING_LAQUILAHUB");
+
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
 // Services
@@ -110,7 +113,7 @@ builder.Services.AddCors(options =>
 
 // DB Context
 builder.Services.AddDbContext<LaquilaHubContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("LaquilaHubConnection"))
+    options.UseSqlServer(connLaqHub)
 #if DEBUG
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
@@ -118,7 +121,7 @@ builder.Services.AddDbContext<LaquilaHubContext>(options =>
         .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
 builder.Services.AddDbContext<Everest30Context>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Everest30Connection"))
+    options.UseSqlServer(connEverest30)
 #if DEBUG
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()

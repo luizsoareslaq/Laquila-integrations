@@ -36,11 +36,13 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         }
 
         //2.1.1
-        [HttpPost("invoice/{li_id}")]
+        [HttpPost("invoice/{integrationId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> SendInvoiceAsync([FromRoute] long li_id, [FromBody] ReceiveInvoiceDTO dto)
+        public async Task<IActionResult> SendInvoiceAsync([FromBody] ReceiveInvoiceDTO dto, Guid integrationId)
         {
-            return Ok();
+            var response = await _externalService.SendReceiveInvoicesAsync(dto, integrationId);
+
+            return Ok(response);
         }
 
         //2.1.2

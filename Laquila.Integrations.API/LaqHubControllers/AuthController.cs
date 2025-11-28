@@ -30,17 +30,17 @@ namespace Laquila.Integrations.API.Controllers.LaqHubControllers
         [HttpGet("/me")]
         public IActionResult Me()
         {
-            var userId = User.FindFirst("id")?.Value;
-            var nome = User.FindFirst("nome")?.Value;
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            var language = User.FindFirst("Language")?.Value;
+            var name = User.FindFirst("name")?.Value;
+            var companyCnpj = User.FindFirst("CompanyCnpj")?.Value;
             var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
             var isAdmin = roles.Contains("Admin");
 
             return Ok(new
             {
-                IdUsuario = userId,
-                Nome = nome,
-                Email = email,
+                Nome = name,
+                Company= companyCnpj,
+                Language = language,
                 Role = roles,
                 IsAdmin = isAdmin
             });

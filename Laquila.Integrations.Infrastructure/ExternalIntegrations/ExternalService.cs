@@ -3,6 +3,7 @@ using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
 using Laquila.Integrations.Core.Context;
+using Laquila.Integrations.Core.Domain.DTO.Inbound.Invoices.Request;
 using Laquila.Integrations.Core.Domain.DTO.MasterData.Items;
 using Laquila.Integrations.Core.Domain.DTO.MasterData.Mandators.Request;
 using Laquila.Integrations.Core.Domain.DTO.Outbound.Invoices.Request;
@@ -27,7 +28,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
         private readonly IQueueService _queueService;
         private string? IntegrationType;
         private readonly string lang = UserContext.Language ?? "en";
-        
+
         public ExternalService(IApiIntegrationsRepository integrationsRepository
                              , IQueueService queueService)
         {
@@ -67,8 +68,6 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
             catch (Exception ex)
             {
                 //Adicionar envio de email
-
-
                 errors.Add("SendMandators", "error", "ma_code",
                     string.Format(MessageProvider.Get("MandatorsSentError", lang), ex.Message + " - " + ex.InnerException), true);
 
@@ -117,6 +116,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
             }
         }
 
+        //OUTBOUND
         public async Task<ResponseDto> SendOrdersAsync(PrenotaDTO dto, Guid apiIntegrationId)
         {
             IntegrationType = "SendExternalOrders";
@@ -145,9 +145,7 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                 {
                     Data = new ResponseDataDto
                     {
-                        // StatusCode = ((int)response.StatusCode).ToString(),
                         StatusCode = (200).ToString(),
-                        // Message = $"Order sent successfully to external system. ({response.StatusCode})"
                         Message = string.Format(MessageProvider.Get("OrderSent", lang), dto.LoOe)
                     }
                 };
@@ -160,10 +158,10 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
                     string.Format(MessageProvider.Get("OrderSentError", lang), dto.LoOe, ex.Message + " - " + ex.InnerException), true);
 
                 throw;
-            }
-            ;
+            };
         }
 
+        //OUTBOUND
         public async Task<ResponseDto> SendInvoicesAsync(InvoiceDTO dto, Guid apiIntegrationId)
         {
             IntegrationType = "SendExternalInvoices";
@@ -211,6 +209,50 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
 
                 throw;
             }
+        }
+
+        //INBOUND
+        public async Task<ResponseDto> SendReceiveInvoicesAsync(ReceiveInvoiceDTO dto, Guid apiIntegrationId)
+        {
+            IntegrationType = "SendReceiveInvoices";
+
+            var urls = await _integrationsRepository.GetApiUrlIntegrationsByIntegrationIdAndEndpointKeyAsync(apiIntegrationId, IntegrationType);
+
+            RestResponse response = new RestResponse();
+
+            try
+            {
+                // (RestClient client,RestRequest request) = NewRestSharpClient(urls.Url, dto, urls.AuthType);
+
+                // var response = await client.ExecuteAsync(request);
+
+                // if (!response.IsSuccessful)
+                // {
+                // throw new Exception($"Integration failed ({response.StatusCode}): {response.Content}");
+                // }
+
+
+                // Chamar procedure de envio de prenota no EVEREST30
+                var queue = await _queueService.EnqueueAsync("SendReceiveInvoices", "li_id", dto.LiId.ToString(), dto, ApiStatusEnum.Pending, 1, null);
+
+                return new ResponseDto
+                {
+                    Data = new ResponseDataDto
+                    {
+                        StatusCode = "200",
+                        Message = string.Format(MessageProvider.Get("OrderSent", lang), dto.LiId)
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                var queue = await _queueService.EnqueueAsync("SendERPOrder", "lo_oe", dto.LiId.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
+
+                errors.Add("SendOrder", "lo_oe", dto.LiId.ToString(),
+                    string.Format(MessageProvider.Get("OrderSentError", lang), dto.LiId, ex.Message + " - " + ex.InnerException), true);
+
+                throw;
+            };
         }
     }
 }
