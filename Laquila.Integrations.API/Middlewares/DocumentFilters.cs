@@ -54,7 +54,7 @@ public class RoleBasedDocumentFilter : IDocumentFilter
 
         foreach (var desc in context.ApiDescriptions)
         {
-            var path = "/" + desc.RelativePath.TrimEnd('/');
+            var path = "/" + (!string.IsNullOrEmpty(desc.RelativePath) && desc is not null ? desc.RelativePath.TrimEnd('/') : string.Empty);
             var method = desc.HttpMethod?.ToLowerInvariant();
 
             if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(method))
@@ -77,7 +77,7 @@ public class RoleBasedDocumentFilter : IDocumentFilter
 
             if (userRoles.Any(r => requiredRoles.Contains(r)))
             {
-                allowedPaths.Add(path); // tem permissão
+                allowedPaths.Add(path); 
             }
         }
 

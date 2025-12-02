@@ -39,6 +39,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
                 throw new BadRequestException(MessageProvider.Get("PasswordConfirmPasswordNotMatch",lang));
 
             var salt = UserHelper.GenerateSalt();
+            
             var hashedPassword = UserHelper.HashPassword(dto.Password, salt);
 
             var user = new LaqApiUsers(dto.Username, hashedPassword, salt, statusId: 1);

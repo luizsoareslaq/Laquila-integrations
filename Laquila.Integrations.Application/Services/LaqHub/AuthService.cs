@@ -132,6 +132,7 @@ namespace Laquila.Integrations.Application.Services.LaqHub
         public Guid GetIdByJwt()
         {
             var context = _httpContextAccessor.HttpContext;
+
             if (context.Request.Cookies.TryGetValue("jwt", out var token))
             {
                 var tokenHandler = new JwtSecurityTokenHandler();

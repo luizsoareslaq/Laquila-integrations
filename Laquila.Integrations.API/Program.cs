@@ -23,6 +23,10 @@ var audience = Environment.GetEnvironmentVariable("AUDIENCE");
 var connEverest30 = Environment.GetEnvironmentVariable("CONNECTION_STRING_EVEREST30");
 var connLaqHub = Environment.GetEnvironmentVariable("CONNECTION_STRING_LAQUILAHUB");
 
+if(secretKey == null || issuer == null || audience == null)
+    throw new Exception("JWT configuration is missing.");
+
+
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
 // Services
