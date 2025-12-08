@@ -52,8 +52,7 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
             await _db.SaveChangesAsync();
         }
 
-
-        public async Task<List<Mandator>> GetMandatorsByMaCodeAsync(List<int> maCodes)
+        public async Task<List<Mandator>> GetMandatorsByMaCodeAsync(List<long> maCodes)
         {
             var mandators = await _db.Mandator.Where(m => maCodes.Contains(m.MaCode))
                             .AsNoTracking()

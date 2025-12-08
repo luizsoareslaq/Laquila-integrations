@@ -47,7 +47,7 @@ namespace Laquila.Integrations.Domain.Models.Everest30
 
         [Key]
         [Column("MA_CODE")]
-        public int MaCode { get; set; }
+        public long MaCode { get; set; }
 
         [Column("MA_DISTRICT")]
         public string? MaDistrict { get; set; } = null!;

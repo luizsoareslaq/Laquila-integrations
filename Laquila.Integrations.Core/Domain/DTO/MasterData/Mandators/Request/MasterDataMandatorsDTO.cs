@@ -49,7 +49,7 @@ namespace Laquila.Integrations.Core.Domain.DTO.MasterData.Mandators.Request
         public MandatorsType MaType { get; set; }
 
         [JsonPropertyName("ma_code")]
-        public required int MaCode { get; set; }
+        public required long MaCode { get; set; }
 
         [JsonPropertyName("ma_district")]
         public string? MaDistrict { get; set; }

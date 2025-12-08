@@ -12,7 +12,7 @@ namespace Laquila.Integrations.Domain.Interfaces.Repositories.Everest30
         Task InsertItemsAsync(List<Article> items);
         Task UpdateItemsAsync(List<Article> items);
 
-        Task<List<Mandator>> GetMandatorsByMaCodeAsync(List<int> maCodes);
+        Task<List<Mandator>> GetMandatorsByMaCodeAsync(List<long> maCodes);
         Task InsertMandatorsAsync(List<Mandator> mandators);
         Task UpdateMandatorsAsync(List<Mandator> mandators);
     }
