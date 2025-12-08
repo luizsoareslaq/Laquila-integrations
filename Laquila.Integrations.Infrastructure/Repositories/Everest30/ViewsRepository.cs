@@ -76,9 +76,9 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
                         p.oeErpOrder == i.OeErpOrder));
             }
 
-            var result = await query.Take(pageSize).ToListAsync();
+            var totalCount = await query.GroupBy(x => x.LoOe).CountAsync();
 
-            var totalCount = result.Select(x => x.LoOe).Distinct().Count();
+            var result = await query.Take(pageSize).ToListAsync();
 
             return (result, totalCount);
         }
@@ -95,9 +95,9 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
                         p.oeErpOrder == i.OeErpOrder));
             }
 
-            var result = await query.Take(pageSize).ToListAsync();
+            var totalCount = await query.GroupBy(x => x.LoOe).CountAsync();
 
-            var totalCount = result.Select(x => x.LoOe).Distinct().Count();
+            var result = await query.Take(pageSize).ToListAsync();
 
             return (result, totalCount);
         }
@@ -106,9 +106,9 @@ namespace Laquila.Integrations.Infrastructure.Repositories.Everest30
         {
             var query = _db.VMWMS_BuscarRecebimentosNaoIntegrados.AsQueryable();
 
-            var result = await query.Take(pageSize).ToListAsync();
+            var totalCount = await query.GroupBy(x => x.LiId).CountAsync();
 
-            var totalCount = result.Select(x => x.LiId).Distinct().Count();
+            var result = await query.Take(pageSize).ToListAsync();
 
             return (result, totalCount);
         }

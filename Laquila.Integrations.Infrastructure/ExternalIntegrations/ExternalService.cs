@@ -246,9 +246,9 @@ namespace Laquila.Integrations.Infrastructure.ExternalServices
             }
             catch (Exception ex)
             {
-                var queue = await _queueService.EnqueueAsync("SendERPOrder", "lo_oe", dto.LiId.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
+                var queue = await _queueService.EnqueueAsync("SendReceiveInvoices", "lo_oe", dto.LiId.ToString(), response, ApiStatusEnum.Error, 1, ex.Message + " - " + ex.InnerException);
 
-                errors.Add("SendOrder", "lo_oe", dto.LiId.ToString(),
+                errors.Add("SendReceiveInvoices", "lo_oe", dto.LiId.ToString(),
                     string.Format(MessageProvider.Get("OrderSentError", lang), dto.LiId, ex.Message + " - " + ex.InnerException), true);
 
                 throw;

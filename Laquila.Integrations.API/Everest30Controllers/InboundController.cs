@@ -27,7 +27,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet("orders")]
+        [HttpGet("invoices")]
         public async Task<IActionResult> GetReceiveInvoicesAsync([FromQuery] LAQFilters filters)
         {
             var prenotas = await _inboundService.GetUnsentReceiveInvoicesAsync(filters, CancellationToken.None);
@@ -36,7 +36,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         }
 
         //2.1.1
-        [HttpPost("invoice/{integrationId}")]
+        [HttpPost("invoices/{integrationId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SendInvoiceAsync([FromBody] ReceiveInvoiceDTO dto, Guid integrationId)
         {
@@ -46,7 +46,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         }
 
         //2.1.2
-        [HttpPatch("invoice/{li_id}/status")]
+        [HttpPatch("invoices/{li_id}/status")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateInvoiceStatusAsync([FromRoute] long li_id, [FromBody] ReceiveInvoiceDatesDTO dto)
         {
@@ -54,7 +54,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         }
 
         //2.1.3
-        [HttpPatch("invoice/{li_id}/items/receiving")]
+        [HttpPatch("invoices/{li_id}/items/receiving")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateInvoiceItemStatusAsync([FromRoute] long li_id, [FromBody] InvoiceItemStatusDTO dto)
         {
@@ -62,7 +62,7 @@ namespace Laquila.Integrations.API.Controllers.Everest30Controllers
         }
 
         //2.1.4
-        [HttpPut("invoice/{li_id}")]
+        [HttpPut("invoices/{li_id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateInvoiceQualityAssuranceAsync([FromRoute] long li_id, [FromBody] InvoiceQualityAssuranceDTO dto)
         {

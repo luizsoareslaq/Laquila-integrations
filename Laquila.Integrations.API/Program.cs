@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using DotNetEnv;
 using Laquila.Integrations.API.Configurations;
+using Laquila.Integrations.API.Logging;
 using Laquila.Integrations.API.Middlewares;
 using Laquila.Integrations.Core.Infra.Interfaces;
 using Laquila.Integrations.Core.Infra.Repositories;

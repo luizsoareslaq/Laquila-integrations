@@ -1,19 +1,18 @@
 using DotNetEnv;
-using Laquila.Integrations.Application.Services;
 using Laquila.Integrations.Worker;
+using Laquila.Integrations.Worker.Configurations;
 using Laquila.Integrations.Worker.Context;
-using Laquila.Integrations.Worker.Querys;
-using Laquila.Integrations.Worker.Querys.Interfaces;
-using Laquila.Integrations.Worker.Services;
-using Laquila.Integrations.Worker.Services.Interfaces;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 Env.Load();
 
 builder.Services.AddHostedService<Worker>();
-builder.Services.AddScoped<IEverest30Query, Everest30Query>();
-builder.Services.AddScoped<IProcessService, ProcessService>();
+
+//Injeção de dependencias
+builder.Services.AddClients();
+builder.Services.AddQuerys();
+builder.Services.AddServices();
 
 builder.Services.AddSingleton<AuthContext>();
 

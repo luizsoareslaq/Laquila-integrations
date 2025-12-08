@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Channels;
+using Laquila.Integrations.API.Logging;
 using Laquila.Integrations.Application.Helpers;
 using Laquila.Integrations.Application.Interfaces;
 using Laquila.Integrations.Application.Interfaces.LaqHub;
@@ -228,11 +229,5 @@ namespace Laquila.Integrations.API.Middlewares
             var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
             return Convert.ToBase64String(bytes);
         }
-    }
-
-    public static class LogChannel
-    {
-        public static readonly Channel<LaqApiLogs> Channel =
-            System.Threading.Channels.Channel.CreateUnbounded<LaqApiLogs>();
     }
 }

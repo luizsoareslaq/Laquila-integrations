@@ -23,23 +23,21 @@ namespace Laquila.Integrations.Worker.Services
 
         public async Task ProcessAsync(CancellationToken ct)
         {
-            // /**********************************************************
-            // ************************** ITENS **************************
-            // **********************************************************/
-            // var items = await _everestQuery.GetItems(ct, 100);
+            /**********************************************************
+            ************************** ITENS **************************
+            **********************************************************/
+            var items = await _everestQuery.MasterData.GetItemsAsync(ct, 100);
 
-            // if (items?.ItemAttributes?.Count > 0)
-            //     await _everestQuery.SendItems(ct, items, maersk_integration_id);
+            if (items?.ItemAttributes?.Count > 0)
+                await _everestQuery.MasterData.SendItemsAsync(items, maersk_integration_id, ct);
 
+            /**************************************************************
+            ************************** CADASTROS **************************
+            **************************************************************/
+            var cadastros = await _everestQuery.MasterData.GetMandatorsAsync(ct, 100);
 
-            // /**************************************************************
-            // ************************** CADASTROS **************************
-            // **************************************************************/
-            // var cadastros = await _everestQuery.GetMandators(ct, 100);
-
-            // if (cadastros?.Mandators?.Count > 0)
-            //     await _everestQuery.SendMandators(ct, cadastros, maersk_integration_id);
-
+            if (cadastros?.Mandators?.Count > 0)
+                await _everestQuery.MasterData.SendMandatorsAsync(cadastros, maersk_integration_id, ct);
 
             /**************************************************************
             ************************** PRENOTAS ***************************
@@ -51,20 +49,26 @@ namespace Laquila.Integrations.Worker.Services
                 PageSize = 10
             };
 
-            var prenotas = await _everestQuery.GetOrders(filters, ct);
+            var prenotas = await _everestQuery.Outbound.GetOrdersAsync(filters, ct);
 
             if (prenotas.Items.Count() > 0)
             {
                 foreach (var prenota in prenotas.Items)
                 {
-                    var response = await _everestQuery.SendOrders(prenota, ct, maersk_integration_id);
+                    var response = await _everestQuery.Outbound.SendOrdersAsync(prenota, maersk_integration_id, ct);
 
-                    if (response != null &&  response.Errors == null )
+                    if (response != null && response.Errors == null)
                         _logger.LogInformation("Romaneio {0} enviado com sucesso.", prenota.LoOe);
                     else
                         _logger.LogError("Erro ao enviar romaneio {0}.", prenota.LoOe);
                 }
             }
+
+            /**************************************************************
+            ************************ RECEBIMENTOS *************************
+            **************************************************************/
+
+            var invoices = await _everestQuery.Inbound.GetReceiveInvoicesAsync(filters, ct);
 
         }
     }
